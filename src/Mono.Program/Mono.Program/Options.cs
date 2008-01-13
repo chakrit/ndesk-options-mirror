@@ -26,6 +26,9 @@
 // WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+// Compile With:
+//   gmcs -debug+ -d:TEST -langversion:linq -r:System.Core Options.cs
+
 //
 // A Getopt::Long-inspired option parsing library for C#.
 //
@@ -50,6 +53,16 @@
 // The `name' used in the option format string does NOT include any leading
 // option indicator, such as '-', '--', or '/'.  All three of these are
 // permitted/required on any named option.
+//
+// Option bundling is permitted so long as:
+//   - '-' is used to start the option group
+//   - all of the bundled options do not require values
+//   - all of the bundled options are a single character
+//
+// This allows specifying '-a -b -c' as '-abc'.
+//
+// Option processing is disabled by specifying "--".  All options after "--"
+// are returned by Options.Parse() unchanged and unprocessed.
 //
 // Unprocessed options are returned from Options.Parse().
 //
@@ -213,7 +226,7 @@ namespace Mono.Documentation {
 		{
 			TypeConverter c = TypeDescriptor.GetConverter (typeof(T));
 			Action<string> a = delegate (string s) {
-				action ((T) c.ConvertFromString (s));
+				action (s != null ? (T) c.ConvertFromString (s) : default(T));
 			};
 			return Add (options, description, a);
 		}
@@ -231,12 +244,21 @@ namespace Mono.Documentation {
 		}
 
 		static readonly Regex ValueOption = new Regex (
-			@"^(--|-|/)(?<name>[^:=]+)([:=](?<value>.*))?$");
+			@"^(?<flag>--|-|/)(?<name>[^:=]+)([:=](?<value>.*))?$");
 
 		public IEnumerable<string> Parse (IEnumerable<string> options)
 		{
 			Option p = null;
+			bool process = true;
 			foreach (string option in options) {
+				if (option == "--") {
+					process = false;
+					continue;
+				}
+				if (!process) {
+					yield return option;
+					continue;
+				}
 				Match m = ValueOption.Match (option);
 				if (!m.Success) {
 					if (p != null) {
@@ -247,6 +269,7 @@ namespace Mono.Documentation {
 						yield return option;
 				}
 				else {
+					string f = m.Groups ["flag"].Value;
 					string n = m.Groups ["name"].Value;
 					string v = !m.Groups ["value"].Success 
 						? null 
@@ -259,12 +282,23 @@ namespace Mono.Documentation {
 						}
 						// no match; is it a bool option?
 						if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
-								this.options.TryGetValue (n.Substring (0, n.Length-1), out p)) {
+								this.options.TryGetValue (n.Substring (0, n.Length-1), out p2)) {
 							v = n [n.Length-1] == '+' ? n : null;
-							p.Action (v);
+							p2.Action (v);
 							p = null;
 							break;
 						}
+						// is it a bundled option?
+						if (f == "-" && this.options.TryGetValue (n [0].ToString (), out p2)) {
+							int i = 0;
+							do {
+								if (p2.OptionValue != OptionValue.None)
+									throw new InvalidOperationException (
+											string.Format ("Unsupported using bundled option '{0}' that requires a value", n [i]));
+								p2.Action (n);
+							} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out p2));
+						}
+
 						// not a know option; either a value for a previous option
 						if (p != null) {
 							p.Action (option);
@@ -310,41 +344,39 @@ namespace Mono.Documentation {
 
 		const int OptionWidth = 29;
 
-		public void WriteDescriptions (TextWriter o)
+		public void WriteOptionDescriptions (TextWriter o)
 		{
 			foreach (Option p in this) {
 				List<string> names = new List<string> (GetOptionNames (p.Prototypes));
+
 				int written = 0;
-				Write (o, ref written, "  ");
-				for (int i = 0; i < names.Count; ++i) {
-					if (i == 0) {
-						if (names [i].Length == 1) {
-							Write (o, ref written, "-");
-							Write (o, ref written, names [i]);
-						}
-						else {
-							Write (o, ref written, new string (' ', 4));
-							Write (o, ref written, "--");
-							Write (o, ref written, names [i]);
-						}
-					}
-					else {
-						Write (o, ref written, ", --");
-						Write (o, ref written, names [i]);
-					}
-					if (i == names.Count - 1) {
-						if (p.OptionValue == OptionValue.Optional)
-							Write (o, ref written, "[=VALUE]");
-						else if (p.OptionValue == OptionValue.Required)
-							Write (o, ref written, "=VALUE");
-						if (written < OptionWidth)
-							o.Write (new string (' ', OptionWidth - written));
-						else {
-							o.WriteLine ();
-							o.Write (new string (' ', OptionWidth));
-						}
-					}
+				if (names [0].Length == 1) {
+					Write (o, ref written, "  -");
+					Write (o, ref written, names [0]);
 				}
+				else {
+					Write (o, ref written, "      --");
+					Write (o, ref written, names [0]);
+				}
+
+				for (int i = 1; i < names.Count; ++i) {
+					Write (o, ref written, ", ");
+					Write (o, ref written, names [i].Length == 1 ? "-" : "--");
+					Write (o, ref written, names [i]);
+				}
+
+				if (p.OptionValue == OptionValue.Optional)
+					Write (o, ref written, "[=VALUE]");
+				else if (p.OptionValue == OptionValue.Required)
+					Write (o, ref written, "=VALUE");
+
+				if (written < OptionWidth)
+					o.Write (new string (' ', OptionWidth - written));
+				else {
+					o.WriteLine ();
+					o.Write (new string (' ', OptionWidth));
+				}
+
 				o.WriteLine (p.Description);
 			}
 		}
@@ -372,9 +404,6 @@ namespace MonoTests.Mono.Documentation {
 		public override object ConvertFrom (ITypeDescriptorContext context,
 				CultureInfo culture, object value)
 		{
-			if (value == null)
-				return null;
-
 			string v = value as string;
 			if (v != null) {
 				switch (v) {
@@ -397,14 +426,37 @@ namespace MonoTests.Mono.Documentation {
 	}
 
 	class Test {
-		public static void Main ()
+		public static void Main (string[] args)
 		{
-			CheckRequired ();
-			CheckOptional ();
-			CheckBoolean ();
-			CheckMany ();
-			CheckExceptions ();
-			CheckWriteDescriptions ();
+			var tests = new Dictionary<string, Action> () {
+				{ "boolean",      () => CheckBoolean () },
+				{ "bundling",     () => CheckOptionBundling () },
+				{ "descriptions", () => CheckWriteOptionDescriptions () },
+				{ "exceptions",   () => CheckExceptions () },
+				{ "halt",         () => CheckHaltProcessing () },
+				{ "many",         () => CheckMany () },
+				{ "optional",     () => CheckOptional () },
+				{ "required",     () => CheckRequired () },
+			};
+			bool run  = true;
+			bool help = false;
+			var p = new Options () {
+				{ "t|test=", 
+					"Run the specified test.  Valid tests:\n" + new string (' ', 32) +
+						string.Join ("\n" + new string (' ', 32), tests.Keys.OrderBy (s => s).ToArray ()),
+					(v) => { run = false; Console.WriteLine (v); tests [v] (); } },
+				{ "h|?|help", "Show this message and exit", (v) => help = v != null },
+			};
+			p.Parse (args).ToArray ();
+			if (help) {
+				Console.WriteLine ("usage: Options.exe [OPTION]+\n");
+				Console.WriteLine ("Options unit test program.");
+				Console.WriteLine ("Valid options include:");
+				p.WriteOptionDescriptions (Console.Out);
+			} else if (run) {
+				foreach (Action a in tests.Values)
+					a ();
+			}
 		}
 
 		static IEnumerable<string> _ (params string[] a)
@@ -430,20 +482,27 @@ namespace MonoTests.Mono.Documentation {
 		static void CheckOptional ()
 		{
 			string a = null;
-			Foo n = null;
+			int n = -1;
+			Foo f = null;
 			Options p = new Options () {
 				{ "a:", (v) => a = v },
-				{ "n:", (Foo v) => n = v },
+				{ "n:", (int v) => n = v },
+				{ "f:", (Foo v) => f = v },
 			};
 			p.Parse (_("-a=s")).ToArray ();
 			Assert (a, "s");
 			p.Parse (_("-a")).ToArray ();
 			Assert (a, null);
 
-			p.Parse (_("-n", "A")).ToArray ();
-			Assert (n, Foo.A);
+			p.Parse (_("-f", "A")).ToArray ();
+			Assert (f, Foo.A);
+			p.Parse (_("-f")).ToArray ();
+			Assert (f, null);
+
+			p.Parse (_("-n", "42")).ToArray ();
+			Assert (n, 42);
 			p.Parse (_("-n")).ToArray ();
-			Assert (n, null);
+			Assert (n, 0);
 		}
 
 		static void CheckBoolean ()
@@ -505,6 +564,7 @@ namespace MonoTests.Mono.Documentation {
 			string a = null;
 			var p = new Options () {
 				{ "a=", (v) => a = v },
+				{ "c",  (v) => { } },
 			};
 			// missing argument
 			AssertException (typeof(InvalidOperationException), p, 
@@ -516,23 +576,32 @@ namespace MonoTests.Mono.Documentation {
 			AssertException (null, p, 
 				(v) => { v.Parse (_("-a", "-b")).ToArray (); });
 			Assert (a, "-b");
+
+			// try to bundle with an option requiring a value
+			AssertException (typeof(InvalidOperationException), p,
+				(v) => { v.Parse (_("-ca", "value")).ToArray (); });
 		}
 
 		static void AssertException<T> (Type exception, T a, Action<T> action)
 		{
 			Type actual = null;
+			string stack = null;
 			try {
 				action (a);
 			}
 			catch (Exception e) {
 				actual = e.GetType ();
+				if (!object.Equals (actual, exception))
+					stack = e.ToString ();
 			}
-			if (!object.Equals (actual, exception))
+			if (!object.Equals (actual, exception)) {
 				throw new InvalidOperationException (
-					string.Format ("Assertion failed: Expected Exception Type {0}, got {1}.", exception, actual));
+					string.Format ("Assertion failed: Expected Exception Type {0}, got {1}.\n" +
+						"Actual Exception: {2}", exception, actual, stack));
+			}
 		}
 
-		static void CheckWriteDescriptions ()
+		static void CheckWriteOptionDescriptions ()
 		{
 			var p = new Options () {
 				{ "p|indicator-style=", "append / indicator to directories", (v) => {} },
@@ -545,13 +614,40 @@ namespace MonoTests.Mono.Documentation {
 			expected.WriteLine ("  -p, --indicator-style=VALUE");
 			expected.WriteLine ("                             append / indicator to directories");
 			expected.WriteLine ("      --color[=VALUE]        controls color info");
-			expected.WriteLine ("  -h, --?, --help            show help text");
+			expected.WriteLine ("  -h, -?, --help             show help text");
 			expected.WriteLine ("      --version              output version information and exit");
 
 			StringWriter actual = new StringWriter ();
-			p.WriteDescriptions (actual);
+			p.WriteOptionDescriptions (actual);
 
 			Assert (actual.ToString (), expected.ToString ());
+		}
+
+		static void CheckOptionBundling ()
+		{
+			string a, b, c;
+			a = b = c = null;
+			var p = new Options () {
+				{ "a", (v) => a = "a" },
+				{ "b", (v) => b = "b" },
+				{ "c", (v) => c = "c" },
+			};
+			p.Parse (_ ("-abc")).ToArray ();
+			Assert (a, "a");
+			Assert (b, "b");
+			Assert (c, "c");
+		}
+
+		static void CheckHaltProcessing ()
+		{
+			var p = new Options () {
+				{ "a", (v) => {} },
+				{ "b", (v) => {} },
+			};
+			string[] e = p.Parse (_ ("-a", "-b", "--", "-a", "-b")).ToArray ();
+			Assert (e.Length, 2);
+			Assert (e [0], "-a");
+			Assert (e [1], "-b");
 		}
 	}
 }
