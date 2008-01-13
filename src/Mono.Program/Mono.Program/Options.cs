@@ -69,10 +69,9 @@
 // Examples:
 //  int verbose = 0;
 //  Options p = new Options ()
-//    .Add ("v", (v) => ++verbose)
-//    .Add ("name=|value=", (v) => Console.WriteLine (v));
-//  p.Parse (new string[]{"-v", "--v", "/v", "-name=A", "/name", "B", "extra"})
-//    .ToArray ();
+//    .Add ("v", v => ++verbose)
+//    .Add ("name=|value=", v => Console.WriteLine (v));
+//  p.Parse (new string[]{"-v", "--v", "/v", "-name=A", "/name", "B", "extra"});
 //
 // The above would parse the argument string array, and would invoke the
 // lambda expression three times, setting `verbose' to 3 when complete.  
@@ -81,7 +80,7 @@
 //
 // C# 3.0 collection initializers are supported:
 //  var p = new Options () {
-//    { "h|?|help", (v) => ShowHelp () },
+//    { "h|?|help", v => ShowHelp () },
 //  };
 //
 // System.ComponentModel.TypeConverter is also supported, allowing the use of
@@ -99,7 +98,7 @@
 //    disabled if they are followed with '-':
 //      string a = null;
 //      var p = new Options () {
-//        { "a", (s) => a = s },
+//        { "a", s => a = s },
 //      };
 //      p.Parse (new string[]{"-a"});   // sets v != null
 //      p.Parse (new string[]{"-a+"});  // sets v != null
@@ -113,6 +112,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 #if TEST
@@ -135,8 +135,14 @@ namespace Mono.Documentation {
 
 		public Option (string prototype, string description, Action<string> action)
 		{
-			this.prototype = prototype;
-			this.prototypes = prototype.Split ('|');
+			if (prototype == null)
+				throw new ArgumentNullException ("prototype");
+			if (prototype.Length == 0)
+				throw new ArgumentException ("Cannot be the empty string.", "prototype");
+			if (action == null)
+				throw new ArgumentNullException ("action");
+			this.prototype   = prototype;
+			this.prototypes  = prototype.Split ('|');
 			this.description = description;
 			this.action = action;
 			this.type = GetOptionValue ();
@@ -163,6 +169,39 @@ namespace Mono.Documentation {
 		public override string ToString ()
 		{
 			return Prototype;
+		}
+	}
+
+	[Serializable]
+	public class OptionException : Exception {
+		private string option;
+
+		public OptionException (string messageFormat, string optionName)
+			: base (string.Format (messageFormat, optionName))
+		{
+			this.option = optionName;
+		}
+
+		public OptionException (string messageFormat, string optionName, Exception innerException)
+			: base (string.Format (messageFormat, optionName), innerException)
+		{
+			this.option = optionName;
+		}
+
+		protected OptionException (SerializationInfo info, StreamingContext context)
+			: base (info, context)
+		{
+			this.option = info.GetString ("OptionName");
+		}
+
+		public string OptionName {
+			get {return this.option;}
+		}
+
+		public override void GetObjectData (SerializationInfo info, StreamingContext context)
+		{
+			base.GetObjectData (info, context);
+			info.AddValue ("OptionName", option);
 		}
 	}
 
@@ -246,27 +285,30 @@ namespace Mono.Documentation {
 		static readonly Regex ValueOption = new Regex (
 			@"^(?<flag>--|-|/)(?<name>[^:=]+)([:=](?<value>.*))?$");
 
-		public IEnumerable<string> Parse (IEnumerable<string> options)
+		public List<string> Parse (IEnumerable<string> options)
 		{
-			Option p = null;
+			Option prev = null;
+			string prevOption = null;
 			bool process = true;
+			List<string> unprocessed = new List<string> ();
 			foreach (string option in options) {
 				if (option == "--") {
 					process = false;
 					continue;
 				}
 				if (!process) {
-					yield return option;
+					unprocessed.Add (option);
 					continue;
 				}
 				Match m = ValueOption.Match (option);
 				if (!m.Success) {
-					if (p != null) {
-						p.Action (option);
-						p = null;
+					if (prev != null) {
+						prev.Action (option);
+						prev = null;
+						prevOption = null;
 					}
 					else
-						yield return option;
+						unprocessed.Add (option);
 				}
 				else {
 					string f = m.Groups ["flag"].Value;
@@ -275,71 +317,81 @@ namespace Mono.Documentation {
 						? null 
 						: m.Groups ["value"].Value;
 					do {
-						Option p2;
-						if (this.options.TryGetValue (n, out p2)) {
-							p = p2;
+						Option p;
+						if (this.options.TryGetValue (n, out p)) {
+							if (prev != null) {
+								throw new OptionException (
+										string.Format (
+											"The value '{0}' cannot be used as the required value for option '{{0}}'.", 
+											option), 
+										prevOption);
+							}
+							prev = p;
+							prevOption = option;
 							break;
 						}
 						// no match; is it a bool option?
 						if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
-								this.options.TryGetValue (n.Substring (0, n.Length-1), out p2)) {
+								this.options.TryGetValue (n.Substring (0, n.Length-1), out p)) {
+							NoValue (ref prev, ref prevOption);
 							v = n [n.Length-1] == '+' ? n : null;
-							p2.Action (v);
-							p = null;
+							p.Action (v);
 							break;
 						}
 						// is it a bundled option?
-						if (f == "-" && this.options.TryGetValue (n [0].ToString (), out p2)) {
+						if (f == "-" && this.options.TryGetValue (n [0].ToString (), out p)) {
+							NoValue (ref prev, ref prevOption);
 							int i = 0;
 							do {
-								if (p2.OptionValue != OptionValue.None)
-									throw new InvalidOperationException (
-											string.Format ("Unsupported using bundled option '{0}' that requires a value", n [i]));
-								p2.Action (n);
-							} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out p2));
+								if (p.OptionValue != OptionValue.None)
+									throw new OptionException ("Cannot bundle option '{0}' that requires a value.", 
+											"-" + n [i].ToString ());
+								p.Action (n);
+							} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out p));
 						}
 
 						// not a know option; either a value for a previous option
-						if (p != null) {
-							p.Action (option);
-							p = null;
+						if (prev != null) {
+							prev.Action (option);
+							prev = null;
 						}
 						// or a stand-alone argument
 						else
-							yield return option;
+							unprocessed.Add (option);
 					} while (false);
-					if (p != null) {
-						switch (p.OptionValue) {
+					if (prev != null) {
+						switch (prev.OptionValue) {
 							case OptionValue.None:
-								p.Action (n);
-								p = null;
+								prev.Action (n);
+								prev = null;
 								break;
 							case OptionValue.Optional:
 							case OptionValue.Required: 
 								if (v != null) {
-									p.Action (v);
-									p = null;
+									prev.Action (v);
+									prev = null;
 								}
 								break;
 						}
 					}
 				}
 			}
-			if (p != null) {
-				NoValue (ref p, "");
+			if (prev != null) {
+				NoValue (ref prev, ref prevOption);
 			}
+			return unprocessed;
 		}
 
-		static void NoValue (ref Option p, string option)
+		static void NoValue (ref Option p, ref string option)
 		{
 			if (p != null && p.OptionValue == OptionValue.Optional) {
 				p.Action (null);
 				p = null;
 			}
 			else if (p != null && p.OptionValue == OptionValue.Required) {
-				throw new InvalidOperationException ("Expecting value after option " + 
-					p.Prototype + ", found " + option);
+				throw new OptionException ("Missing required value for option '{0}'.", option);
 			}
+			option = null;
 		}
 
 		const int OptionWidth = 29;
@@ -444,10 +496,10 @@ namespace MonoTests.Mono.Documentation {
 				{ "t|test=", 
 					"Run the specified test.  Valid tests:\n" + new string (' ', 32) +
 						string.Join ("\n" + new string (' ', 32), tests.Keys.OrderBy (s => s).ToArray ()),
-					(v) => { run = false; Console.WriteLine (v); tests [v] (); } },
+					v => { run = false; Console.WriteLine (v); tests [v] (); } },
 				{ "h|?|help", "Show this message and exit", (v) => help = v != null },
 			};
-			p.Parse (args).ToArray ();
+			p.Parse (args);
 			if (help) {
 				Console.WriteLine ("usage: Options.exe [OPTION]+\n");
 				Console.WriteLine ("Options unit test program.");
@@ -469,14 +521,19 @@ namespace MonoTests.Mono.Documentation {
 			string a = null;
 			int n = 0;
 			Options p = new Options () {
-				{ "a=", (v) => a = v },
+				{ "a=", v => a = v },
 				{ "n=", (int v) => n = v },
 			};
-			string[] extra = p.Parse (_("a", "-a", "s", "-n=42", "n")).ToArray ();
+			List<string> extra = p.Parse (_("a", "-a", "s", "-n=42", "n"));
+			Assert (extra.Count, 2);
 			Assert (extra [0], "a");
 			Assert (extra [1], "n");
 			Assert (a, "s");
 			Assert (n, 42);
+
+			extra = p.Parse (_("-a="));
+			Assert (extra.Count, 0);
+			Assert (a, "");
 		}
 
 		static void CheckOptional ()
@@ -485,23 +542,25 @@ namespace MonoTests.Mono.Documentation {
 			int n = -1;
 			Foo f = null;
 			Options p = new Options () {
-				{ "a:", (v) => a = v },
+				{ "a:", v => a = v },
 				{ "n:", (int v) => n = v },
 				{ "f:", (Foo v) => f = v },
 			};
-			p.Parse (_("-a=s")).ToArray ();
+			p.Parse (_("-a=s"));
 			Assert (a, "s");
-			p.Parse (_("-a")).ToArray ();
+			p.Parse (_("-a"));
 			Assert (a, null);
+			p.Parse (_("-a="));
+			Assert (a, "");
 
-			p.Parse (_("-f", "A")).ToArray ();
+			p.Parse (_("-f", "A"));
 			Assert (f, Foo.A);
-			p.Parse (_("-f")).ToArray ();
+			p.Parse (_("-f"));
 			Assert (f, null);
 
-			p.Parse (_("-n", "42")).ToArray ();
+			p.Parse (_("-n", "42"));
 			Assert (n, 42);
-			p.Parse (_("-n")).ToArray ();
+			p.Parse (_("-n"));
 			Assert (n, 0);
 		}
 
@@ -509,13 +568,13 @@ namespace MonoTests.Mono.Documentation {
 		{
 			bool a = false;
 			Options p = new Options () {
-				{ "a", (v) => a = v != null },
+				{ "a", v => a = v != null },
 			};
-			p.Parse (_("-a")).ToArray ();
+			p.Parse (_("-a"));
 			Assert (a, true);
-			p.Parse (_("-a+")).ToArray ();
+			p.Parse (_("-a+"));
 			Assert (a, true);
-			p.Parse (_("-a-")).ToArray ();
+			p.Parse (_("-a-"));
 			Assert (a, false);
 		}
 
@@ -527,20 +586,20 @@ namespace MonoTests.Mono.Documentation {
 			int help = 0;
 			int verbose = 0;
 			Options p = new Options () {
-				{ "a=", (v) => { a = 1; av = v; } },
-				{ "b", "desc", (v) => {b = 2; bv = v;} },
+				{ "a=", v => { a = 1; av = v; } },
+				{ "b", "desc", v => {b = 2; bv = v;} },
 				{ "f=", (Foo v) => f = v },
-				{ "v", (v) => { ++verbose; } },
+				{ "v", v => { ++verbose; } },
 				{ "h|?|help", (v) => { switch (v) {
 					case "h": help |= 0x1; break; 
 					case "?": help |= 0x2; break;
 					case "help": help |= 0x4; break;
 				} } },
 			};
-			string[] e = p.Parse (new string[]{"foo", "-v", "-a=42", "/b-",
-				"-a", "64", "bar", "--f", "B", "/h", "-?", "--help", "-v"}).ToArray ();
+			List<string> e = p.Parse (new string[]{"foo", "-v", "-a=42", "/b-",
+				"-a", "64", "bar", "--f", "B", "/h", "-?", "--help", "-v"});
 
-			Assert (e.Length, 2);
+			Assert (e.Count, 2);
 			Assert (e[0], "foo");
 			Assert (e[1], "bar");
 			Assert (a, 1);
@@ -563,51 +622,70 @@ namespace MonoTests.Mono.Documentation {
 		{
 			string a = null;
 			var p = new Options () {
-				{ "a=", (v) => a = v },
-				{ "c",  (v) => { } },
+				{ "a=", v => a = v },
+				{ "c",  v => { } },
 			};
 			// missing argument
-			AssertException (typeof(InvalidOperationException), p, 
-				(v) => { v.Parse (_("-a")).ToArray (); });
+			AssertException (typeof(OptionException), 
+					"Missing required value for option '-a'.", 
+					p, v => { v.Parse (_("-a")); });
 			// another named option while expecting one
-			AssertException (typeof(InvalidOperationException), p, 
-				(v) => { v.Parse (_("-a", "-a")).ToArray (); });
+			AssertException (typeof(OptionException), 
+					"The value '-a' cannot be used as the required value for option '-a'.",
+					p, v => { v.Parse (_("-a", "-a")); });
 			// no exception when an unregistered named option follows.
-			AssertException (null, p, 
-				(v) => { v.Parse (_("-a", "-b")).ToArray (); });
+			AssertException (null, null, 
+					p, v => { v.Parse (_("-a", "-b")); });
 			Assert (a, "-b");
 
 			// try to bundle with an option requiring a value
-			AssertException (typeof(InvalidOperationException), p,
-				(v) => { v.Parse (_("-ca", "value")).ToArray (); });
+			AssertException (typeof(OptionException), 
+					"Cannot bundle option '-a' that requires a value.", 
+					p, v => { v.Parse (_("-ca", "value")); });
+
+			AssertException (typeof(ArgumentNullException), 
+					"Argument cannot be null.\nParameter name: prototype", 
+					p, v => { new Option (null, null, null); });
+			AssertException (typeof(ArgumentException), 
+					"Cannot be the empty string.\nParameter name: prototype",
+					p, v => { new Option ("", null, null); });
+			AssertException (typeof(ArgumentNullException), 
+					"Argument cannot be null.\nParameter name: action",
+					p, v => { new Option ("p", null, null); });
 		}
 
-		static void AssertException<T> (Type exception, T a, Action<T> action)
+		static void AssertException<T> (Type exception, string message, T a, Action<T> action)
 		{
-			Type actual = null;
+			Type actualType = null;
 			string stack = null;
+			string actualMessage = null;
 			try {
 				action (a);
 			}
 			catch (Exception e) {
-				actual = e.GetType ();
-				if (!object.Equals (actual, exception))
+				actualType    = e.GetType ();
+				actualMessage = e.Message;
+				if (!object.Equals (actualType, exception))
 					stack = e.ToString ();
 			}
-			if (!object.Equals (actual, exception)) {
+			if (!object.Equals (actualType, exception)) {
 				throw new InvalidOperationException (
 					string.Format ("Assertion failed: Expected Exception Type {0}, got {1}.\n" +
-						"Actual Exception: {2}", exception, actual, stack));
+						"Actual Exception: {2}", exception, actualType, stack));
 			}
+			if (!object.Equals (actualMessage, message))
+				throw new InvalidOperationException (
+					string.Format ("Assertion failed:\n\tExpected: {0}\n\t  Actual: {1}",
+						message, actualMessage));
 		}
 
 		static void CheckWriteOptionDescriptions ()
 		{
 			var p = new Options () {
-				{ "p|indicator-style=", "append / indicator to directories", (v) => {} },
-				{ "color:", "controls color info", (v) => {} },
-				{ "h|?|help", "show help text", (v) => {} },
-				{ "version", "output version information and exit", (v) => {} },
+				{ "p|indicator-style=", "append / indicator to directories", v => {} },
+				{ "color:", "controls color info", v => {} },
+				{ "h|?|help", "show help text", v => {} },
+				{ "version", "output version information and exit", v => {} },
 			};
 
 			StringWriter expected = new StringWriter ();
@@ -628,11 +706,11 @@ namespace MonoTests.Mono.Documentation {
 			string a, b, c;
 			a = b = c = null;
 			var p = new Options () {
-				{ "a", (v) => a = "a" },
-				{ "b", (v) => b = "b" },
-				{ "c", (v) => c = "c" },
+				{ "a", v => a = "a" },
+				{ "b", v => b = "b" },
+				{ "c", v => c = "c" },
 			};
-			p.Parse (_ ("-abc")).ToArray ();
+			p.Parse (_ ("-abc"));
 			Assert (a, "a");
 			Assert (b, "b");
 			Assert (c, "c");
@@ -641,11 +719,11 @@ namespace MonoTests.Mono.Documentation {
 		static void CheckHaltProcessing ()
 		{
 			var p = new Options () {
-				{ "a", (v) => {} },
-				{ "b", (v) => {} },
+				{ "a", v => {} },
+				{ "b", v => {} },
 			};
-			string[] e = p.Parse (_ ("-a", "-b", "--", "-a", "-b")).ToArray ();
-			Assert (e.Length, 2);
+			List<string> e = p.Parse (_ ("-a", "-b", "--", "-a", "-b"));
+			Assert (e.Count, 2);
 			Assert (e [0], "-a");
 			Assert (e [1], "-b");
 		}
