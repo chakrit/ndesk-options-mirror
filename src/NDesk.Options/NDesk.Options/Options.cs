@@ -33,7 +33,7 @@
 //
 // A Getopt::Long-inspired option parsing library for C#.
 //
-// Mono.Documentation.Options is built upon a key/value table, where the
+// NDesk.Options.OptionSet is built upon a key/value table, where the
 // key is a option format string and the value is an Action<string>
 // delegate that is invoked when the format string is matched.
 //
@@ -63,13 +63,13 @@
 // This allows specifying '-a -b -c' as '-abc'.
 //
 // Option processing is disabled by specifying "--".  All options after "--"
-// are returned by Options.Parse() unchanged and unprocessed.
+// are returned by OptionSet.Parse() unchanged and unprocessed.
 //
-// Unprocessed options are returned from Options.Parse().
+// Unprocessed options are returned from OptionSet.Parse().
 //
 // Examples:
 //  int verbose = 0;
-//  Options p = new Options ()
+//  OptionSet p = new OptionSet ()
 //    .Add ("v", v => ++verbose)
 //    .Add ("name=|value=", v => Console.WriteLine (v));
 //  p.Parse (new string[]{"-v", "--v", "/v", "-name=A", "/name", "B", "extra"});
@@ -80,7 +80,7 @@
 // The returned arrray would contain the string "extra".
 //
 // C# 3.0 collection initializers are supported:
-//  var p = new Options () {
+//  var p = new OptionSet () {
 //    { "h|?|help", v => ShowHelp () },
 //  };
 //
@@ -89,7 +89,7 @@
 // is used to convert the value option to an instance of the specified
 // type:
 //
-//  var p = new Options () {
+//  var p = new OptionSet () {
 //    { "foo=", (Foo f) => Console.WriteLine (f.ToString ()) },
 //  };
 //
@@ -98,7 +98,7 @@
 //    are explicitly enabled if they are followed with '+', and explicitly
 //    disabled if they are followed with '-':
 //      string a = null;
-//      var p = new Options () {
+//      var p = new OptionSet () {
 //        { "a", s => a = s },
 //      };
 //      p.Parse (new string[]{"-a"});   // sets v != null
@@ -121,20 +121,22 @@ using System.Linq;
 #endif
 
 #if TEST
-using Mono.Documentation;
+using NDesk.Options;
 #endif
-
-namespace Mono.Documentation {
 
 #if !LINQ
+namespace System {
 	public delegate TResult Func<T1,T2,TResult> (T1 a, T2 b);
 	public delegate void Action<T1,T2> (T1 a, T2 b);
+}
 #endif
 
-	enum OptionValue {
+namespace NDesk.Options {
+
+	public enum OptionValueType {
 		None, 
 		Optional,
-		Required
+		Required,
 	}
 
 	public class OptionContext {
@@ -142,49 +144,48 @@ namespace Mono.Documentation {
 		{
 		}
 
+		public Option Option { get; set; }
 		public string OptionName { get; set; }
 		public int    OptionIndex { get; set; }
 		public string OptionValue { get; set; }
 	}
 
-	public class Option {
+	public abstract class Option {
 		string prototype, description;
-		Action<string, OptionContext> action;
 		string[] prototypes;
-		OptionValue type;
+		OptionValueType type;
 
-		public Option (string prototype, string description, Action<string, OptionContext> action)
+		public Option (string prototype, string description)
 		{
 			if (prototype == null)
 				throw new ArgumentNullException ("prototype");
 			if (prototype.Length == 0)
 				throw new ArgumentException ("Cannot be the empty string.", "prototype");
-			if (action == null)
-				throw new ArgumentNullException ("action");
+
 			this.prototype   = prototype;
 			this.prototypes  = prototype.Split ('|');
 			this.description = description;
-			this.action = action;
-			this.type = GetOptionValue ();
+			this.type        = GetOptionValueType ();
 		}
 
 		public string Prototype { get { return prototype; } }
 		public string Description { get { return description; } }
-		public Action<string, OptionContext> Action { get { return action; } }
+		public OptionValueType OptionValueType { get { return type; } }
 
 		internal string[] Prototypes { get { return prototypes; } }
-		internal OptionValue OptionValue { get { return type; } }
 
-		OptionValue GetOptionValue ()
+		private OptionValueType GetOptionValueType ()
 		{
 			foreach (string n in Prototypes) {
 				if (n.IndexOf ('=') >= 0)
-					return OptionValue.Required;
+					return OptionValueType.Required;
 				if (n.IndexOf (':') >= 0)
-					return OptionValue.Optional;
+					return OptionValueType.Optional;
 			}
-			return OptionValue.None;
+			return OptionValueType.None;
 		}
+
+		public abstract void Invoke (OptionContext c);
 
 		public override string ToString ()
 		{
@@ -225,14 +226,14 @@ namespace Mono.Documentation {
 		}
 	}
 
-	public class Options : Collection<Option>
+	public class OptionSet : Collection<Option>
 	{
-		public Options ()
+		public OptionSet ()
 			: this ((f,a) => string.Format (f, a))
 		{
 		}
 
-		public Options (Func<string, string[], string> localizer)
+		public OptionSet (Func<string, string[], string> localizer)
 		{
 			this.localizer = localizer;
 		}
@@ -267,52 +268,83 @@ namespace Mono.Documentation {
 			base.SetItem (index, item);
 		}
 
-		public new Options Add (Option option)
+		class ActionOption : Option {
+			Action<string, OptionContext> action;
+
+			public ActionOption (string prototype, string description, Action<string, OptionContext> action)
+				: base (prototype, description)
+			{
+				if (action == null)
+					throw new ArgumentNullException ("action");
+				this.action = action;
+			}
+
+			public override void Invoke (OptionContext c)
+			{
+				action (c.OptionValue, c);
+
+				c.OptionName  = null;
+				c.OptionValue = null;
+				c.Option      = null;
+			}
+		}
+
+		public new OptionSet Add (Option option)
 		{
-			foreach (string name in GetOptionNames (option.Prototypes)) {
-				this.options.Add (name, option);
+			List<string> added = new List<string> ();
+			try {
+				foreach (string name in GetOptionNames (option.Prototypes)) {
+					this.options.Add (name, option);
+				}
+			}
+			catch (Exception e) {
+				foreach (string name in added)
+					this.options.Remove (name);
+				throw;
 			}
 			return this;
 		}
 
-		public Options Add (string options, Action<string> action)
+		public OptionSet Add (string options, Action<string> action)
 		{
 			return Add (options, null, action);
 		}
 
-		public Options Add (string options, Action<string, OptionContext> action)
+		public OptionSet Add (string options, Action<string, OptionContext> action)
 		{
 			return Add (options, null, action);
 		}
 
-		public Options Add (string options, string description, Action<string> action)
+		public OptionSet Add (string options, string description, Action<string> action)
 		{
+			if (action == null)
+				throw new ArgumentNullException ("action");
 			return Add (options, description, (v,c) => {action (v);});
 		}
 
-		public Options Add (string options, string description, Action<string, OptionContext> action)
+		public OptionSet Add (string options, string description, Action<string, OptionContext> action)
 		{
-			Option p = new Option (options, description, action);
+			Option p = new ActionOption (options, description, action);
 			base.Add (p);
 			return this;
 		}
 
-		public Options Add<T> (string options, Action<T> action)
+		public OptionSet Add<T> (string options, Action<T> action)
 		{
 			return Add (options, null, action);
 		}
 
-		public Options Add<T> (string options, Action<T, OptionContext> action)
+		public OptionSet Add<T> (string options, Action<T, OptionContext> action)
 		{
 			return Add (options, null, action);
 		}
 
-		public Options Add<T> (string options, string description, Action<T> action)
+		public OptionSet Add<T> (string options, string description, Action<T> action)
 		{
 			return Add (options, description, (T v, OptionContext c) => {action (v);});
 		}
 
-		public Options Add<T> (string options, string description, Action<T, OptionContext> action)
+		public OptionSet Add<T> (string options, string description, Action<T, OptionContext> action)
 		{
 			TypeConverter conv = TypeDescriptor.GetConverter (typeof(T));
 			Action<string, OptionContext> a = delegate (string s, OptionContext c) {
@@ -344,38 +376,33 @@ namespace Mono.Documentation {
 			}
 		}
 
-		static readonly Regex ValueOption = new Regex (
-			@"^(?<flag>--|-|/)(?<name>[^:=]+)([:=](?<value>.*))?$");
+		protected virtual OptionContext CreateOptionContext ()
+		{
+			return new OptionContext ();
+		}
 
 #if LINQ
 		public List<string> Parse (IEnumerable<string> options)
 		{
-			Option prev = null;
 			bool process = true;
-			OptionContext c = new OptionContext ();
-			Match m;
+			OptionContext c = CreateOptionContext ();
 			var unprocessed = 
 				from option in options
 				where ++c.OptionIndex > 0 && process 
 					? option == "--" 
 						? (process = false)
-						: prev != null 
-							? ((Func<string,bool>) (o => {c.OptionValue = o; prev.Action (o, c); prev = null; return false;}))(option)
-							: (m = ValueOption.Match (option)).Success
-								? !Parse (option, m, c, ref prev)
-								: true
+						: !Parse (option, c)
 					: true
 				select option;
 			List<string> r = unprocessed.ToList ();
-			if (prev != null)
-				NoValue (c, ref prev);
+			if (c.Option != null)
+				NoValue (c);
 			return r;
 		}
 #else
 		public List<string> Parse (IEnumerable<string> options)
 		{
-			Option prev = null;
-			OptionContext c = new OptionContext ();
+			OptionContext c = CreateOptionContext ();
 			bool process = true;
 			List<string> unprocessed = new List<string> ();
 			foreach (string option in options) {
@@ -388,99 +415,122 @@ namespace Mono.Documentation {
 					unprocessed.Add (option);
 					continue;
 				}
-				if (prev != null) {
-					c.OptionValue = option;
-					prev.Action (option, c);
-					prev = null;
-					continue;
-				}
-				Match m = ValueOption.Match (option);
-				if (!m.Success) {
-					unprocessed.Add (option);
-					continue;
-				}
-				if (!Parse (option, m, c, ref prev))
+				if (!Parse (option, c))
 					unprocessed.Add (option);
 			}
-			if (prev != null)
-				NoValue (c, ref prev);
+			if (c.Option != null)
+				NoValue (c);
 			return unprocessed;
 		}
 #endif
 
-		private bool Parse (string option, Match m, OptionContext c, ref Option prev)
+		private static readonly Regex ValueOption = new Regex (
+			@"^(?<flag>--|-|/)(?<name>[^:=]+)([:=](?<value>.*))?$");
+
+		protected bool GetOptionParts (string option, out string flag, out string name, out string value)
 		{
-			string f = m.Groups ["flag"].Value;
-			string n = m.Groups ["name"].Value;
-			string v = !m.Groups ["value"].Success 
-				? null 
-				: m.Groups ["value"].Value;
-			do {
-				if (this.options.TryGetValue (n, out prev)) {
-					c.OptionName = option;
-					break;
-				}
-				// no match; is it a bool option?
-				if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
-						this.options.TryGetValue (n.Substring (0, n.Length-1), out prev)) {
-					v = n [n.Length-1] == '+' ? n : null;
-					c.OptionName  = option;
-					c.OptionValue = v;
-					prev.Action (v, c);
-					prev = null;
-					break;
-				}
-				// is it a bundled option?
-				if (f == "-" && this.options.TryGetValue (n [0].ToString (), out prev)) {
-					int i = 0;
-					do {
-						string opt = "-" + n [i].ToString ();
-						if (prev.OptionValue != OptionValue.None) {
-							throw new OptionException (
-									localizer ("Cannot bundle option '{0}' that requires a value.", new string[]{opt}), 
-									opt);
-						}
-						c.OptionName = opt;
-						prev.Action (n, c);
-					} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out prev));
-					prev = null;
-				}
-				else
-					return false;
-			} while (false);
-			if (prev != null) {
-				switch (prev.OptionValue) {
-					case OptionValue.None:
-						c.OptionValue = null;
-						prev.Action (n, c);
-						prev = null;
-						break;
-					case OptionValue.Optional:
-					case OptionValue.Required: 
-						if (v != null) {
-							c.OptionValue = v;
-							prev.Action (v, c);
-							prev = null;
-						}
-						break;
-				}
+			Match m = ValueOption.Match (option);
+			if (!m.Success) {
+				flag = name = value = null;
+				return false;
 			}
+			flag  = m.Groups ["flag"].Value;
+			name  = m.Groups ["name"].Value;
+			value = !m.Groups ["value"].Success ? null : m.Groups ["value"].Value;
 			return true;
 		}
 
-		private void NoValue (OptionContext c, ref Option p)
+		protected virtual bool Parse (string option, OptionContext c)
+		{
+			if (c.Option != null) {
+				c.OptionValue = option;
+				c.Option.Invoke (c);
+				return true;
+			}
+
+			string f, n, v;
+			if (!GetOptionParts (option, out f, out n, out v))
+				return false;
+
+			do {
+				Option p;
+				if (this.options.TryGetValue (n, out p)) {
+					c.OptionName = f + n;
+					c.Option     = p;
+					switch (p.OptionValueType) {
+						case OptionValueType.None:
+							c.OptionValue = n;
+							c.Option.Invoke (c);
+							break;
+						case OptionValueType.Optional:
+						case OptionValueType.Required: 
+							if (v != null) {
+								c.OptionValue = v;
+								c.Option.Invoke (c);
+							}
+							break;
+					}
+					return true;
+				}
+				// no match; is it a bool option?
+				if (ParseBool (option, n, c))
+					return true;
+				// is it a bundled option?
+				if (ParseBundled (f, n, c))
+					return true;
+			} while (false);
+			return false;
+		}
+
+		private bool ParseBool (string option, string n, OptionContext c)
+		{
+			Option p;
+			if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
+					this.options.TryGetValue (n.Substring (0, n.Length-1), out p)) {
+				string v = n [n.Length-1] == '+' ? n : null;
+				c.OptionName  = option;
+				c.OptionValue = v;
+				c.Option      = p;
+				p.Invoke (c);
+				return true;
+			}
+			return false;
+		}
+
+		private bool ParseBundled (string f, string n, OptionContext c)
+		{
+			Option p;
+			if (f == "-" && this.options.TryGetValue (n [0].ToString (), out p)) {
+				int i = 0;
+				do {
+					string opt = "-" + n [i].ToString ();
+					if (p.OptionValueType != OptionValueType.None) {
+						throw new OptionException (
+								localizer ("Cannot bundle option '{0}' that requires a value.", new string[]{opt}), 
+								opt);
+					}
+					c.OptionName  = opt;
+					c.OptionValue = n;
+					c.Option      = p;
+					p.Invoke (c);
+				} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out p));
+				return true;
+			}
+			return false;
+		}
+
+		private void NoValue (OptionContext c)
 		{
 			c.OptionValue = null;
-			if (p != null && p.OptionValue == OptionValue.Optional) {
-				p.Action (null, c);
-				p = null;
+			Option p = c.Option;
+			if (p != null && p.OptionValueType == OptionValueType.Optional) {
+				p.Invoke (c);
 			}
-			else if (p != null && p.OptionValue == OptionValue.Required) {
+			else if (p != null && p.OptionValueType == OptionValueType.Required) {
 				throw new OptionException (
 						localizer ("Missing required value for option '{0}'.", new string[]{c.OptionName}), 
 						c.OptionName);
 			}
-			c.OptionName = null;
 		}
 
 		private const int OptionWidth = 29;
@@ -506,9 +556,9 @@ namespace Mono.Documentation {
 					Write (o, ref written, names [i]);
 				}
 
-				if (p.OptionValue == OptionValue.Optional)
+				if (p.OptionValueType == OptionValueType.Optional)
 					Write (o, ref written, localizer ("[=VALUE]", new string[]{}));
-				else if (p.OptionValue == OptionValue.Required)
+				else if (p.OptionValueType == OptionValueType.Required)
 					Write (o, ref written, localizer ("=VALUE", new string[]{}));
 
 				if (written < OptionWidth)
@@ -531,7 +581,7 @@ namespace Mono.Documentation {
 }
 
 #if TEST
-namespace MonoTests.Mono.Documentation {
+namespace Tests.NDesk.Options {
 
 	using System.Linq;
 
@@ -580,10 +630,11 @@ namespace MonoTests.Mono.Documentation {
 				{ "many",         () => CheckMany () },
 				{ "optional",     () => CheckOptional () },
 				{ "required",     () => CheckRequired () },
+				{ "derived-type", () => CheckDerivedType () },
 			};
 			bool run  = true;
 			bool help = false;
-			var p = new Options () {
+			var p = new OptionSet () {
 				{ "t|test=", 
 					"Run the specified test.  Valid tests:\n" + new string (' ', 32) +
 						string.Join ("\n" + new string (' ', 32), tests.Keys.OrderBy (s => s).ToArray ()),
@@ -611,7 +662,7 @@ namespace MonoTests.Mono.Documentation {
 		{
 			string a = null;
 			int n = 0;
-			Options p = new Options () {
+			OptionSet p = new OptionSet () {
 				{ "a=", v => a = v },
 				{ "n=", (int v) => n = v },
 			};
@@ -632,7 +683,7 @@ namespace MonoTests.Mono.Documentation {
 			string a = null;
 			int n = -1;
 			Foo f = null;
-			Options p = new Options () {
+			OptionSet p = new OptionSet () {
 				{ "a:", v => a = v },
 				{ "n:", (int v) => n = v },
 				{ "f:", (Foo v) => f = v },
@@ -658,7 +709,7 @@ namespace MonoTests.Mono.Documentation {
 		static void CheckBoolean ()
 		{
 			bool a = false;
-			Options p = new Options () {
+			OptionSet p = new OptionSet () {
 				{ "a", v => a = v != null },
 			};
 			p.Parse (_("-a"));
@@ -676,7 +727,7 @@ namespace MonoTests.Mono.Documentation {
 			Foo f = null;
 			int help = 0;
 			int verbose = 0;
-			Options p = new Options () {
+			OptionSet p = new OptionSet () {
 				{ "a=", v => { a = 1; av = v; } },
 				{ "b", "desc", v => {b = 2; bv = v;} },
 				{ "f=", (Foo v) => f = v },
@@ -709,10 +760,22 @@ namespace MonoTests.Mono.Documentation {
 					string.Format ("Assertion failed: {0} != {1}", actual, expected));
 		}
 
+		class DefaultOption : Option {
+			public DefaultOption (string prototypes, string description)
+				: base (prototypes, description)
+			{
+			}
+
+			public override void Invoke (OptionContext c)
+			{
+				throw new NotImplementedException ();
+			}
+		}
+
 		static void CheckExceptions ()
 		{
 			string a = null;
-			var p = new Options () {
+			var p = new OptionSet () {
 				{ "a=", v => a = v },
 				{ "c",  v => { } },
 				{ "n=", (int v) => { } },
@@ -746,13 +809,16 @@ namespace MonoTests.Mono.Documentation {
 
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: prototype", 
-					p, v => { new Option (null, null, null); });
+					p, v => { new DefaultOption (null, null); });
 			AssertException (typeof(ArgumentException), 
 					"Cannot be the empty string.\nParameter name: prototype",
-					p, v => { new Option ("", null, null); });
+					p, v => { new DefaultOption ("", null); });
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: action",
-					p, v => { new Option ("p", null, null); });
+					p, v => { v.Add ("foo", (Action<string>) null); });
+			AssertException (typeof(ArgumentNullException), 
+					"Argument cannot be null.\nParameter name: action",
+					p, v => { v.Add ("foo", (Action<string, OptionContext>) null); });
 		}
 
 		static void AssertException<T> (Type exception, string message, T a, Action<T> action)
@@ -782,7 +848,7 @@ namespace MonoTests.Mono.Documentation {
 
 		static void CheckWriteOptionDescriptions ()
 		{
-			var p = new Options () {
+			var p = new OptionSet () {
 				{ "p|indicator-style=", "append / indicator to directories", v => {} },
 				{ "color:", "controls color info", v => {} },
 				{ "h|?|help", "show help text", v => {} },
@@ -806,7 +872,7 @@ namespace MonoTests.Mono.Documentation {
 		{
 			string a, b, c;
 			a = b = c = null;
-			var p = new Options () {
+			var p = new OptionSet () {
 				{ "a", v => a = "a" },
 				{ "b", v => b = "b" },
 				{ "c", v => c = "c" },
@@ -819,7 +885,7 @@ namespace MonoTests.Mono.Documentation {
 
 		static void CheckHaltProcessing ()
 		{
-			var p = new Options () {
+			var p = new OptionSet () {
 				{ "a", v => {} },
 				{ "b", v => {} },
 			};
@@ -831,7 +897,7 @@ namespace MonoTests.Mono.Documentation {
 
 		static void CheckLocalization ()
 		{
-			var p = new Options ((f,m) => "hello!") {
+			var p = new OptionSet ((f,m) => "hello!") {
 				{ "n=", (int v) => { } },
 			};
 			AssertException (typeof(OptionException), "hello!",
@@ -844,6 +910,42 @@ namespace MonoTests.Mono.Documentation {
 			p.WriteOptionDescriptions (actual);
 
 			Assert (actual.ToString (), expected.ToString ());
+		}
+
+		class CiOptionSet : OptionSet {
+			protected override void InsertItem (int index, Option item)
+			{
+				if (item.Prototype.ToLower () != item.Prototype)
+					throw new ArgumentException ("prototypes must be null!");
+				base.InsertItem (index, item);
+			}
+
+			protected override bool Parse (string option, OptionContext c)
+			{
+				if (c.Option != null)
+					return base.Parse (option, c);
+				string f, n, v;
+				if (!GetOptionParts (option, out f, out n, out v)) {
+					return base.Parse (option, c);
+				}
+				return base.Parse (f + n.ToLower () + (v != null ? "=" + v : ""), c);
+			}
+		}
+
+		static void CheckDerivedType ()
+		{
+			bool help = false;
+			var p = new CiOptionSet () {
+				{ "h|help", v => help = v != null },
+			};
+			p.Parse (_("-H"));
+			Assert (help, true);
+			help = false;
+			p.Parse (_("-HELP"));
+			Assert (help, true);
+
+			AssertException (typeof(ArgumentException), "prototypes must be null!",
+					p, v => { v.Add ("N|NUM=", (int n) => {}); });
 		}
 	}
 }
