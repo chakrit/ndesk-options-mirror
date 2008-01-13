@@ -265,7 +265,17 @@ namespace Mono.Documentation {
 		{
 			TypeConverter c = TypeDescriptor.GetConverter (typeof(T));
 			Action<string> a = delegate (string s) {
-				action (s != null ? (T) c.ConvertFromString (s) : default(T));
+				T t = default(T);
+				try {
+					if (s != null)
+						t = (T) c.ConvertFromString (s);
+				}
+				catch (Exception e) {
+					throw new OptionException (
+							string.Format ("Could not convert string `{0}' to type {1} for options `{{0}}'.",
+								s, typeof(T).Name), options, e);
+				}
+				action (t);
 			};
 			return Add (options, description, a);
 		}
@@ -300,85 +310,67 @@ namespace Mono.Documentation {
 					unprocessed.Add (option);
 					continue;
 				}
+				if (prev != null) {
+					prev.Action (option);
+					prev = null;
+					prevOption = null;
+					continue;
+				}
 				Match m = ValueOption.Match (option);
 				if (!m.Success) {
-					if (prev != null) {
-						prev.Action (option);
+					unprocessed.Add (option);
+					continue;
+				}
+				string f = m.Groups ["flag"].Value;
+				string n = m.Groups ["name"].Value;
+				string v = !m.Groups ["value"].Success 
+					? null 
+					: m.Groups ["value"].Value;
+				do {
+					if (this.options.TryGetValue (n, out prev)) {
+						prevOption = option;
+						break;
+					}
+					// no match; is it a bool option?
+					if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
+							this.options.TryGetValue (n.Substring (0, n.Length-1), out prev)) {
+						v = n [n.Length-1] == '+' ? n : null;
+						prev.Action (v);
 						prev = null;
-						prevOption = null;
+						break;
+					}
+					// is it a bundled option?
+					if (f == "-" && this.options.TryGetValue (n [0].ToString (), out prev)) {
+						int i = 0;
+						do {
+							if (prev.OptionValue != OptionValue.None)
+								throw new OptionException ("Cannot bundle option '{0}' that requires a value.", 
+										"-" + n [i].ToString ());
+							prev.Action (n);
+						} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out prev));
+						prev = null;
 					}
 					else
 						unprocessed.Add (option);
-				}
-				else {
-					string f = m.Groups ["flag"].Value;
-					string n = m.Groups ["name"].Value;
-					string v = !m.Groups ["value"].Success 
-						? null 
-						: m.Groups ["value"].Value;
-					do {
-						Option p;
-						if (this.options.TryGetValue (n, out p)) {
-							if (prev != null) {
-								throw new OptionException (
-										string.Format (
-											"The value '{0}' cannot be used as the required value for option '{{0}}'.", 
-											option), 
-										prevOption);
-							}
-							prev = p;
-							prevOption = option;
-							break;
-						}
-						// no match; is it a bool option?
-						if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
-								this.options.TryGetValue (n.Substring (0, n.Length-1), out p)) {
-							NoValue (ref prev, ref prevOption);
-							v = n [n.Length-1] == '+' ? n : null;
-							p.Action (v);
-							break;
-						}
-						// is it a bundled option?
-						if (f == "-" && this.options.TryGetValue (n [0].ToString (), out p)) {
-							NoValue (ref prev, ref prevOption);
-							int i = 0;
-							do {
-								if (p.OptionValue != OptionValue.None)
-									throw new OptionException ("Cannot bundle option '{0}' that requires a value.", 
-											"-" + n [i].ToString ());
-								p.Action (n);
-							} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out p));
-						}
-
-						// not a know option; either a value for a previous option
-						if (prev != null) {
-							prev.Action (option);
+				} while (false);
+				if (prev != null) {
+					switch (prev.OptionValue) {
+						case OptionValue.None:
+							prev.Action (n);
 							prev = null;
-						}
-						// or a stand-alone argument
-						else
-							unprocessed.Add (option);
-					} while (false);
-					if (prev != null) {
-						switch (prev.OptionValue) {
-							case OptionValue.None:
-								prev.Action (n);
+							break;
+						case OptionValue.Optional:
+						case OptionValue.Required: 
+							if (v != null) {
+								prev.Action (v);
 								prev = null;
-								break;
-							case OptionValue.Optional:
-							case OptionValue.Required: 
-								if (v != null) {
-									prev.Action (v);
-									prev = null;
-								}
-								break;
-						}
+							}
+							break;
 					}
 				}
 			}
-			if (prev != null) {
+			if (prev != null)
 				NoValue (ref prev, ref prevOption);
-			}
 			return unprocessed;
 		}
 
@@ -624,19 +616,29 @@ namespace MonoTests.Mono.Documentation {
 			var p = new Options () {
 				{ "a=", v => a = v },
 				{ "c",  v => { } },
+				{ "n=", (int v) => { } },
+				{ "f=", (Foo v) => { } },
 			};
 			// missing argument
 			AssertException (typeof(OptionException), 
 					"Missing required value for option '-a'.", 
 					p, v => { v.Parse (_("-a")); });
-			// another named option while expecting one
-			AssertException (typeof(OptionException), 
-					"The value '-a' cannot be used as the required value for option '-a'.",
+			// another named option while expecting one -- follow Getopt::Long
+			AssertException (null, null,
 					p, v => { v.Parse (_("-a", "-a")); });
+			Assert (a, "-a");
 			// no exception when an unregistered named option follows.
 			AssertException (null, null, 
 					p, v => { v.Parse (_("-a", "-b")); });
 			Assert (a, "-b");
+
+			// bad type
+			AssertException (typeof(OptionException),
+					"Could not convert string `value' to type Int32 for options `n='.",
+					p, v => { v.Parse (_("-n", "value")); });
+			AssertException (typeof(OptionException),
+					"Could not convert string `invalid' to type Foo for options `f='.",
+					p, v => { v.Parse (_("-f", "invalid")); });
 
 			// try to bundle with an option requiring a value
 			AssertException (typeof(OptionException), 
