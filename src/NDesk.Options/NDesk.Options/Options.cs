@@ -126,7 +126,6 @@ using NDesk.Options;
 
 #if !LINQ
 namespace System {
-	public delegate TResult Func<T1,T2,TResult> (T1 a, T2 b);
 	public delegate void Action<T1,T2> (T1 a, T2 b);
 }
 #endif
@@ -229,17 +228,17 @@ namespace NDesk.Options {
 	public class OptionSet : Collection<Option>
 	{
 		public OptionSet ()
-			: this ((f,a) => string.Format (f, a))
+			: this (f => f)
 		{
 		}
 
-		public OptionSet (Func<string, string[], string> localizer)
+		public OptionSet (Converter<string, string> localizer)
 		{
 			this.localizer = localizer;
 		}
 
 		Dictionary<string, Option> options = new Dictionary<string, Option> ();
-		Func<string, string[], string> localizer;
+		Converter<string, string> localizer;
 
 		protected override void ClearItems ()
 		{
@@ -355,8 +354,9 @@ namespace NDesk.Options {
 				}
 				catch (Exception e) {
 					throw new OptionException (
-							localizer ("Could not convert string `{0}' to type {1} for option `{2}'.",
-								new string[]{s, typeof(T).Name, c.OptionName}), 
+							string.Format (
+								localizer ("Could not convert string `{0}' to type {1} for option `{2}'."),
+								s, typeof(T).Name, c.OptionName),
 							c.OptionName, e);
 				}
 				action (t, c);
@@ -505,8 +505,8 @@ namespace NDesk.Options {
 				do {
 					string opt = "-" + n [i].ToString ();
 					if (p.OptionValueType != OptionValueType.None) {
-						throw new OptionException (
-								localizer ("Cannot bundle option '{0}' that requires a value.", new string[]{opt}), 
+						throw new OptionException (string.Format (
+									localizer ("Cannot bundle option '{0}' that requires a value."), opt),
 								opt);
 					}
 					c.OptionName  = opt;
@@ -527,8 +527,8 @@ namespace NDesk.Options {
 				p.Invoke (c);
 			}
 			else if (p != null && p.OptionValueType == OptionValueType.Required) {
-				throw new OptionException (
-						localizer ("Missing required value for option '{0}'.", new string[]{c.OptionName}), 
+				throw new OptionException (string.Format (
+							localizer ("Missing required value for option '{0}'."), c.OptionName), 
 						c.OptionName);
 			}
 		}
@@ -557,9 +557,9 @@ namespace NDesk.Options {
 				}
 
 				if (p.OptionValueType == OptionValueType.Optional)
-					Write (o, ref written, localizer ("[=VALUE]", new string[]{}));
+					Write (o, ref written, localizer ("[=VALUE]"));
 				else if (p.OptionValueType == OptionValueType.Required)
-					Write (o, ref written, localizer ("=VALUE", new string[]{}));
+					Write (o, ref written, localizer ("=VALUE"));
 
 				if (written < OptionWidth)
 					o.Write (new string (' ', OptionWidth - written));
@@ -568,7 +568,7 @@ namespace NDesk.Options {
 					o.Write (new string (' ', OptionWidth));
 				}
 
-				o.WriteLine (localizer (p.Description, new string[]{}));
+				o.WriteLine (localizer (p.Description));
 			}
 		}
 
@@ -897,7 +897,7 @@ namespace Tests.NDesk.Options {
 
 		static void CheckLocalization ()
 		{
-			var p = new OptionSet ((f,m) => "hello!") {
+			var p = new OptionSet (f => "hello!") {
 				{ "n=", (int v) => { } },
 			};
 			AssertException (typeof(OptionException), "hello!",
