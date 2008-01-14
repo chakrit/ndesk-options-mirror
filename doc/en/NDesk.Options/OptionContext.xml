@@ -10,8 +10,18 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Provides additional context information about the current 
+      <see cref="T:NDesk.Options.Option" /> which is being parsed.</summary>
+    <remarks>
+      An instance of this class is provided via the callback when you 
+      subscribe to one of the
+      <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" />,
+      <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,System.String,NDesk.Options.OptionContext})" />,
+      <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.Action{``0,NDesk.Options.OptionContext})" />,
+      or
+      <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" />,
+      methods.
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -23,8 +33,9 @@
       </AssemblyInfo>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <summary>Constructs and initializes a new instance of the
+          <see cref="T:NDesk.Options.OptionContext" /> class.</summary>
+        <remarks></remarks>
       </Docs>
     </Member>
     <Member MemberName="Option">
@@ -38,9 +49,9 @@
         <ReturnType>NDesk.Options.Option</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The <see cref="T:NDesk.Options.Option"/> being parsed.</summary>
+        <value>The <see cref="T:NDesk.Options.Option"/> being parsed.</value>
+        <remarks></remarks>
       </Docs>
     </Member>
     <Member MemberName="OptionIndex">
@@ -54,9 +65,16 @@
         <ReturnType>System.Int32</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>
+          The index within the options list that contains 
+          <see cref="P:NDesk.Options.OptionContext.OptionValue" />.
+        </summary>
+        <value>
+          A <see cref="T:System.Int32" /> containing the index within the
+          options list that contains
+          <see cref="P:NDesk.Options.OptionContext.OptionValue" />.
+        </value>
+        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;System.String&gt;)" />
       </Docs>
     </Member>
     <Member MemberName="OptionName">
@@ -70,9 +88,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>The actual option name used.</summary>
+        <value>A <see cref="T:System.String" /> containing the actual option name used.</value>
+        <remarks>
+          A <see cref="NDesk.Options.Option.Prototype" /> can contain multiple
+          <c>|</c>-delimited aliases, e.g. <c>h|help</c>.  This property
+          contains the actual option name specified, e.g. <c>-h</c> vs.
+          <c>--help</c>.
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OptionValue">
@@ -86,9 +109,14 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>A <see cref="T:System.String" /> containing the option value.</summary>
+        <value>
+          <see langword="null" /> if the 
+          <see cref="P:NDesk.Options.OptionContext.Option" /> takes no value or
+          if the value is optional and was not specified; otherwise 
+          non-<see langword="null" />.
+        </value>
+        <remarks></remarks>
       </Docs>
     </Member>
   </Members>
