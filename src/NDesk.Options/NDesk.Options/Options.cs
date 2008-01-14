@@ -151,7 +151,7 @@ namespace NDesk.Options {
 
 	public abstract class Option {
 		string prototype, description;
-		string[] prototypes;
+		string[] names;
 		OptionValueType type;
 
 		public Option (string prototype, string description)
@@ -162,26 +162,45 @@ namespace NDesk.Options {
 				throw new ArgumentException ("Cannot be the empty string.", "prototype");
 
 			this.prototype   = prototype;
-			this.prototypes  = prototype.Split ('|');
+			this.names       = prototype.Split ('|');
 			this.description = description;
-			this.type        = GetOptionValueType ();
+			this.type        = ValidateNames ();
 		}
 
 		public string Prototype { get { return prototype; } }
 		public string Description { get { return description; } }
 		public OptionValueType OptionValueType { get { return type; } }
 
-		internal string[] Prototypes { get { return prototypes; } }
-
-		private OptionValueType GetOptionValueType ()
+		public string[] GetNames ()
 		{
-			foreach (string n in Prototypes) {
-				if (n.IndexOf ('=') >= 0)
-					return OptionValueType.Required;
-				if (n.IndexOf (':') >= 0)
-					return OptionValueType.Optional;
+			return (string[]) names.Clone ();
+		}
+
+		internal string[] Names { get { return names; } }
+
+		static readonly char[] NameTerminator = new char[]{'=', ':'};
+		private OptionValueType ValidateNames ()
+		{
+			char type = '\0';
+			for (int i = 0; i < names.Length; ++i) {
+				string name = names [i];
+				if (name.Length == 0)
+					throw new ArgumentException ("Empty option names are not supported.", "prototype");
+
+				int end = name.IndexOfAny (NameTerminator);
+				if (end > 0) {
+					names [i] = name.Substring (0, end);
+					if (type == '\0' || type == name [end])
+						type = name [end];
+					else 
+						throw new ArgumentException (
+								string.Format ("Conflicting option types: '{0}' vs. '{1}'.", type, name [end]),
+								"prototype");
+				}
 			}
-			return OptionValueType.None;
+			if (type == '\0')
+				return OptionValueType.None;
+			return type == '=' ? OptionValueType.Required : OptionValueType.Optional;
 		}
 
 		public abstract void Invoke (OptionContext c);
@@ -254,7 +273,7 @@ namespace NDesk.Options {
 		protected override void RemoveItem (int index)
 		{
 			Option p = Items [index];
-			foreach (string name in GetOptionNames (p.Prototypes)) {
+			foreach (string name in p.Names) {
 				this.options.Remove (name);
 			}
 			base.RemoveItem (index);
@@ -292,7 +311,7 @@ namespace NDesk.Options {
 		{
 			List<string> added = new List<string> ();
 			try {
-				foreach (string name in GetOptionNames (option.Prototypes)) {
+				foreach (string name in option.Names) {
 					this.options.Add (name, option);
 				}
 			}
@@ -362,18 +381,6 @@ namespace NDesk.Options {
 				action (t, c);
 			};
 			return Add (options, description, a);
-		}
-
-		static readonly char[] NameTerminator = new char[]{'=', ':'};
-		static IEnumerable<string> GetOptionNames (string[] names)
-		{
-			foreach (string name in names) {
-				int end = name.IndexOfAny (NameTerminator);
-				if (end >= 0)
-					yield return name.Substring (0, end);
-				else 
-					yield return name;
-			}
 		}
 
 		protected virtual OptionContext CreateOptionContext ()
@@ -538,7 +545,7 @@ namespace NDesk.Options {
 		public void WriteOptionDescriptions (TextWriter o)
 		{
 			foreach (Option p in this) {
-				List<string> names = new List<string> (GetOptionNames (p.Prototypes));
+				List<string> names = new List<string> (p.Names);
 
 				int written = 0;
 				if (names [0].Length == 1) {
@@ -813,6 +820,12 @@ namespace Tests.NDesk.Options {
 			AssertException (typeof(ArgumentException), 
 					"Cannot be the empty string.\nParameter name: prototype",
 					p, v => { new DefaultOption ("", null); });
+			AssertException (typeof(ArgumentException),
+					"Empty option names are not supported.\nParameter name: prototype",
+					p, v => { new DefaultOption ("a|b||c=", null); });
+			AssertException (typeof(ArgumentException),
+					"Conflicting option types: '=' vs. ':'.\nParameter name: prototype",
+					p, v => { new DefaultOption ("a=|b:", null); });
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: action",
 					p, v => { v.Add ("foo", (Action<string>) null); });
