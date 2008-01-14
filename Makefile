@@ -1,5 +1,7 @@
 
-OPTIONS_SRC = src/NDesk.Options/NDesk.Options/Options.cs
+OPTIONS_SRC = \
+	src/NDesk.Options/AssemblyInfo.cs           \
+	src/NDesk.Options/NDesk.Options/Options.cs
 
 bindir=bin
 libdir=lib/ndesk-options
