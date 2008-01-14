@@ -12,15 +12,19 @@ all: $(libdir)/net2/NDesk.Options.dll \
 		$(libdir)/net3.5/NDesk.Options.dll
 	
 $(libdir)/net2/NDesk.Options.dll: $(OPTIONS_SRC)
+	-mkdir -p `dirname $@`
 	$(CSC) -debug+ $(OPTIONS_SRC) -t:library -out:$@
 	
 $(libdir)/net3.5/NDesk.Options.dll: $(OPTIONS_SRC)
+	-mkdir -p `dirname $@`
 	$(CSC) -debug+ -d:LINQ -r:System.Core.dll $(OPTIONS_SRC) -t:library -out:$@
 
 $(bindir)/options-test2.exe: $(OPTIONS_SRC)
+	-mkdir -p `dirname $@`
 	$(CSC) -debug+ -d:TEST $(OPTIONS_SRC) -t:exe -out:$@
 
 $(bindir)/options-test3.exe: $(OPTIONS_SRC)
+	-mkdir -p `dirname $@`
 	$(CSC) -debug+ -d:LINQ -r:System.Core.dll -d:TEST $(OPTIONS_SRC) -t:exe -out:$@
 
 check: $(bindir)/options-test2.exe $(bindir)/options-test3.exe
