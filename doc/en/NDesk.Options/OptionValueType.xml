@@ -1,0 +1,59 @@
+<Type Name="OptionValueType" FullName="NDesk.Options.OptionValueType">
+  <TypeSignature Language="C#" Value="public enum OptionValueType" />
+  <AssemblyInfo>
+    <AssemblyName>NDesk.Options</AssemblyName>
+    <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+  </AssemblyInfo>
+  <Base>
+    <BaseTypeName>System.Enum</BaseTypeName>
+  </Base>
+  <Docs>
+    <summary>To be added.</summary>
+    <remarks>To be added.</remarks>
+  </Docs>
+  <Members>
+    <Member MemberName="None">
+      <MemberSignature Language="C#" Value="None" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>NDesk.Options.OptionValueType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Optional">
+      <MemberSignature Language="C#" Value="Optional" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>NDesk.Options.OptionValueType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+    <Member MemberName="Required">
+      <MemberSignature Language="C#" Value="Required" />
+      <MemberType>Field</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>NDesk.Options.OptionValueType</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>To be added.</summary>
+      </Docs>
+    </Member>
+  </Members>
+</Type>

@@ -8,13 +8,13 @@ libdir=lib/ndesk-options
 
 CSC = gmcs
 
-all: $(libdir)/NDesk.Options.net2.dll \
-		$(libdir)/NDesk.Options.net3.dll
+all: $(libdir)/net2/NDesk.Options.dll \
+		$(libdir)/net3.5/NDesk.Options.dll
 	
-$(libdir)/NDesk.Options.net2.dll: $(OPTIONS_SRC)
+$(libdir)/net2/NDesk.Options.dll: $(OPTIONS_SRC)
 	$(CSC) -debug+ $(OPTIONS_SRC) -t:library -out:$@
 	
-$(libdir)/NDesk.Options.net3.dll: $(OPTIONS_SRC)
+$(libdir)/net3.5/NDesk.Options.dll: $(OPTIONS_SRC)
 	$(CSC) -debug+ -d:LINQ -r:System.Core.dll $(OPTIONS_SRC) -t:library -out:$@
 
 $(bindir)/options-test2.exe: $(OPTIONS_SRC)
@@ -32,8 +32,8 @@ clean:
 		$(bindir)/options-test2.exe.mdb       \
 		$(bindir)/options-test3.exe           \
 		$(bindir)/options-test3.exe.mdb       \
-		$(libdir)/NDesk.Options.net2.dll       \
-		$(libdir)/NDesk.Options.net2.dll.mdb   \
-		$(libdir)/NDesk.Options.net3.dll	      \
-		$(libdir)/NDesk.Options.net3.dll.mdb   \
+		$(libdir)/net2/NDesk.Options.dll       \
+		$(libdir)/net2/NDesk.Options.dll.mdb   \
+		$(libdir)/net3.5/NDesk.Options.dll	      \
+		$(libdir)/net3.5/NDesk.Options.dll.mdb   \
 

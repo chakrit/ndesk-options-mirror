@@ -1,0 +1,47 @@
+<Overview>
+  <Assemblies>
+    <Assembly Name="NDesk.Options" Version="3.5.2935.15473">
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyTrademark("")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyCopyright("2008")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyProduct("")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyCompany("")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyConfiguration("")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyDescription("C# Option Parser.")</AttributeName>
+        </Attribute>
+        <Attribute>
+          <AttributeName>System.Reflection.AssemblyTitle("NDesk.Options")</AttributeName>
+        </Attribute>
+      </Attributes>
+    </Assembly>
+  </Assemblies>
+  <Remarks>To be added.</Remarks>
+  <Copyright>To be added.</Copyright>
+  <Types>
+    <Namespace Name="NDesk.Options">
+      <Type Name="Option" />
+      <Type Name="OptionContext" />
+      <Type Name="OptionException" />
+      <Type Name="OptionSet" />
+      <Type Name="OptionValueType" />
+    </Namespace>
+    <Namespace Name="System">
+      <Type Name="Action`2" DisplayName="Action&lt;T1,T2&gt;" />
+    </Namespace>
+  </Types>
+  <Title>NDesk.Options</Title>
+</Overview>
