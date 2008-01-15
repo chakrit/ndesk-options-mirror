@@ -3,7 +3,11 @@
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
     <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
     <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -29,13 +33,18 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
         <summary>Constructs and initializes a new instance of the
           <see cref="T:NDesk.Options.OptionContext" /> class.</summary>
-        <remarks></remarks>
+        <remarks>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Option">
@@ -43,15 +52,20 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.Option</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>The <see cref="T:NDesk.Options.Option"/> being parsed.</summary>
-        <value>The <see cref="T:NDesk.Options.Option"/> being parsed.</value>
-        <remarks></remarks>
+        <summary>The <see cref="T:NDesk.Options.Option" /> being parsed.</summary>
+        <value>The <see cref="T:NDesk.Options.Option" /> being parsed.</value>
+        <remarks>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="OptionIndex">
@@ -59,7 +73,11 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -74,6 +92,7 @@
           options list that contains
           <see cref="P:NDesk.Options.OptionContext.OptionValue" />.
         </value>
+        <remarks>To be added.</remarks>
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;System.String&gt;)" />
       </Docs>
     </Member>
@@ -82,7 +101,11 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -103,7 +126,11 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -116,7 +143,8 @@
           if the value is optional and was not specified; otherwise 
           non-<see langword="null" />.
         </value>
-        <remarks></remarks>
+        <remarks>
+        </remarks>
       </Docs>
     </Member>
   </Members>

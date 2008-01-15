@@ -1,6 +1,6 @@
 <Overview>
   <Assemblies>
-    <Assembly Name="NDesk.Options" Version="3.5.2935.15473">
+    <Assembly Name="NDesk.Options" Version="3.5.2935.17232">
       <Attributes>
         <Attribute>
           <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>

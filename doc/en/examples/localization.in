@@ -1,0 +1,3 @@
+mono en/examples/localization.exe --help --version
+mono en/examples/localization.exe -u --help --version
+mono en/examples/localization.exe -h --help --version

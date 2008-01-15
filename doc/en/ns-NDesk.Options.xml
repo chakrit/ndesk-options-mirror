@@ -1,6 +1,6 @@
 <Namespace Name="NDesk.Options">
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>Types to help parse command-line options.</summary>
+    <remarks></remarks>
   </Docs>
 </Namespace>

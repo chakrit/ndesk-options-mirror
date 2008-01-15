@@ -3,6 +3,8 @@
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
     <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
   </AssemblyInfo>
   <TypeParameters>
     <TypeParameter>T1</TypeParameter>

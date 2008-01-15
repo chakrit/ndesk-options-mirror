@@ -3,7 +3,11 @@
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
     <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
     <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;</BaseTypeName>
@@ -22,7 +26,11 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -35,7 +43,11 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="localizer" Type="System.Converter&lt;System.String,System.String&gt;" />
@@ -44,6 +56,76 @@
         <param name="localizer">To be added.</param>
         <summary>To be added.</summary>
         <remarks>To be added.</remarks>
+        <example>
+          <para>
+            See the following example, which demonstrates how different
+            localizers alter the program output.
+          </para>
+          <code lang="C#" src="examples/localization.cs">// Localization with NDesk.Options.OptionSet.
+//
+// Compile as:
+//   gmcs -r:Mono.Posix.dll -r:NDesk.Options.dll code-localization.cs
+using System;
+using Mono.Unix;
+using NDesk.Options;
+
+class LocalizationDemo {
+	public static void Main (string[] args)
+	{
+		Converter&lt;string, string&gt; localizer = f =&gt; f;
+		var p = new OptionSet () {
+			{ "u|with-unix",    
+				v =&gt; { localizer = f =&gt; { return Catalog.GetString (f); }; } },
+			{ "h|with-hello",   
+				v =&gt; { localizer = f =&gt; { return "hello:" + f; }; } },
+			{ "d|with-default", v =&gt; { /* do nothing */ } },
+		};
+		p.Parse (args);
+
+		bool help = false;
+		int verbose = 0;
+		bool version = false;
+		p = new OptionSet (localizer) {
+			{ "h|?|help", "show this message and exit.", 
+				v =&gt; help = v != null },
+			{ "v|verbose", "increase message verbosity.",
+				v =&gt; { ++verbose; } },
+			{ "V|version", "output version information and exit.",
+				v =&gt; version = v != null },
+		};
+		p.Parse (args);
+		if (help)
+			p.WriteOptionDescriptions (Console.Out);
+		if (version)
+			Console.WriteLine ("NDesk.Options Localizer Demo 1.0");
+		if (verbose &gt; 0)
+			Console.WriteLine ("Message level: {0}", verbose);
+	}
+}
+</code>
+          <para>The output (under the influence of different command-line
+            arguments) is:</para>
+          <code lang="C#" src="examples/localization.txt">$ mono localization.exe --help --version
+  -h, -?, --help             show this message and exit.
+  -v, --verbose              increase message verbosity.
+  -V, --version              output version information and exit.
+NDesk.Options Localizer Demo 1.0
+$ mono localization.exe -u --help --version
+  -h, -?, --help             show this message and exit.
+  -v, --verbose              increase message verbosity.
+  -V, --version              output version information and exit.
+NDesk.Options Localizer Demo 1.0
+$ mono localization.exe -h --help --version
+  -h, -?, --help             hello:show this message and exit.
+  -v, --verbose              hello:increase message verbosity.
+  -V, --version              hello:output version information and exit.
+NDesk.Options Localizer Demo 1.0
+</code>
+          <para>Notice that the <c>-h</c> parser prefixes all descriptions
+          with <c>hello:</c>, and only the descriptions; the command-line
+          arguments themselves are unchanged.  Only error messages and option
+          descriptions are translated, not the options themselves.</para>
+        </example>
       </Docs>
     </Member>
     <Member MemberName="Add">
@@ -51,7 +133,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -71,7 +157,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -93,7 +183,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -115,7 +209,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -139,7 +237,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -163,7 +265,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -186,7 +292,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -209,7 +319,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -234,7 +348,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -259,7 +377,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -275,7 +397,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionContext</ReturnType>
@@ -292,7 +418,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -318,7 +448,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -339,7 +473,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.List&lt;System.String&gt;</ReturnType>
@@ -359,7 +497,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -381,7 +523,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -400,7 +546,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -421,7 +571,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

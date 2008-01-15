@@ -3,17 +3,22 @@
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
     <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
     <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Enum</BaseTypeName>
   </Base>
   <Docs>
     <summary>
-      Specifies whether or not a <see cref="T:NDesk.Options.Option"/>
+      Specifies whether or not a <see cref="T:NDesk.Options.Option" />
       takes a value, and if it does, whether it's optional or required.
 		</summary>
-    <remarks></remarks>
+    <remarks>
+    </remarks>
     <altmember cref="P:NDesk.Options.Option.OptionValueType" />
   </Docs>
   <Members>
@@ -22,7 +27,11 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionValueType</ReturnType>
@@ -32,8 +41,8 @@
           <para>No value is taken.</para>
           <para>If an option takes no value, then the callback function will 
           receive <see langword="null" /> if the value is 
-          <see langword="false"/> (e.g. <c>-optionName-</c> was specified) and 
-          non-<see langword="null"/> if the value is <see langword="true" /> 
+          <see langword="false" /> (e.g. <c>-optionName-</c> was specified) and 
+          non-<see langword="null" /> if the value is <see langword="true" /> 
           (e.g. <c>-optionName</c>, <c>-optionName+</c>).</para>
         </summary>
       </Docs>
@@ -43,7 +52,11 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionValueType</ReturnType>
@@ -64,7 +77,11 @@
       <MemberType>Field</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionValueType</ReturnType>

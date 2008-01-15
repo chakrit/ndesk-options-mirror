@@ -3,7 +3,11 @@
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
     <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
     <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+    <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Exception</BaseTypeName>
@@ -12,7 +16,8 @@
   <Docs>
     <summary>Represents the error that occurs when there is an error parsing
       an <see cref="T:NDesk.Options.Option" />.</summary>
-    <remarks></remarks>
+    <remarks>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -20,7 +25,11 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="info" Type="System.Runtime.Serialization.SerializationInfo" />
@@ -54,7 +63,11 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="message" Type="System.String" />
@@ -86,7 +99,11 @@
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="message" Type="System.String" />
@@ -127,7 +144,11 @@
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -165,7 +186,11 @@
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
+        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
         <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
+        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -179,7 +204,8 @@
           A <see cref="T:System.String" /> containing the option name that 
           caused the exception.
         </value>
-        <remarks></remarks>
+        <remarks>
+        </remarks>
       </Docs>
     </Member>
   </Members>
