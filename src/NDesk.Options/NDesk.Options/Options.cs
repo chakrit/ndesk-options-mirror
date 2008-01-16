@@ -431,7 +431,7 @@ namespace NDesk.Options {
 		}
 #endif
 
-		private static readonly Regex ValueOption = new Regex (
+		private readonly Regex ValueOption = new Regex (
 			@"^(?<flag>--|-|/)(?<name>[^:=]+)([:=](?<value>.*))?$");
 
 		protected bool GetOptionParts (string option, out string flag, out string name, out string value)
