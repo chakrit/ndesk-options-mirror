@@ -2,12 +2,8 @@
   <TypeSignature Language="C#" Value="public class OptionSet : System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <AssemblyVersion>3.5.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;</BaseTypeName>
@@ -25,12 +21,8 @@
       <MemberSignature Language="C#" Value="public OptionSet ();" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -42,12 +34,8 @@
       <MemberSignature Language="C#" Value="public OptionSet (Converter&lt;string,string&gt; localizer);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="localizer" Type="System.Converter&lt;System.String,System.String&gt;" />
@@ -132,12 +120,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (NDesk.Options.Option option);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -156,12 +140,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, Action&lt;string,NDesk.Options.OptionContext&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -182,12 +162,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, Action&lt;string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -208,12 +184,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, string description, Action&lt;string,NDesk.Options.OptionContext&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -236,12 +208,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, string description, Action&lt;string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -264,12 +232,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, Action&lt;T,NDesk.Options.OptionContext&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -291,12 +255,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, Action&lt;T&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -318,12 +278,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, string description, Action&lt;T,NDesk.Options.OptionContext&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -347,12 +303,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, string description, Action&lt;T&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -376,12 +328,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="protected override void ClearItems ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -396,12 +344,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="protected virtual NDesk.Options.OptionContext CreateOptionContext ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionContext</ReturnType>
@@ -417,12 +361,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="protected bool GetOptionParts (string option, out string flag, out string name, out string value);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -447,12 +387,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="protected override void InsertItem (int index, NDesk.Options.Option item);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -472,12 +408,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public System.Collections.Generic.List&lt;string&gt; Parse (System.Collections.Generic.IEnumerable&lt;string&gt; options);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.List&lt;System.String&gt;</ReturnType>
@@ -496,12 +428,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="protected virtual bool Parse (string option, NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -522,12 +450,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="protected override void RemoveItem (int index);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -545,12 +469,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="protected override void SetItem (int index, NDesk.Options.Option item);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -570,12 +490,8 @@ NDesk.Options Localizer Demo 1.0
       <MemberSignature Language="C#" Value="public void WriteOptionDescriptions (System.IO.TextWriter o);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

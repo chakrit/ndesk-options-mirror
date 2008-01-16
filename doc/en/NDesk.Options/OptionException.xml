@@ -2,12 +2,8 @@
   <TypeSignature Language="C#" Value="public class OptionException : Exception" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <AssemblyVersion>3.5.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Exception</BaseTypeName>
@@ -24,12 +20,8 @@
       <MemberSignature Language="C#" Value="protected OptionException (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="info" Type="System.Runtime.Serialization.SerializationInfo" />
@@ -62,12 +54,8 @@
       <MemberSignature Language="C#" Value="public OptionException (string message, string optionName);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="message" Type="System.String" />
@@ -98,12 +86,8 @@
       <MemberSignature Language="C#" Value="public OptionException (string message, string optionName, Exception innerException);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="message" Type="System.String" />
@@ -143,12 +127,8 @@
       <MemberSignature Language="C#" Value="public override void GetObjectData (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -185,12 +165,8 @@
       <MemberSignature Language="C#" Value="public string OptionName { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>

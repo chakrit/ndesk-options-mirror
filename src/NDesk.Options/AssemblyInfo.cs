@@ -29,9 +29,9 @@ using System.Runtime.CompilerServices;
 // numbers with the '*' character (the default):
 
 #if LINQ
-[assembly: AssemblyVersion("3.5.*")]
+[assembly: AssemblyVersion("3.5.0.0")]
 #else
-[assembly: AssemblyVersion("2.0.*")]
+[assembly: AssemblyVersion("2.0.0.0")]
 #endif
 
 // The following attributes specify the key for the sign of your assembly. See the

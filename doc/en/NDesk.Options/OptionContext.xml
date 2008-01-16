@@ -2,12 +2,8 @@
   <TypeSignature Language="C#" Value="public class OptionContext" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-    <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-    <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-    <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+    <AssemblyVersion>2.0.0.0</AssemblyVersion>
+    <AssemblyVersion>3.5.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -32,12 +28,8 @@
       <MemberSignature Language="C#" Value="public OptionContext ();" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -51,12 +43,8 @@
       <MemberSignature Language="C#" Value="public NDesk.Options.Option Option { set; get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.Option</ReturnType>
@@ -72,12 +60,8 @@
       <MemberSignature Language="C#" Value="public int OptionIndex { set; get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -100,12 +84,8 @@
       <MemberSignature Language="C#" Value="public string OptionName { set; get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -125,12 +105,8 @@
       <MemberSignature Language="C#" Value="public string OptionValue { set; get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2935.15473</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17232</AssemblyVersion>
-        <AssemblyVersion>2.0.2935.17293</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.15473</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17232</AssemblyVersion>
-        <AssemblyVersion>3.5.2935.17293</AssemblyVersion>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
