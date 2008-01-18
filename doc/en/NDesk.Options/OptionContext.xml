@@ -13,14 +13,14 @@
     <summary>Provides additional context information about the current 
       <see cref="T:NDesk.Options.Option" /> which is being parsed.</summary>
     <remarks>
-      An instance of this class is provided via the callback when you 
-      subscribe to one of the
-      <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" />,
-      <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,System.String,NDesk.Options.OptionContext})" />,
-      <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.Action{``0,NDesk.Options.OptionContext})" />,
-      or
-      <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" />,
-      methods.
+      An instance of this class is provided via the registered callback when you 
+      subscribe to one of the following methods:
+      <list type="bullet">
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.Action{``0,NDesk.Options.OptionContext})" /></term></item>
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" /></term></item>
+      </list>
     </remarks>
   </Docs>
   <Members>

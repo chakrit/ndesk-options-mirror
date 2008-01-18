@@ -10,8 +10,30 @@
   </Base>
   <Interfaces />
   <Docs>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <summary>
+      Represents information about an option.
+    </summary>
+    <remarks>
+      <para>
+        Instances of <see cref="T:NDesk.Options.Option" /> are created via
+        the various <see cref="T:NDesk.Options.OptionSet" /> <c>Add</c>
+        overloads, such as:
+      </para>
+      <list type="bullet">
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String})" /></term></item>
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String})" /></term></item>
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
+        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
+      </list>
+      <block subset="none" type="overrides">
+        Inheritors of this type must implement the abstract 
+        <see cref="M:NDesk.Options.Option.Invoke(NDesk.Options.OptionContext)" />
+        method, which is invoked from within 
+        <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
+        when an option matching one of the <paramref name="prototype" />
+        aliases is encountered.
+      </block>
+    </remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">
@@ -26,10 +48,67 @@
         <Parameter Name="description" Type="System.String" />
       </Parameters>
       <Docs>
-        <param name="prototype">To be added.</param>
-        <param name="description">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="prototype">
+          A <see cref="T:System.String" /> containing a <c>|</c>-separated
+          list of option names (aliases) and an optional value-type specifier.
+        </param>
+        <param name="description">
+          A <see cref="T:System.String" /> containing documentation for the
+          option.
+        </param>
+        <summary>
+          Creates and initializes a new instance of the 
+          <see cref="T:NDesk.Options.Option" /> class.
+        </summary>
+        <remarks>
+          <para>
+            This constructor initializes the 
+            <see cref="P:NDesk.Options.Option.Prototype" /> property of the
+            new instance using <paramref name="prototype" />, and the 
+            <see cref="P:NDesk.Options.Option.Description" /> property of the
+            new instance using <paramref name="description" />.
+          </para>
+          <para>
+            <paramref name="prototype" /> is a <c>|</c>-separated list of
+            option names.  It should be listed in shortest-to-longest order,
+            e.g. <c>h|help</c>.  <paramref name="prototype" /> may contain a
+            <see cref="T:NDesk.Options.OptionValueType" /> specifier following
+            one of the <c>|</c>-separated entries.
+          </para>
+          <para>
+            The <see cref="P:NDesk.Options.Option.OptionValueType" /> property
+            is initialized based on whether a <c>=</c> or <c>:</c> follows one
+            of the aliases within <paramref name="prototype" />.
+            <c>=</c> specifies a 
+            <see cref="F:NDesk.Options.OptionValueType.Required" /> value,
+            while <c>:</c> specifies an 
+            <see cref="F:NDesk.Options.OptionValueType.Optional" /> value.  
+            If neither <c>=</c> nor <c>:</c> is not specified, then 
+            <see cref="F:NDesk.Options.OptionValueType.None" /> is used.
+            The value specifier may be used anywhere within 
+            <paramref name="prototype" />, so <c>n|name=</c>, <c>n=|name</c> 
+            and <c>n=|name=</c> are equivalent, but you cannot mix types; 
+            <c>n:|name=</c> is invalid.
+          </para>
+        </remarks>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="prototype" /> is the empty string <c>""</c>.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="prototype" /> contains an empty alias, such as
+            <c>a||b</c>.
+          </para>
+          <para>-or-</para>
+          <para>
+            Conflicting <see cref="T:NDesk.Options.OptionValueType" /> values
+            were found within <paramref name="prototype" />.
+          </para>
+        </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="prototype" /> is <see langword="null" />.
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="Description">
@@ -43,9 +122,24 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>
+          A <see cref="T:System.String" /> containing documentation for this
+          option.
+        </summary>
+        <value>
+          A <see cref="T:System.String" /> containing documentation for this
+          option.
+        </value>
+        <remarks>
+          This property is used to generate documentation within 
+          <see cref="M:NDesk.Options.OptionSet.WriteOptionDescriptions(System.IO.TextWriter)" />.
+          The string returned is translated via the 
+          <paramref name="localizer" /> parameter provided to the
+          <see cref="C:NDesk.Options.OptionSet(System.Converter{System.String,System.String})" />
+          constructor before being written to the 
+          <see cref="T:System.IO.TextWriter" /> instance.
+        </remarks>
+        <altmember cref="M:NDesk.Options.OptionSet.WriteOptionDescriptions(System.IO.TextWriter)" />
       </Docs>
     </Member>
     <Member MemberName="GetNames">
@@ -60,9 +154,20 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>Retrieves all aliases that make up 
+          <see cref="P:NDesk.Options.Option.Prototype" />.</summary>
+        <returns>
+          A <see cref="T:System.String" /> array containing all name aliases
+          for this <see cref="T:NDesk.Options.Option" /> instance.
+        </returns>
+        <remarks>
+          The returned option names will not contain any 
+          <see cref="T:NDesk.Options.OptionValueType" /> specifier that may be
+          within <see cref="P:NDesk.Options.Option.Prototype" />.  
+          If <see cref="P:NDesk.Options.Option.Prototype" /> is
+          <c>a=|b=|c=</c>, the array returned will contain <c>a</c>, <c>b</c>,
+          and <c>c</c>.
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Invoke">
@@ -79,9 +184,21 @@
         <Parameter Name="c" Type="NDesk.Options.OptionContext" />
       </Parameters>
       <Docs>
-        <param name="c">To be added.</param>
-        <summary>To be added.</summary>
-        <remarks>To be added.</remarks>
+        <param name="c">
+          A <see cref="T:NDesk.Options.OptionContext" /> instance containing
+          information about the option that was parsed.
+        </param>
+        <summary>
+          Performs an action when an option is parsed.
+        </summary>
+        <remarks>
+          This method is invoked from within 
+          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
+          when an option matching 
+          <see cref="M:NDesk.Options.Option.GetNames" /> is encountered with
+          the provided value (if a value is required or optional).
+        </remarks>
+        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
       </Docs>
     </Member>
     <Member MemberName="OptionValueType">
@@ -95,9 +212,21 @@
         <ReturnType>NDesk.Options.OptionValueType</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>
+          An <see cref="T:NDesk.Options.OptionValueType" /> instance
+          specifying whether this <see cref="T:NDesk.Options.Option" /> takes
+          a value, and if so, whether it's required or optional.
+        </summary>
+        <value>
+          An <see cref="T:NDesk.Options.OptionValueType" /> specifying whether
+          a value is required for this value.
+        </value>
+        <remarks>
+          <para>
+            This is initialized based on the presence of <c>=</c> or
+            <c>:</c> within <see cref="P:NDesk.Options.Option.Prototype" />.
+          </para>
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="Prototype">
@@ -111,9 +240,20 @@
         <ReturnType>System.String</ReturnType>
       </ReturnValue>
       <Docs>
-        <summary>To be added.</summary>
-        <value>To be added.</value>
-        <remarks>To be added.</remarks>
+        <summary>
+          The <see cref="T:NDesk.Options.Option" /> prototype, containing
+          option name aliases and the option value requirements.
+        </summary>
+        <value>
+          A <see cref="T:System.String" /> containing the prototype of this
+          <see cref="T:NDesk.Options.Option" /> instance.
+        </value>
+        <remarks>
+          The prototype contains a <c>|</c>-separated list of all option name
+          aliases and a value specifier of <c>=</c> for required values and
+          <c>:</c> for optional values; if neither <c>=</c> nor <c>:</c> is
+          present, no value is taken.
+        </remarks>
       </Docs>
     </Member>
     <Member MemberName="ToString">
@@ -128,9 +268,14 @@
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>To be added.</summary>
-        <returns>To be added.</returns>
-        <remarks>To be added.</remarks>
+        <summary>
+          Returns <see cref="P:NDesk.Options.Option.Prototype" />.
+        </summary>
+        <returns>
+          A <see cref="T:System.String" /> containing
+          <see cref="P:NDesk.Options.Option.Prototype" />.
+        </returns>
+        <remarks></remarks>
       </Docs>
     </Member>
   </Members>
