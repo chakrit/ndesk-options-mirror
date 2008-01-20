@@ -309,6 +309,8 @@ namespace NDesk.Options {
 
 		public new OptionSet Add (Option option)
 		{
+			if (option == null)
+				throw new ArgumentNullException ("option");
 			List<string> added = new List<string> ();
 			try {
 				foreach (string name in option.Names) {
@@ -393,9 +395,10 @@ namespace NDesk.Options {
 		{
 			bool process = true;
 			OptionContext c = CreateOptionContext ();
+			c.OptionIndex = -1;
 			var unprocessed = 
 				from option in options
-				where ++c.OptionIndex > 0 && process 
+				where ++c.OptionIndex >= 0 && process 
 					? option == "--" 
 						? (process = false)
 						: !Parse (option, c)
@@ -410,6 +413,7 @@ namespace NDesk.Options {
 		public List<string> Parse (IEnumerable<string> options)
 		{
 			OptionContext c = CreateOptionContext ();
+			c.OptionIndex = -1;
 			bool process = true;
 			List<string> unprocessed = new List<string> ();
 			foreach (string option in options) {
@@ -459,33 +463,32 @@ namespace NDesk.Options {
 			if (!GetOptionParts (option, out f, out n, out v))
 				return false;
 
-			do {
-				Option p;
-				if (this.options.TryGetValue (n, out p)) {
-					c.OptionName = f + n;
-					c.Option     = p;
-					switch (p.OptionValueType) {
-						case OptionValueType.None:
-							c.OptionValue = n;
+			Option p;
+			if (this.options.TryGetValue (n, out p)) {
+				c.OptionName = f + n;
+				c.Option     = p;
+				switch (p.OptionValueType) {
+					case OptionValueType.None:
+						c.OptionValue = n;
+						c.Option.Invoke (c);
+						break;
+					case OptionValueType.Optional:
+					case OptionValueType.Required: 
+						if (v != null) {
+							c.OptionValue = v;
 							c.Option.Invoke (c);
-							break;
-						case OptionValueType.Optional:
-						case OptionValueType.Required: 
-							if (v != null) {
-								c.OptionValue = v;
-								c.Option.Invoke (c);
-							}
-							break;
-					}
-					return true;
+						}
+						break;
 				}
-				// no match; is it a bool option?
-				if (ParseBool (option, n, c))
-					return true;
-				// is it a bundled option?
-				if (ParseBundled (f, n, c))
-					return true;
-			} while (false);
+				return true;
+			}
+			// no match; is it a bool option?
+			if (ParseBool (option, n, c))
+				return true;
+			// is it a bundled option?
+			if (ParseBundled (f, n, c))
+				return true;
+
 			return false;
 		}
 
@@ -494,7 +497,7 @@ namespace NDesk.Options {
 			Option p;
 			if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
 					this.options.TryGetValue (n.Substring (0, n.Length-1), out p)) {
-				string v = n [n.Length-1] == '+' ? n : null;
+				string v = n [n.Length-1] == '+' ? option : null;
 				c.OptionName  = option;
 				c.OptionValue = v;
 				c.Option      = p;
@@ -630,6 +633,7 @@ namespace Tests.NDesk.Options {
 			var tests = new Dictionary<string, Action> () {
 				{ "boolean",      () => CheckBoolean () },
 				{ "bundling",     () => CheckOptionBundling () },
+				{ "context",      () => CheckOptionContext () },
 				{ "descriptions", () => CheckWriteOptionDescriptions () },
 				{ "exceptions",   () => CheckExceptions () },
 				{ "halt",         () => CheckHaltProcessing () },
@@ -800,6 +804,9 @@ namespace Tests.NDesk.Options {
 			AssertException (null, null, 
 					p, v => { v.Parse (_("-a", "-b")); });
 			Assert (a, "-b");
+			AssertException (typeof(ArgumentNullException),
+					"Argument cannot be null.\nParameter name: option",
+					p, v => { v.Add (null); });
 
 			// bad type
 			AssertException (typeof(OptionException),
@@ -959,6 +966,41 @@ namespace Tests.NDesk.Options {
 
 			AssertException (typeof(ArgumentException), "prototypes must be null!",
 					p, v => { v.Add ("N|NUM=", (int n) => {}); });
+		}
+
+		static void CheckOptionContext ()
+		{
+			var p = new OptionSet () {
+				{ "a=", "a desc", (v,c) => {
+					Assert (v, "a-val");
+					Assert (c.Option.Description, "a desc");
+					Assert (c.OptionName, "/a");
+					Assert (c.OptionIndex, 1);
+					Assert (c.OptionValue, v);
+				} },
+				{ "b", "b desc", (v, c) => {
+					Assert (v, "--b+");
+					Assert (c.Option.Description, "b desc");
+					Assert (c.OptionName, "--b+");
+					Assert (c.OptionIndex, 2);
+					Assert (c.OptionValue, v);
+				} },
+				{ "c=", "c desc", (v, c) => {
+					Assert (v, "C");
+					Assert (c.Option.Description, "c desc");
+					Assert (c.OptionName, "--c");
+					Assert (c.OptionIndex, 3);
+					Assert (c.OptionValue, v);
+				} },
+				{ "d", "d desc", (v, c) => {
+					Assert (v, null);
+					Assert (c.Option.Description, "d desc");
+					Assert (c.OptionName, "/d-");
+					Assert (c.OptionIndex, 4);
+					Assert (c.OptionValue, v);
+				} },
+			};
+			p.Parse (_("/a", "a-val", "--b+", "--c=C", "/d-"));
 		}
 	}
 }
