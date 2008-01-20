@@ -18,7 +18,14 @@ en/examples/NDesk.Options.dll: ../lib/ndesk-options/net2/NDesk.Options.dll
 %.exe: %.cs en/examples/NDesk.Options.dll
 	gmcs -r:Mono.Posix.dll -lib:en/examples -r:NDesk.Options.dll -out:$@ $<
 
+en/examples/locale/es/LC_MESSAGES/localization.mo: en/examples/localization-es.po
+	msgfmt $< -o $@
+
+en/examples/localization.exe: en/examples/locale/es/LC_MESSAGES/localization.mo
+
 EXAMPLES_OUTPUT = \
+	en/examples/context.txt \
+	en/examples/greet.txt \
 	en/examples/localization.txt
 
 %.txt: %.in %.exe

@@ -3,6 +3,7 @@
 // Compile as:
 //   gmcs -r:Mono.Posix.dll -r:NDesk.Options.dll code-localization.cs
 using System;
+using System.IO;
 using Mono.Unix;
 using NDesk.Options;
 
@@ -10,14 +11,21 @@ class LocalizationDemo {
 	public static void Main (string[] args)
 	{
 		Converter<string, string> localizer = f => f;
+		bool with_gettext = false;
 		var p = new OptionSet () {
-			{ "u|with-unix",    
-				v => { localizer = f => { return Catalog.GetString (f); }; } },
-			{ "h|with-hello",   
+			{ "with-gettext",
+				v => { with_gettext = true; 
+			         localizer = f => { return Catalog.GetString (f); }; } },
+			{ "with-hello",   
 				v => { localizer = f => { return "hello:" + f; }; } },
-			{ "d|with-default", v => { /* do nothing */ } },
+			{ "with-default", v => { /* do nothing */ } },
 		};
 		p.Parse (args);
+
+		if (with_gettext)
+			Catalog.Init ("localization", 
+					Path.Combine (AppDomain.CurrentDomain.BaseDirectory,
+						"locale"));
 
 		bool help = false;
 		int verbose = 0;
@@ -27,10 +35,19 @@ class LocalizationDemo {
 				v => help = v != null },
 			{ "v|verbose", "increase message verbosity.",
 				v => { ++verbose; } },
+			{ "n=", "must be an int",
+				(int n) => { /* ignore */ } },
 			{ "V|version", "output version information and exit.",
 				v => version = v != null },
 		};
-		p.Parse (args);
+		try {
+			p.Parse (args);
+		}
+		catch (OptionException e) {
+			Console.Write ("localization: ");
+			Console.WriteLine (e.Message);
+			return;
+		}
 		if (help)
 			p.WriteOptionDescriptions (Console.Out);
 		if (version)

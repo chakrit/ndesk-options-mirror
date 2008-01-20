@@ -15,22 +15,28 @@
     <remarks>
       <para>Instances of this class are thrown when:</para>
       <list type="bullet">
-        <item><term>There is an exception generated converting a string to an
+        <item>
+          <term>There is an exception generated converting a string to an
         object of type <typeparamref name="T" /> within the callback
         registered by
         <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" />.
-        </term></item>
-        <item><term>
+        </term>
+        </item>
+        <item>
+          <term>
           An option with a <see cref="P:NDesk.Options.Option.OptionValueType" /> 
           value of <see cref="F:NDesk.Options.OptionValueType.Optional" /> or
           <see cref="F:NDesk.Options.OptionValueType.Required" /> is used in a
           bundled option list.
-        </term></item>
-        <item><term>
+        </term>
+        </item>
+        <item>
+          <term>
           An option with a <see cref="P:NDesk.Options.Option.OptionValueType" /> 
           value of <see cref="F:NDesk.Options.OptionValueType.Required" /> or
           does not have a value.
-        </term></item>
+        </term>
+        </item>
       </list>
     </remarks>
   </Docs>

@@ -16,14 +16,30 @@
     <remarks>
       <para>
         Instances of <see cref="T:NDesk.Options.Option" /> are created via
-        the various <see cref="T:NDesk.Options.OptionSet" /> <c>Add</c>
+        the various <see cref="T:NDesk.Options.OptionSet" /><c>Add</c>
         overloads, such as:
       </para>
       <list type="bullet">
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String})" /></term></item>
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String})" /></term></item>
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String})" />
+          </term>
+        </item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String})" />
+          </term>
+        </item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" />
+          </term>
+        </item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" />
+          </term>
+        </item>
       </list>
       <block subset="none" type="overrides">
         Inheritors of this type must implement the abstract 
@@ -275,7 +291,8 @@
           A <see cref="T:System.String" /> containing
           <see cref="P:NDesk.Options.Option.Prototype" />.
         </returns>
-        <remarks></remarks>
+        <remarks>
+        </remarks>
       </Docs>
     </Member>
   </Members>

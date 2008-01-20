@@ -1,0 +1,7 @@
+mono en/examples/context.exe -f
+mono en/examples/context.exe -n
+mono en/examples/context.exe -s
+mono en/examples/context.exe -f invalid
+mono en/examples/context.exe -n invalid
+mono en/examples/context.exe -s=
+mono en/examples/context.exe -f A --n=42 /s fourty-two

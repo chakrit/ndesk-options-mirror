@@ -15,13 +15,7 @@
     <remarks>
       An instance of this class is provided via the registered callback when you 
       subscribe to one of the following methods:
-      <list type="bullet">
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item>
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.Action{``0,NDesk.Options.OptionContext})" /></term></item>
-        <item><term><see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" /></term></item>
-      </list>
-    </remarks>
+      <list type="bullet"><item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item><item><term><see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" /></term></item><item><term><see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.Action{``0,NDesk.Options.OptionContext})" /></term></item><item><term><see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" /></term></item></list></remarks>
   </Docs>
   <Members>
     <Member MemberName=".ctor">

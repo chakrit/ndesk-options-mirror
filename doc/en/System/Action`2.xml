@@ -19,11 +19,19 @@
     <ReturnType>System.Void</ReturnType>
   </ReturnValue>
   <Docs>
-    <typeparam name="T1">To be added.</typeparam>
-    <typeparam name="T2">To be added.</typeparam>
-    <param name="a">To be added.</param>
-    <param name="b">To be added.</param>
-    <summary>To be added.</summary>
-    <remarks>To be added.</remarks>
+    <typeparam name="T1">The first parameter type.</typeparam>
+    <typeparam name="T2">The second parameter type.</typeparam>
+    <param name="a">A value of type <typeparamref name="T1" />.</param>
+    <param name="b">A value of type <typeparamref name="T2" />.</param>
+    <summary>
+      A delegate that can refer to any method taking two arguments and
+      returning <see cref="T:System.Void" />.
+    </summary>
+    <remarks>
+      This type is present within <c>NDesk.Options.dll</c> if targeting the
+      .NET 2.0 framework.  When targeting the .NET 3.5 framework, the
+      <see cref="T:System.Action`2" /> delegate type within
+      <c>System.Core.dll</c> should be used instead.
+    </remarks>
   </Docs>
 </Type>
