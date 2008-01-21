@@ -1,0 +1,248 @@
+commit 28cedf00e5ab73815c8e84dec21156980bc1cdf1
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Mon Jan 21 00:17:35 2008 -0500
+
+    Add module license.
+    
+    	* COPYING: Added; module license (MIT/X11).
+
+commit c1f7fb12006e9756c501da9e65f35e689d8b727d
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Sat Jan 19 23:20:54 2008 -0500
+
+    Documentation Dump (includes OptionSet).
+    
+    	*	doc/Makefile: Build localization.mo; add new EXAMPLES_OUTPUT files.
+    	*	doc/en/NDesk.Options/Option.xml, doc/en/NDesk.Options/OptionContext.xml,
+    	 	doc/en/NDesk.Options/OptionException.xml,
+    	 	doc/en/NDesk.Options/OptionSet.xml,
+    	 	doc/en/System/Action`2.xml: Flush docs.
+    	*	doc/en/examples/context.cs, doc/en/examples/context.in,
+    	 	doc/en/examples/greet.cs, doc/en/examples/greet.in,
+    	 	doc/en/examples/localization.cs, doc/en/examples/localization.in: Added;
+    	 	documentation examples and shell input files.
+    	*	doc/en/examples/localization-es.po: gettext translation file for
+    	 	doc/en/examples/localization.cs.
+    	*	doc/en/examples/locale/es/LC_MESSAGES/localization.mo: Compiled message
+    	 	file for doc/en/examples/localization-es.po.
+
+commit b341054aef9ed00163463043c9ed964a91724a5b
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Sat Jan 19 22:10:31 2008 -0500
+
+    Add more assertions; add tests for (and fix) OptionContext behavior.
+    
+    	* src/NDesk.Options/NDesk.Options/Options.cs:
+    	  - OptionSet.Add(Option) should assert that the option isn't null.
+    	  - Add tests for OptionContext behavior -- OptionContext.OptionIndex should
+    	    be correct, etc.  Fix .OptionIndex bugs found by tests (off-by-1 error).
+
+commit 7c2052dc06a1bc252ea2acc3f625b63378b6d679
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Fri Jan 18 08:53:03 2008 -0500
+
+    Flush more documentation.
+    
+    	* doc/en/**/*.xml: Flush added documentation.
+
+commit a4a37741b12166858d6f77259fcd14582d56d51c
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Wed Jan 16 12:46:45 2008 -0500
+
+    Explicitly set version numbers so docs aren't filled with bad versions.
+    
+    	* src/NDesk.Options/AssemblyInfo.cs: Use full version numbers like 2.0.0.0
+    	  instead of wildcard versions like 2.0.*.  This prevents the compiler from
+    	  creating a new version number on each compile, which fills the
+    	  documentation with spurious unnecessary version numbers.
+    	* doc/en/**/*.xml: Flush (cleanup extra version numbers).
+
+commit 7817b33d6cf36d0507214e4b0abdbb11b429a7c4
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Wed Jan 16 12:45:06 2008 -0500
+
+    Allow the GC to cleanup unused objects.
+    
+    	* src/NDesk.Options/NDesk.Options/Options.cs: The Regex instance should be
+    	  scoped to the OptionSet instance, so that when the OptionSet is collected
+    	  the Regex instance can be as well.  Otherwise, the Regex will hang around
+    	  for the entire process lifetime, for no real purpose.
+
+commit 44a0f5d21a9046aaab333ab1755664dc4cc6c6a2
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Tue Jan 15 11:41:42 2008 -0500
+
+    Add documentation example infrastructure.
+    
+    	* doc/Makefile: Add targets to generate example output based on example
+    	  programs.
+    	* doc/en/**/*.xml: Flush (new versions; need to cleanup later).
+    	* doc/en/NDesk.Options/OptionSet.xml: Use of the new example infrastructure.
+    	  Use <code lang="lang" src="examples/filename" /> and the contents of
+    	  examples/filename will be inserted when monodocer is run.
+    	* doc/en/examples/localization.cs: Localization example program.
+    	* doc/en/examples/localization.in: Localization sample comand-lines.
+
+commit e5053dcd9315dff697326bfe887c61f87f4969e6
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Mon Jan 14 10:12:32 2008 -0500
+
+    Document some members.
+    
+    	* doc/en/**/*.xml: Add documentation.
+
+commit a0587f7a6b2d9daf232c7bf40e8540a0c9112772
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Mon Jan 14 09:35:16 2008 -0500
+
+    Ensure that a fresh checkout builds.
+    
+    	* Makefile: Make sure that destination directories exist before building.
+
+commit 43ba45544ba04b2ce89dbff898d276ed440a73cd
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Mon Jan 14 08:47:30 2008 -0500
+
+    Add documentation stubs.
+    
+    	* Makefile: Generate assemblies as
+    	  lib/ndesk-options/VERSION/NDesk.Options.dll, not as
+    	  lib/ndesk-options/NDesk.Options.VERSION.dll.  This makes the assembly name
+    	  more consistent within the documentation.
+    	* doc/Makefile: Added; generate/update NDesk.Options documentation.
+    	* doc/ndesk-options-docs.source: Added; monodoc .source file for documentation.
+    	* doc/en/**: Added; ECMA-format XML documentation stubs for NDesk.Options.
+
+commit a410eaa5482274792cb835092c4edba3300cd45c
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Mon Jan 14 08:22:15 2008 -0500
+
+    Add assembly version information.
+    
+    	* Makefile: Build AssemblyInfo.cs.
+    	* src/NDesk.Options/AssemblyInfo.cs: Added; contains version information.
+
+commit fa53c095980fc99099cb25e25b08f42a34c45b6a
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Mon Jan 14 03:45:42 2008 -0500
+
+    Reduce memory use; add Option prototype sanity checking.
+    
+    	* src/NDesk.Options/NDesk.Options/Options.cs: Reduce memory requirements by
+    	  caching the option name (w/o the trailing '=' or ':'), so that
+    	  OptionSet.GetOptionNames() doesn't need to constantly re-generate this
+    	  information (in SetItem(), WriteOptionDescriptions(), etc.).  Add Option
+    	  tests for conflicting option types ('=' vs. ':'), empty option names.
+
+commit 07e418d6e582b8684db1e7af3cdaf6aabfb55493
+Author: Jonathan Pryor <jonpryor@vt.edu>
+Date:   Sun Jan 13 19:23:20 2008 -0500
+
+    Use System.Converter, not System.Func, for localization.
+    
+    	* src/NDesk.Options/NDesk.Options/Options.cs: Use Converter<string,string>
+    	  to convert just the format string, instead of using
+    	  Func<string,string[],string> to convert the format + arguments to a
+    	  string.  This reduces the number of .NET 3.5-included types, and most uses
+    	  of localization only require the format string, not the number of
+    	  arguments.
+
+commit d9f5fa4308e14c270b86fe77de88ef76486cdd90
+Author: Jonathan Pryor <jon@lina.magi.jprl.com>
+Date:   Sun Jan 13 17:31:52 2008 -0500
+
+    Renaming and Re-architecture for future API evolution.
+    
+    	* Makefile: Update file/path names.
+    	* lib/pkgconfig/mono-program-2.0.pc: Rename to
+    	  lib/pkgconfig/ndesk-options-2.0.pc.
+    	* lib/pkgconfig/mono-program-3.5.pc: Rename to
+    	  lib/pkgconfig/ndesk-options-3.5.pc.
+    	* src/Mono.Program/Mono.Program/Options.cs: Rename to
+    	  src/NDesk.Options/NDesk.Options/Options.cs
+    	* src/NDesk.Options/NDesk.Options/Options.cs:
+    	  - Rename namespace from Mono.Documentation to NDesk.Options.
+    	  - Rename OptionValue to OptionValueType, and make public.
+    	  - Add a OptionContext.Option property.
+    	  - Make Option `abstract', and remove the Action property.  Add a new
+    	    abstract Invoke(OptionContext) method.
+    	    This is to permit future evolution of the callback mechanism, to use
+    	    types other than Action`2 if necessary (since we already went from
+    	    Action`1 to Action`2).
+    	  - Rename Options to OptionSet.
+    	  - Make OptionSet.Add(Option) exception-safe.
+    	  - Cleanup option parsing by using more, smaller methods.
+    	  - Add virtual OptionSet.CreateOptionContext() and OptionSet.Parse()
+    	    methods, so that subclasses can have some control over parsing.
+    	    - Test with CiOptionSet, a case-insensitive option parser.
+
+commit 7223d2422579111a74c7fd801134c809e41d7a86
+Author: Jonathan Pryor <jon@lina.magi.jprl.com>
+Date:   Sun Jan 13 16:49:52 2008 -0500
+
+    Add message localization support, OptionContext, LINQ-fun.
+    
+    	* src/Mono.Program/Mono.Program/Options.cs:
+    	  - Use a Func<string,string[],string> for message translation.
+    	  - Add a new OptionContext class which contains parser context.  This
+    	    permits more useful error messages (e.g. the *exact* option used,
+    	    particularly useful when a prototype contains aliases).
+    	    - External callers can get OptionContext via a 2-argument callback.
+    	  - For Fun, a Options.Parse() implementation that uses LINQ.
+
+commit 7148f06ebeb63e8361b2bc06e0a8002ff9272e58
+Author: Jonathan Pryor <jon@lina.magi.jprl.com>
+Date:   Sun Jan 13 16:44:46 2008 -0500
+
+    Follow Getopt::Long parsing behavior.
+    
+    	* src/Mono.Program/Mono.Program/Options.cs:
+    	  - What do do when a {-,/,--} argument follows an option requiring a value?
+    	    Previously, Options would error.  Perl's Getopt::Long doesn't, and sets
+    	    the option value to the {-,/,--} argument.  Follow Perl.
+    	  - Throw an OptionException if TypeConverter generates an exception --
+    	    facilitates readable error messages.
+
+commit 2f8f5420af6995916f9f5cf7e1bb34f2b742add6
+Author: Jonathan Pryor <jon@lina.magi.jprl.com>
+Date:   Sun Jan 13 16:31:59 2008 -0500
+
+    Implement feedback about error handling, return types.
+    
+    	* src/Mono.Program/Mono.Program/Options.cs:
+    	  - Use OptionException to report parse errors.
+    	  - OptionException.Message should contain a reasonably useful error message
+    	    that can be printed directly to Console.Error.
+    	  - Check exception message values in AssertException().
+    	  - Options.Parse() should return List<string>, not IEnumerable<string>.
+    	  - Remove extra ()'s when unnecessary.
+
+commit 32396a89089505bc7a99b62df64429de2a23e5dd
+Author: Jonathan Pryor <jon@lina.magi.jprl.com>
+Date:   Sun Jan 13 16:24:00 2008 -0500
+
+    Add option bundling and option termination support.
+    
+    	* src/Mono.Program/Mono.Program/Options.cs:
+    	  - Add option bundling and option termination support.  Only
+    	    single-character non-value options can be bundled.
+    	  - Option parsing is disabled once a "--" option is encountered.
+    	  - For Add<T>, if the option value is optional, then pass default(T) to the
+    	    callback, not null.
+    	  - Rename WriteDescriptions() to WriteOptionDescriptions().
+    	  - Cleanup WriteOptionDescriptions().
+    	  - Allow running a subset of all unit tests (using Options for option
+    	    parsing, of course).
+    	  - Add more tests.
+
+commit b34164c646fc0549d553e6ee996c3b7e17043662
+Author: Jonathan Pryor <jon@lina.magi.jprl.com>
+Date:   Sun Jan 13 15:57:15 2008 -0500
+
+    Start a Getopt::Long-inspired Options parser for C#.
+    
+    	* Makefile: Build and check the world.
+    	* lib/pkgconfig/mono-program-2.0.pc,
+    	* lib/pkgconfig/mono-program-3.5.pc: pkgconfig files for .NET 2.0 and 3.5
+    	  profiles.
+    	* src/Mono.Program/Mono.Program/Options.cs: the Option parser.
