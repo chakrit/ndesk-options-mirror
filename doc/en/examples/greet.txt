@@ -1,0 +1,25 @@
+$ mono greet.exe --help
+Usage: greet [OPTIONS]+ message
+Greet a list of individuals with an optional message.
+If no messge is specified, a generic greeting is used.
+
+Options:
+  -n, --name=VALUE           the name of someone to greet.
+  -r, --repeat=VALUE         the number of times to repeat the greeting.
+  -v                         increase debug message verbosity
+  -h, --help                 show this message and exit
+$ mono greet.exe -v- -n A -name=B --name=C /name D
+Hello A!
+Hello B!
+Hello C!
+Hello D!
+$ mono greet.exe -v -n E custom greeting for: {0}
+# Using new message: custom greeting for: {0}
+custom greeting for: E
+$ mono greet.exe -r 3 -n A
+Hello A!
+Hello A!
+Hello A!
+$ mono greet.exe -r not-an-int
+greet: Could not convert string `not-an-int' to type Int32 for option `-r'.
+Try `greet --help' for more information.
