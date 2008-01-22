@@ -743,14 +743,14 @@ class Test {
             under the influence of a variety of program options.
           </para>
           <code lang="sh" src="examples/context.txt">$ mono context.exe -f
-# Parsed -f; Value=&lt;null&gt;; Index=1
+# Parsed -f; Value=&lt;null&gt;; Index=0
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
 $ mono context.exe -n
 context: Missing required value for option '-n'.
 $ mono context.exe -s
-# Parsed -s; Value=; Index=1
+# Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
@@ -759,14 +759,14 @@ context: Could not convert string `invalid' to type Foo for option `-f'.
 $ mono context.exe -n invalid
 context: Could not convert string `invalid' to type Int32 for option `-n'.
 $ mono context.exe -s=
-# Parsed -s; Value=; Index=1
+# Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=
 $ mono context.exe -f A --n=42 /s fourty-two
-# Parsed -f; Value=A; Index=2
-# Parsed --n; Value=42; Index=3
-# Parsed /s; Value=fourty-two; Index=5
+# Parsed -f; Value=A; Index=1
+# Parsed --n; Value=42; Index=2
+# Parsed /s; Value=fourty-two; Index=4
 f=A
 n=42
 s=fourty-two
@@ -1110,14 +1110,14 @@ class Test {
             under the influence of a variety of program options.
           </para>
           <code lang="sh" src="examples/context.txt">$ mono context.exe -f
-# Parsed -f; Value=&lt;null&gt;; Index=1
+# Parsed -f; Value=&lt;null&gt;; Index=0
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
 $ mono context.exe -n
 context: Missing required value for option '-n'.
 $ mono context.exe -s
-# Parsed -s; Value=; Index=1
+# Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
@@ -1126,14 +1126,14 @@ context: Could not convert string `invalid' to type Foo for option `-f'.
 $ mono context.exe -n invalid
 context: Could not convert string `invalid' to type Int32 for option `-n'.
 $ mono context.exe -s=
-# Parsed -s; Value=; Index=1
+# Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=
 $ mono context.exe -f A --n=42 /s fourty-two
-# Parsed -f; Value=A; Index=2
-# Parsed --n; Value=42; Index=3
-# Parsed /s; Value=fourty-two; Index=5
+# Parsed -f; Value=A; Index=1
+# Parsed --n; Value=42; Index=2
+# Parsed /s; Value=fourty-two; Index=4
 f=A
 n=42
 s=fourty-two

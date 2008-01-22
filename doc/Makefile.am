@@ -40,9 +40,9 @@ DOCUMENTATION = \
 	$(srcdir)/en/System/Action`2.xml
 
 EXAMPLES_OUTPUT = \
-	$(srcdir)/en/examples/context.txt \
-	$(srcdir)/en/examples/greet.txt \
-	$(srcdir)/en/examples/localization.txt
+	en/examples/context.txt \
+	en/examples/greet.txt \
+	en/examples/localization.txt
 
 %.txt: %.in %.exe
 	-rm $@
@@ -84,7 +84,8 @@ CLEANFILES = \
 	ndesk-options-docs.zip \
 	ndesk-options-docs.tree \
 	en/examples/NDesk.Options.dll \
-	en/examples/*.exe
+	en/examples/*.exe \
+	$(EXAMPLES_OUTPUT)
 
 edit:
 	monodoc --edit $(srcdir)/en
