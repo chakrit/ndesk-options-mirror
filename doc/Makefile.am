@@ -17,7 +17,7 @@ UPDATER = $(MONODOCER) -overrides -pretty -path:en
 
 assemble: ndesk-options-docs.zip ndesk-options-docs.tree
 
-$(srcdir)/en/examples/NDesk.Options.dll: ../lib/ndesk-options/net2/NDesk.Options.dll
+$(srcdir)/en/examples/NDesk.Options.dll: $(srcdir)/../lib/ndesk-options/net2/NDesk.Options.dll
 	cp $^ $@
 
 %.exe: %.cs $(srcdir)/en/examples/NDesk.Options.dll
@@ -27,6 +27,17 @@ $(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo: $(srcdir)/en/exampl
 	msgfmt $< -o $@
 
 $(srcdir)/en/examples/localization.exe: $(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo
+
+DOCUMENTATION = \
+	$(srcdir)/en/index.xml \
+	$(srcdir)/en/ns-NDesk.Options.xml \
+	$(srcdir)/en/ns-System.xml \
+	$(srcdir)/en/NDesk.Options/Option.xml \
+	$(srcdir)/en/NDesk.Options/OptionContext.xml \
+	$(srcdir)/en/NDesk.Options/OptionException.xml \
+	$(srcdir)/en/NDesk.Options/OptionSet.xml \
+	$(srcdir)/en/NDesk.Options/OptionValueType.xml \
+	$(srcdir)/en/System/Action`2.xml
 
 EXAMPLES_OUTPUT = \
 	$(srcdir)/en/examples/context.txt \
@@ -42,7 +53,7 @@ EXAMPLES_OUTPUT = \
 	done ; \
 	exec 3>&-;
 
-ndesk-options-docs.zip ndesk-options-docs.tree: $(srcdir)/en/*/*.xml $(srcdir)/en/*.xml
+ndesk-options-docs.zip ndesk-options-docs.tree: $(DOCUMENTATION)
 	$(MDASSEMBLER) --ecma $(srcdir)/en -o ndesk-options-docs
 
 update: $(addprefix ../lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/en/examples/*.cs $(EXAMPLES_OUTPUT)
@@ -55,11 +66,25 @@ update-delete: $(addprefix ../lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/en/ex
 		$(UPDATER) --delete -assembly:../lib/ndesk-options/$$a ; \
 	done
 
+EXTRA_DIST = \
+	$(srcdir)/ndesk-options-docs.source \
+	$(srcdir)/en/examples/context.cs \
+	$(srcdir)/en/examples/context.in \
+	$(srcdir)/en/examples/context.txt \
+	$(srcdir)/en/examples/greet.cs \
+	$(srcdir)/en/examples/greet.in \
+	$(srcdir)/en/examples/greet.txt \
+	$(srcdir)/en/examples/localization.cs \
+	$(srcdir)/en/examples/localization.in \
+	$(srcdir)/en/examples/localization.txt \
+	$(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo \
+	$(DOCUMENTATION)
+
 CLEANFILES = \
 	ndesk-options-docs.zip \
 	ndesk-options-docs.tree \
-	$(srcdir)/en/examples/NDesk.Options.dll \
-	$(srcdir)/en/examples/*.exe
+	en/examples/NDesk.Options.dll \
+	en/examples/*.exe
 
 edit:
 	monodoc --edit $(srcdir)/en

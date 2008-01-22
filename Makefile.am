@@ -4,6 +4,8 @@ OPTIONS_SRC = \
 	$(srcdir)/src/NDesk.Options/AssemblyInfo.cs           \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs
 
+EXTRA_DIST = $(OPTIONS_SRC)
+
 assemblydir=$(prefix)/lib/ndesk-options
 assembly_DATA = src/NDesk.Options/NDesk.Options/Options.cs
 
@@ -41,14 +43,13 @@ $(nobindir)/options-test3.exe: $(OPTIONS_SRC)
 check: $(nobindir)/options-test2.exe $(nobindir)/options-test3.exe
 	mono --debug bin/options-test2.exe && mono --debug bin/options-test3.exe
 
-clean:
-	-rm \
-		$(nobindir)/options-test2.exe           \
-		$(nobindir)/options-test2.exe.mdb       \
-		$(nobindir)/options-test3.exe           \
-		$(nobindir)/options-test3.exe.mdb       \
-		$(nolibdir)/net2/NDesk.Options.dll       \
-		$(nolibdir)/net2/NDesk.Options.dll.mdb   \
-		$(nolibdir)/net3.5/NDesk.Options.dll	      \
-		$(nolibdir)/net3.5/NDesk.Options.dll.mdb
+CLEANFILES = \
+	$(nobindir)/options-test2.exe             \
+	$(nobindir)/options-test2.exe.mdb         \
+	$(nobindir)/options-test3.exe             \
+	$(nobindir)/options-test3.exe.mdb         \
+	$(nolibdir)/net2/NDesk.Options.dll        \
+	$(nolibdir)/net2/NDesk.Options.dll.mdb    \
+	$(nolibdir)/net3.5/NDesk.Options.dll	    \
+	$(nolibdir)/net3.5/NDesk.Options.dll.mdb
 
