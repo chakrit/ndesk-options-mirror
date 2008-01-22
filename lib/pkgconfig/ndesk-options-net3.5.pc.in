@@ -1,7 +1,7 @@
 prefix=${pcfiledir}/../..
 exec_prefix=${pcfiledir}/../..
 libdir=@libdir@
-assemblies_dir=${libdir}/mono-program
+assemblies_dir=${libdir}/ndesk-options
 Libraries=${assemblies_dir}/net3.5/NDesk.Options.dll
 Sources=${assemblies_dir}/Options.cs
  
