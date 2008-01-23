@@ -42,7 +42,8 @@ DOCUMENTATION = \
 EXAMPLES_OUTPUT = \
 	en/examples/context.txt \
 	en/examples/greet.txt \
-	en/examples/localization.txt
+	en/examples/localization.txt \
+	en/examples/subclass.txt
 
 %.txt: %.in %.exe
 	-rm $@
