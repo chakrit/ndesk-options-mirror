@@ -203,7 +203,12 @@ namespace NDesk.Options {
 			return type == '=' ? OptionValueType.Required : OptionValueType.Optional;
 		}
 
-		public abstract void Invoke (OptionContext c);
+		public virtual void Invoke (OptionContext c)
+		{
+			c.OptionName  = null;
+			c.OptionValue = null;
+			c.Option      = null;
+		}
 
 		public override string ToString ()
 		{
@@ -259,6 +264,16 @@ namespace NDesk.Options {
 		Dictionary<string, Option> options = new Dictionary<string, Option> ();
 		Converter<string, string> localizer;
 
+		protected Option GetOptionForName (string option)
+		{
+			if (option == null)
+				throw new ArgumentNullException ("option");
+			Option v;
+			if (options.TryGetValue (option, out v))
+				return v;
+			return null;
+		}
+
 		protected override void ClearItems ()
 		{
 			this.options.Clear ();
@@ -300,10 +315,7 @@ namespace NDesk.Options {
 			public override void Invoke (OptionContext c)
 			{
 				action (c.OptionValue, c);
-
-				c.OptionName  = null;
-				c.OptionValue = null;
-				c.Option      = null;
+				base.Invoke (c);
 			}
 		}
 
@@ -950,6 +962,11 @@ namespace Tests.NDesk.Options {
 				}
 				return base.Parse (f + n.ToLower () + (v != null ? "=" + v : ""), c);
 			}
+
+			public new Option GetOptionForName (string n)
+			{
+				return base.GetOptionForName (n);
+			}
 		}
 
 		static void CheckDerivedType ()
@@ -964,8 +981,15 @@ namespace Tests.NDesk.Options {
 			p.Parse (_("-HELP"));
 			Assert (help, true);
 
+			Assert (p.GetOptionForName ("h"), p [0]);
+			Assert (p.GetOptionForName ("help"), p [0]);
+			Assert (p.GetOptionForName ("invalid"), null);
+
 			AssertException (typeof(ArgumentException), "prototypes must be null!",
 					p, v => { v.Add ("N|NUM=", (int n) => {}); });
+			AssertException (typeof(ArgumentNullException),
+					"Argument cannot be null.\nParameter name: option",
+					p, v => { v.GetOptionForName (null); });
 		}
 
 		static void CheckOptionContext ()
