@@ -5,6 +5,12 @@
     <AssemblyVersion>2.0.0.0</AssemblyVersion>
     <AssemblyVersion>3.5.0.0</AssemblyVersion>
   </AssemblyInfo>
+  <ThreadingSafetyStatement>
+    All members of this type are safe for multithreaded operations.
+    Subclasses must be thread-safe if multithreaded invocation of 
+    <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;string&gt;)" />
+    is required.
+  </ThreadingSafetyStatement>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
   </Base>
@@ -41,8 +47,14 @@
           </term>
         </item>
       </list>
+      <para>
+        You can also add custom <see cref="T:NDesk.Options.Option" /> 
+        subclasses via the 
+        <see cref="T:System.Collections.ObjectModel.Collection{NDesk.Options.Option}.Add(`0)" />
+        method.
+      </para>
       <block subset="none" type="overrides">
-        Inheritors of this type must implement the abstract 
+        Inheritors of this type should override the <see langword="virtual" />
         <see cref="M:NDesk.Options.Option.Invoke(NDesk.Options.OptionContext)" />
         method, which is invoked from within 
         <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
@@ -187,7 +199,7 @@
       </Docs>
     </Member>
     <Member MemberName="Invoke">
-      <MemberSignature Language="C#" Value="public abstract void Invoke (NDesk.Options.OptionContext c);" />
+      <MemberSignature Language="C#" Value="public virtual void Invoke (NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.0.0</AssemblyVersion>
@@ -201,19 +213,43 @@
       </Parameters>
       <Docs>
         <param name="c">
-          A <see cref="T:NDesk.Options.OptionContext" /> instance containing
+          An <see cref="T:NDesk.Options.OptionContext" /> instance containing
           information about the option that was parsed.
         </param>
         <summary>
           Performs an action when an option is parsed.
         </summary>
         <remarks>
-          This method is invoked from within 
-          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
-          when an option matching 
-          <see cref="M:NDesk.Options.Option.GetNames" /> is encountered with
-          the provided value (if a value is required or optional).
+          <para>
+            This method is invoked from within 
+            <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
+            when an option matching 
+            <see cref="M:NDesk.Options.Option.GetNames" /> is encountered with
+            the provided value (if a value is required or optional).
+          </para>
+          <block subset="none" type="overrides">
+            Overriders of this method should ensure that the base class method
+            is invoked as part of their implementation:
+            <code lang="C#">public override void Invoke (OptionContext c)
+{
+	// perform any custom work here
+	base.Invoke (c);
+}</code>
+          </block>
+          <block subset="none" type="behaviors">
+            <para>
+              This implementation sets the following 
+              <see cref="T:NDesk.Options.OptionContext" /> properties to 
+              <see langword="null" />: 
+            </para>
+            <list type="bullet">
+              <item><term><see cref="P:NDesk.Options.OptionContext.Option" /></term></item>
+              <item><term><see cref="P:NDesk.Options.OptionContext.OptionName" /></term></item>
+              <item><term><see cref="P:NDesk.Options.OptionContext.OptionValue" /></term></item>
+            </list>
+          </block>
         </remarks>
+        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
       </Docs>
     </Member>

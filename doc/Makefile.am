@@ -49,8 +49,12 @@ EXAMPLES_OUTPUT = \
 	-rm $@
 	exec 3<$< ; \
 	while read line 0<&3 ; do \
-		echo "$$ $$line" | sed 's#en/examples/##' >> $@ ; \
-		script -q -a -c "$$line" $@ ; \
+		if test -n "$$line" ; then \
+			echo "$$ $$line" | sed 's#en/examples/##' >> $@ ; \
+			sh -c "$$line" >> $@ ; \
+		else \
+			echo "" >> $@ ; \
+		fi ; \
 	done ; \
 	exec 3>&-;
 

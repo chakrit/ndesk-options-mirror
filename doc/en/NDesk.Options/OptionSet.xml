@@ -142,6 +142,24 @@
         </para>
         <code lang="C#">List&lt;string&gt; extra = p.Parse (new string[]{"-option-a"});</code>
       </block>
+      <block subset="none" type="overrides">
+        <para>
+          Subclasses can override the following <see langword="virtual" /> 
+          methods to customize option parsing behavior:
+        </para>
+        <list type="bullet">
+          <item>
+            <term>
+              <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
+            </term>
+          </item>
+          <item>
+            <term>
+              <see cref="M:NDesk.Options.OptionSet.CreateOptionContext" />
+            </term>
+          </item>
+        </list>
+      </block>
     </remarks>
     <example>
       <para>
@@ -236,18 +254,22 @@ Options:
   -r, --repeat=VALUE         the number of times to repeat the greeting.
   -v                         increase debug message verbosity
   -h, --help                 show this message and exit
+
 $ mono greet.exe -v- -n A -name=B --name=C /name D
 Hello A!
 Hello B!
 Hello C!
 Hello D!
+
 $ mono greet.exe -v -n E custom greeting for: {0}
 # Using new message: custom greeting for: {0}
 custom greeting for: E
+
 $ mono greet.exe -r 3 -n A
 Hello A!
 Hello A!
 Hello A!
+
 $ mono greet.exe -r not-an-int
 greet: Could not convert string `not-an-int' to type Int32 for option `-r'.
 Try `greet --help' for more information.
@@ -280,6 +302,223 @@ Try `greet --help' for more information.
         <see cref="T:System.ComponentModel.TypeConverter" /> will be used to
         convert a string to the specified type.
       </para>
+    </example>
+    <example>
+      <para>
+        The following example shows a custom <c>OptionSet</c> subclass with
+        the following additional functionality:
+      </para>
+      <list type="number">
+        <item>
+          <term>
+          Option name lookup is done in a case insenitive fashion, so
+          <c>--name</c> and <c>--NAME</c> are identical.
+        </term>
+        </item>
+        <item>
+          <term>
+          Option-like strings cannot be used as values to options, so
+          <c>--name --repeat</c> is an error.
+        </term>
+        </item>
+        <item>
+          <term>
+          A key/value parser is provided, to show the use of custom 
+          <see cref="T:NDesk.Options.OptionContext" /> and
+          <see cref="T:NDesk.Options.Option" /> subclasses.
+        </term>
+        </item>
+      </list>
+      <code lang="C#" src="examples/subclass.cs">// Case-Insensitive OptionSet
+using System;
+using System.Collections.Generic;
+using NDesk.Options;
+
+class DemoOptionContext : OptionContext {
+	public string OptionKey;
+}
+
+class DemoOptionSet : OptionSet {
+	protected override void InsertItem (int index, Option item)
+	{
+		if (item.Prototype.ToLower () != item.Prototype)
+			throw new ArgumentException ("prototypes must be lower-case!");
+		base.InsertItem (index, item);
+	}
+
+	protected override OptionContext CreateOptionContext ()
+	{
+		return new DemoOptionContext ();
+	}
+
+	protected override bool Parse (string option, OptionContext c)
+	{
+		DemoOptionContext d = (DemoOptionContext) c;
+		// Prevent --a --b
+		string f, n, v;
+		bool haveParts = GetOptionParts (option, out f, out n, out v);
+		Option nextOption = haveParts ? GetOptionForName (n.ToLower ()) : null;
+		if (haveParts &amp;&amp; c.Option != null) {
+			if (nextOption == null)
+				; // ignore
+			else if (c.Option.OptionValueType == OptionValueType.Optional) {
+				c.OptionValue = null;
+				c.Option.Invoke (c);
+			}
+			else 
+				throw new OptionException (
+					string.Format ("Found option value `{0}' for option `{1}'.",
+						option, c.OptionName), c.OptionName);
+		}
+
+		// option name already found, so `option' is the option value
+		if (c.Option != null) {
+			if (c.Option is KeyValueOption &amp;&amp; d.OptionKey == null) {
+				HandleKeyValue (option, d);
+				return true;
+			}
+			return base.Parse (option, c);
+		}
+
+		if (!haveParts)
+			// Not an option; let base handle as a non-option argument.
+			return base.Parse (option, c);
+
+		// use lower-case version of the option name.
+		if (nextOption != null &amp;&amp; nextOption is KeyValueOption) {
+			d.Option     = nextOption;
+			d.OptionName = f + n.ToLower ();
+			HandleKeyValue (v, d);
+			return true;
+		}
+		return base.Parse (f + n.ToLower () + (v != null ? "=" + v : ""), c);
+	}
+
+	static void HandleKeyValue (string option, DemoOptionContext d)
+	{
+		if (option == null)
+			return;
+		string[] parts = option.Split ('=');
+		if (parts.Length == 1) {
+			d.OptionKey = option;
+			return;
+		}
+		d.OptionKey   = parts [0];
+		d.OptionValue = parts [1];
+		if (d.Option != null) {
+			d.Option.Invoke (d);
+		}
+	}
+
+	class KeyValueOption : Option {
+		public KeyValueOption (string prototype, Action&lt;string,string,OptionContext&gt; action)
+			: base (prototype, null)
+		{
+			this.action = action;
+		}
+
+		Action&lt;string,string,OptionContext&gt; action;
+
+		public override void Invoke (OptionContext c)
+		{
+			DemoOptionContext d = (DemoOptionContext) c;
+			action (d.OptionKey, d.OptionValue, d);
+			d.OptionKey = null;
+			base.Invoke (c);
+		}
+	}
+
+	public new DemoOptionSet Add (string prototype,
+		Action&lt;string,string,OptionContext&gt; action)
+	{
+		base.Add (new KeyValueOption (prototype, action));
+		return this;
+	}
+}
+
+class Demo {
+	public static void Main (string[] args)
+	{
+		bool show_help = false;
+		List&lt;string&gt; names = new List&lt;string&gt; ();
+		Dictionary&lt;string,string&gt; map = new Dictionary&lt;string,string&gt; ();
+		int repeat = 1;
+
+		OptionSet p = new DemoOptionSet () {
+			{ "n|name=",    v =&gt; names.Add (v) },
+			{ "r|repeat:",  (int v) =&gt; repeat = v },
+			{ "m|map=",     (k,v,c) =&gt; map.Add (k, v) },
+		};
+
+		List&lt;string&gt; extra;
+		try {
+			extra = p.Parse (args);
+		}
+		catch (OptionException e) {
+			Console.Write ("subclass: ");
+			Console.WriteLine (e.Message);
+			return;
+		}
+
+		string message;
+		if (extra.Count &gt; 0) {
+			message = string.Join (" ", extra.ToArray ());
+		}
+		else {
+			message = "Hello {0}!";
+		}
+
+		foreach (string name in names) {
+			for (int i = 0; i &lt; repeat; ++i)
+				Console.WriteLine (message, name);
+		}
+		List&lt;string&gt; keys = new List&lt;string&gt;(map.Keys);
+		keys.Sort ();
+		foreach (string key in keys) {
+			Console.WriteLine ("Key: {0}={1}", key, map [key]);
+		}
+	}
+}
+
+</code>
+      <para>The output (under the influence of different command-line
+        arguments) is:
+      </para>
+      <code lang="sh" src="examples/subclass.txt">$ mono subclass.exe -n A -Name=B --NAME=C /nAMe D
+Hello A!
+Hello B!
+Hello C!
+Hello D!
+
+$ mono subclass.exe --Repeat -name A
+
+$ mono subclass.exe -Name --Repeat 3
+subclass: Found option value `--Repeat' for option `-name'.
+
+$ mono subclass.exe --Map a b -mAp c=d /maP=e=f
+Key: a=b
+Key: c=d
+Key: e=f
+</code>
+      <para>Notice:</para>
+      <list type="bullet">
+        <item><term>
+          Notice that <c>--name</c> is treated in a case-insensitive fashion.
+        </term></item>
+        <item><term>
+          That <c>repeat</c> has an optional value, so with 
+          <c>--Repeat -name A</c> the default <c>int</c> value is passed (0),
+          so no message is printed.
+        </term></item>
+        <item><term>
+          That <c>name</c> has a required value, so 
+          <c>-Name --Repeat 3</c> generates an error.
+        </term></item>
+        <item><term>
+          The <c>DemoOptionSet.Add()</c> method provides appropriate key/value
+          option pairs to the callback method.
+        </term></item>
+      </list>
     </example>
   </Docs>
   <Members>
@@ -420,30 +659,44 @@ class LocalizationDemo {
   -n=VALUE                   must be an int
   -V, --version              output version information and exit.
 NDesk.Options Localizer Demo 1.0
+
 $ LANGUAGE=es mono localization.exe --with-gettext --help --version
   -h, -?, --help             A mostrar este mensaje y salir.
   -v, --verbose              Aumento mensaje verbosidad.
   -n=VALUE                   Debe ser un int
   -V, --version              Salida de información de versión y sale.
 NDesk.Options Localizer Demo 1.0
+
 $ mono localization.exe --with-hello --help --version
   -h, -?, --help             hello:show this message and exit.
   -v, --verbose              hello:increase message verbosity.
   -nhello:=VALUE             hello:must be an int
   -V, --version              hello:output version information and exit.
 NDesk.Options Localizer Demo 1.0
+
+$ mono localization.exe -n not-an-int
+localization: Could not convert string `not-an-int' to type Int32 for option `-n'.
+
 $ mono localization.exe --with-hello -n not-an-int
 localization: hello:Could not convert string `not-an-int' to type Int32 for option `-n'.
 </code>
-          <para>
-            Notice that the <c>--with-gettext</c> parser uses 
-            <see cref="M:Mono.Unix.Catalog.GetString" /> to translate all
-            messages, and that the <c>-with-hello</c> parser prefixes all 
-            descriptions with <c>hello:</c>.
-            Also notice that only the descriptions are translated, and not
-            the command-line arguments themselves.  Only error messages and 
-            option descriptions are translated, not the options themselves.
-          </para>
+          <para>Notice:</para>
+          <list type="bullet">
+            <item><term>
+              The <c>--with-gettext</c> parser uses 
+              <see cref="M:Mono.Unix.Catalog.GetString" /> to translate all
+              messages
+            </term></item>
+            <item><term>
+              The <c>-with-hello</c> parser prefixes all 
+              descriptions with <c>hello:</c>.
+            </term></item>
+            <item><term>
+              Only the descriptions are translated, and not the command-line 
+              arguments themselves.  Only error messages and 
+              option descriptions are translated, not the options themselves.
+            </term></item>
+          </list>
         </example>
       </Docs>
     </Member>
@@ -747,22 +1000,28 @@ class Test {
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
+
 $ mono context.exe -n
 context: Missing required value for option '-n'.
+
 $ mono context.exe -s
 # Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
+
 $ mono context.exe -f invalid
 context: Could not convert string `invalid' to type Foo for option `-f'.
+
 $ mono context.exe -n invalid
 context: Could not convert string `invalid' to type Int32 for option `-n'.
+
 $ mono context.exe -s=
 # Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=
+
 $ mono context.exe -f A --n=42 /s fourty-two
 # Parsed -f; Value=A; Index=1
 # Parsed --n; Value=42; Index=2
@@ -1114,22 +1373,28 @@ class Test {
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
+
 $ mono context.exe -n
 context: Missing required value for option '-n'.
+
 $ mono context.exe -s
 # Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=&lt;null&gt;
+
 $ mono context.exe -f invalid
 context: Could not convert string `invalid' to type Foo for option `-f'.
+
 $ mono context.exe -n invalid
 context: Could not convert string `invalid' to type Int32 for option `-n'.
+
 $ mono context.exe -s=
 # Parsed -s; Value=; Index=0
 f=&lt;null&gt;
 n=-1
 s=
+
 $ mono context.exe -f A --n=42 /s fourty-two
 # Parsed -f; Value=A; Index=1
 # Parsed --n; Value=42; Index=2
@@ -1279,6 +1544,47 @@ s=fourty-two
         </remarks>
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
+      </Docs>
+    </Member>
+    <Member MemberName="GetOptionForName">
+      <MemberSignature Language="C#" Value="protected NDesk.Options.Option GetOptionForName (string option);" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>NDesk.Options.Option</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="option" Type="System.String" />
+      </Parameters>
+      <Docs>
+        <param name="option">
+          A <see cref="T:System.String" /> containing the option name to
+          lookup.
+        </param>
+        <summary>
+          Looks up the <see cref="T:NDesk.Options.Option" /> registered to
+          handle the option name <paramref name="option" />.
+        </summary>
+        <returns>
+          The <see cref="T:NDesk.Options.Option" /> instance registered to
+          handle the option name <paramref name="option" />.
+          If there is no registered handler for <paramref name="option" />,
+          then <see langword="null" /> is returned.
+        </returns>
+        <remarks>
+          <para>
+            Subclasses can use this function to perform 
+            <paramref name="option" /> lookup when overriding
+            <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />.
+          </para>
+        </remarks>
+        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />.
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="option" /> is <see langword="null" />.
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="GetOptionParts">
@@ -1820,18 +2126,22 @@ Options:
   -r, --repeat=VALUE         the number of times to repeat the greeting.
   -v                         increase debug message verbosity
   -h, --help                 show this message and exit
+
 $ mono greet.exe -v- -n A -name=B --name=C /name D
 Hello A!
 Hello B!
 Hello C!
 Hello D!
+
 $ mono greet.exe -v -n E custom greeting for: {0}
 # Using new message: custom greeting for: {0}
 custom greeting for: E
+
 $ mono greet.exe -r 3 -n A
 Hello A!
 Hello A!
 Hello A!
+
 $ mono greet.exe -r not-an-int
 greet: Could not convert string `not-an-int' to type Int32 for option `-r'.
 Try `greet --help' for more information.
