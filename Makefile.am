@@ -4,7 +4,7 @@ OPTIONS_SRC = \
 	$(srcdir)/src/NDesk.Options/AssemblyInfo.cs           \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs
 
-EXTRA_DIST = $(OPTIONS_SRC)
+EXTRA_DIST = $(OPTIONS_SRC) ndesk-options.spec
 
 assemblydir=$(prefix)/lib/ndesk-options
 assembly_DATA = src/NDesk.Options/NDesk.Options/Options.cs
@@ -42,6 +42,9 @@ $(nobindir)/options-test3.exe: $(OPTIONS_SRC)
 
 check: $(nobindir)/options-test2.exe $(nobindir)/options-test3.exe
 	mono --debug bin/options-test2.exe && mono --debug bin/options-test3.exe
+
+rpm:
+	rpmbuild -bb ndesk-options.spec
 
 CLEANFILES = \
 	$(nobindir)/options-test2.exe             \
