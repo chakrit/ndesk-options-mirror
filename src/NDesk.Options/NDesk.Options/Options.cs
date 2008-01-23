@@ -203,12 +203,15 @@ namespace NDesk.Options {
 			return type == '=' ? OptionValueType.Required : OptionValueType.Optional;
 		}
 
-		public virtual void Invoke (OptionContext c)
+		public void Invoke (OptionContext c)
 		{
+			OnParseComplete (c);
 			c.OptionName  = null;
 			c.OptionValue = null;
 			c.Option      = null;
 		}
+
+		protected abstract void OnParseComplete (OptionContext c);
 
 		public override string ToString ()
 		{
@@ -312,10 +315,9 @@ namespace NDesk.Options {
 				this.action = action;
 			}
 
-			public override void Invoke (OptionContext c)
+			protected override void OnParseComplete (OptionContext c)
 			{
 				action (c.OptionValue, c);
-				base.Invoke (c);
 			}
 		}
 
@@ -789,7 +791,7 @@ namespace Tests.NDesk.Options {
 			{
 			}
 
-			public override void Invoke (OptionContext c)
+			protected override void OnParseComplete (OptionContext c)
 			{
 				throw new NotImplementedException ();
 			}

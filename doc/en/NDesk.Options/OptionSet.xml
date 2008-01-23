@@ -419,12 +419,11 @@ class DemoOptionSet : OptionSet {
 
 		Action&lt;string,string,OptionContext&gt; action;
 
-		public override void Invoke (OptionContext c)
+		protected override void OnParseComplete (OptionContext c)
 		{
 			DemoOptionContext d = (DemoOptionContext) c;
 			action (d.OptionKey, d.OptionValue, d);
 			d.OptionKey = null;
-			base.Invoke (c);
 		}
 	}
 
@@ -502,22 +501,30 @@ Key: e=f
 </code>
       <para>Notice:</para>
       <list type="bullet">
-        <item><term>
+        <item>
+          <term>
           Notice that <c>--name</c> is treated in a case-insensitive fashion.
-        </term></item>
-        <item><term>
+        </term>
+        </item>
+        <item>
+          <term>
           That <c>repeat</c> has an optional value, so with 
           <c>--Repeat -name A</c> the default <c>int</c> value is passed (0),
           so no message is printed.
-        </term></item>
-        <item><term>
+        </term>
+        </item>
+        <item>
+          <term>
           That <c>name</c> has a required value, so 
           <c>-Name --Repeat 3</c> generates an error.
-        </term></item>
-        <item><term>
+        </term>
+        </item>
+        <item>
+          <term>
           The <c>DemoOptionSet.Add()</c> method provides appropriate key/value
           option pairs to the callback method.
-        </term></item>
+        </term>
+        </item>
       </list>
     </example>
   </Docs>
@@ -682,20 +689,26 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
 </code>
           <para>Notice:</para>
           <list type="bullet">
-            <item><term>
+            <item>
+              <term>
               The <c>--with-gettext</c> parser uses 
               <see cref="M:Mono.Unix.Catalog.GetString" /> to translate all
               messages
-            </term></item>
-            <item><term>
+            </term>
+            </item>
+            <item>
+              <term>
               The <c>-with-hello</c> parser prefixes all 
               descriptions with <c>hello:</c>.
-            </term></item>
-            <item><term>
+            </term>
+            </item>
+            <item>
+              <term>
               Only the descriptions are translated, and not the command-line 
               arguments themselves.  Only error messages and 
               option descriptions are translated, not the options themselves.
-            </term></item>
+            </term>
+            </item>
           </list>
         </example>
       </Docs>
@@ -1581,7 +1594,7 @@ s=fourty-two
             <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />.
           </para>
         </remarks>
-        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />.
+        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
         <exception cref="T:System.ArgumentNullException">
           <paramref name="option" /> is <see langword="null" />.
         </exception>

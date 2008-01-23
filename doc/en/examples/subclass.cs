@@ -88,12 +88,11 @@ class DemoOptionSet : OptionSet {
 
 		Action<string,string,OptionContext> action;
 
-		public override void Invoke (OptionContext c)
+		protected override void OnParseComplete (OptionContext c)
 		{
 			DemoOptionContext d = (DemoOptionContext) c;
 			action (d.OptionKey, d.OptionValue, d);
 			d.OptionKey = null;
-			base.Invoke (c);
 		}
 	}
 

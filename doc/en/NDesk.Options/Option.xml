@@ -49,14 +49,14 @@
       </list>
       <para>
         You can also add custom <see cref="T:NDesk.Options.Option" /> 
-        subclasses via the 
+        subclasses to an <see cref="T:NDesk.Options.OptionSet" /> via the 
         <see cref="T:System.Collections.ObjectModel.Collection{NDesk.Options.Option}.Add(`0)" />
         method.
       </para>
       <block subset="none" type="overrides">
-        Inheritors of this type should override the <see langword="virtual" />
-        <see cref="M:NDesk.Options.Option.Invoke(NDesk.Options.OptionContext)" />
-        method, which is invoked from within 
+        Inheritors of this type must override the <see langword="abstract" /> method
+        <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />,
+        which is (indirectly) invoked from within 
         <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
         when an option matching one of the <paramref name="prototype" />
         aliases is encountered.
@@ -199,7 +199,7 @@
       </Docs>
     </Member>
     <Member MemberName="Invoke">
-      <MemberSignature Language="C#" Value="public virtual void Invoke (NDesk.Options.OptionContext c);" />
+      <MemberSignature Language="C#" Value="public void Invoke (NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.0.0</AssemblyVersion>
@@ -217,7 +217,9 @@
           information about the option that was parsed.
         </param>
         <summary>
-          Performs an action when an option is parsed.
+          Invokes 
+          <see cref="T:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext" />
+          then clears out <paramref name="c" />.
         </summary>
         <remarks>
           <para>
@@ -227,30 +229,235 @@
             <see cref="M:NDesk.Options.Option.GetNames" /> is encountered with
             the provided value (if a value is required or optional).
           </para>
-          <block subset="none" type="overrides">
-            Overriders of this method should ensure that the base class method
-            is invoked as part of their implementation:
-            <code lang="C#">public override void Invoke (OptionContext c)
-{
-	// perform any custom work here
-	base.Invoke (c);
-}</code>
-          </block>
           <block subset="none" type="behaviors">
             <para>
-              This implementation sets the following 
-              <see cref="T:NDesk.Options.OptionContext" /> properties to 
-              <see langword="null" />: 
+              This method invokes 
+              <see cref="M:NDeks.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />,
+              passing along <paramref name="c" /> unchanged, and then sets the 
+              following <see cref="T:NDesk.Options.OptionContext" /> properties 
+              on <paramref name="c" /> to <see langword="null" />: 
             </para>
             <list type="bullet">
-              <item><term><see cref="P:NDesk.Options.OptionContext.Option" /></term></item>
-              <item><term><see cref="P:NDesk.Options.OptionContext.OptionName" /></term></item>
-              <item><term><see cref="P:NDesk.Options.OptionContext.OptionValue" /></term></item>
+              <item>
+                <term>
+                  <see cref="P:NDesk.Options.OptionContext.Option" />
+                </term>
+              </item>
+              <item>
+                <term>
+                  <see cref="P:NDesk.Options.OptionContext.OptionName" />
+                </term>
+              </item>
+              <item>
+                <term>
+                  <see cref="P:NDesk.Options.OptionContext.OptionValue" />
+                </term>
+              </item>
             </list>
           </block>
         </remarks>
+        <altmember cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
+      </Docs>
+    </Member>
+    <Member MemberName="OnParseComplete">
+      <MemberSignature Language="C#" Value="protected abstract void OnParseComplete (NDesk.Options.OptionContext c);" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.0.0</AssemblyVersion>
+        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Void</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="c" Type="NDesk.Options.OptionContext" />
+      </Parameters>
+      <Docs>
+        <param name="c">
+          An <see cref="T:NDesk.Options.OptionContext" /> instance containing
+          information about the option that was parsed.
+        </param>
+        <summary>
+          Perform an action when an option is parsed.
+        </summary>
+        <remarks>
+          <para>
+            This method must be overridden by all subclasses, within which the
+            subclass can perform some custom per-option processing.
+          </para>
+          <para>
+            This method is invoked from within 
+            <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
+            when an option matching 
+            <see cref="M:NDesk.Options.Option.GetNames" /> is encountered with
+            the provided value (if a value is required or optional).
+          </para>
+        </remarks>
+        <example>
+          <para>
+            The following example has a custom 
+            <see cref="T:NDesk.Options.Option" /> subclass which overrides
+            <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />:
+          </para>
+          <code lang="C#" src="examples/subclass.cs">// Case-Insensitive OptionSet
+using System;
+using System.Collections.Generic;
+using NDesk.Options;
+
+class DemoOptionContext : OptionContext {
+	public string OptionKey;
+}
+
+class DemoOptionSet : OptionSet {
+	protected override void InsertItem (int index, Option item)
+	{
+		if (item.Prototype.ToLower () != item.Prototype)
+			throw new ArgumentException ("prototypes must be lower-case!");
+		base.InsertItem (index, item);
+	}
+
+	protected override OptionContext CreateOptionContext ()
+	{
+		return new DemoOptionContext ();
+	}
+
+	protected override bool Parse (string option, OptionContext c)
+	{
+		DemoOptionContext d = (DemoOptionContext) c;
+		// Prevent --a --b
+		string f, n, v;
+		bool haveParts = GetOptionParts (option, out f, out n, out v);
+		Option nextOption = haveParts ? GetOptionForName (n.ToLower ()) : null;
+		if (haveParts &amp;&amp; c.Option != null) {
+			if (nextOption == null)
+				; // ignore
+			else if (c.Option.OptionValueType == OptionValueType.Optional) {
+				c.OptionValue = null;
+				c.Option.Invoke (c);
+			}
+			else 
+				throw new OptionException (
+					string.Format ("Found option value `{0}' for option `{1}'.",
+						option, c.OptionName), c.OptionName);
+		}
+
+		// option name already found, so `option' is the option value
+		if (c.Option != null) {
+			if (c.Option is KeyValueOption &amp;&amp; d.OptionKey == null) {
+				HandleKeyValue (option, d);
+				return true;
+			}
+			return base.Parse (option, c);
+		}
+
+		if (!haveParts)
+			// Not an option; let base handle as a non-option argument.
+			return base.Parse (option, c);
+
+		// use lower-case version of the option name.
+		if (nextOption != null &amp;&amp; nextOption is KeyValueOption) {
+			d.Option     = nextOption;
+			d.OptionName = f + n.ToLower ();
+			HandleKeyValue (v, d);
+			return true;
+		}
+		return base.Parse (f + n.ToLower () + (v != null ? "=" + v : ""), c);
+	}
+
+	static void HandleKeyValue (string option, DemoOptionContext d)
+	{
+		if (option == null)
+			return;
+		string[] parts = option.Split ('=');
+		if (parts.Length == 1) {
+			d.OptionKey = option;
+			return;
+		}
+		d.OptionKey   = parts [0];
+		d.OptionValue = parts [1];
+		if (d.Option != null) {
+			d.Option.Invoke (d);
+		}
+	}
+
+	class KeyValueOption : Option {
+		public KeyValueOption (string prototype, Action&lt;string,string,OptionContext&gt; action)
+			: base (prototype, null)
+		{
+			this.action = action;
+		}
+
+		Action&lt;string,string,OptionContext&gt; action;
+
+		protected override void OnParseComplete (OptionContext c)
+		{
+			DemoOptionContext d = (DemoOptionContext) c;
+			action (d.OptionKey, d.OptionValue, d);
+			d.OptionKey = null;
+		}
+	}
+
+	public new DemoOptionSet Add (string prototype,
+		Action&lt;string,string,OptionContext&gt; action)
+	{
+		base.Add (new KeyValueOption (prototype, action));
+		return this;
+	}
+}
+
+class Demo {
+	public static void Main (string[] args)
+	{
+		bool show_help = false;
+		List&lt;string&gt; names = new List&lt;string&gt; ();
+		Dictionary&lt;string,string&gt; map = new Dictionary&lt;string,string&gt; ();
+		int repeat = 1;
+
+		OptionSet p = new DemoOptionSet () {
+			{ "n|name=",    v =&gt; names.Add (v) },
+			{ "r|repeat:",  (int v) =&gt; repeat = v },
+			{ "m|map=",     (k,v,c) =&gt; map.Add (k, v) },
+		};
+
+		List&lt;string&gt; extra;
+		try {
+			extra = p.Parse (args);
+		}
+		catch (OptionException e) {
+			Console.Write ("subclass: ");
+			Console.WriteLine (e.Message);
+			return;
+		}
+
+		string message;
+		if (extra.Count &gt; 0) {
+			message = string.Join (" ", extra.ToArray ());
+		}
+		else {
+			message = "Hello {0}!";
+		}
+
+		foreach (string name in names) {
+			for (int i = 0; i &lt; repeat; ++i)
+				Console.WriteLine (message, name);
+		}
+		List&lt;string&gt; keys = new List&lt;string&gt;(map.Keys);
+		keys.Sort ();
+		foreach (string key in keys) {
+			Console.WriteLine ("Key: {0}={1}", key, map [key]);
+		}
+	}
+}
+
+</code>
+          <para>
+            See <see cref="T:NDesk.Options.OptionSet" /> for more on this
+            example.
+          </para>
+        </example>
+        <altmember cref="M:NDesk.Options.Option.Invoke(NDesk.Options.OptionContext)" />
       </Docs>
     </Member>
     <Member MemberName="OptionValueType">
