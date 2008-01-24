@@ -44,7 +44,9 @@ check: $(nobindir)/options-test2.exe $(nobindir)/options-test3.exe
 	mono --debug bin/options-test2.exe && mono --debug bin/options-test3.exe
 
 rpm:
-	rpmbuild -bb ndesk-options.spec
+	cp $(DIST_ARCHIVES) /usr/src/packages/SOURCES/ndesk-options-0.1.0.tar.gz && \
+		rpmbuild -bb ndesk-options.spec && \
+		cp /usr/src/packages/RPMS/noarch/$(distdir)*.rpm .
 
 CLEANFILES = \
 	$(nobindir)/options-test2.exe             \
