@@ -44,6 +44,6 @@ PKG_CHECK_MODULES(MONO, mono >= $MONO_REQ_VERSION)
 AC_OUTPUT([
 Makefile
 doc/Makefile
-lib/pkgconfig/ndesk-options-net2.0.pc
-lib/pkgconfig/ndesk-options-net3.5.pc
+lib/pkgconfig/ndesk-options.pc
+lib/pkgconfig/ndesk-options-linq.pc
 ])
