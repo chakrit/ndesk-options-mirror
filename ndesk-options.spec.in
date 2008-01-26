@@ -1,14 +1,14 @@
 
 Summary: NDesk.Options is a C# program option parsing library, inspired by Getopt::Long.
 Name: ndesk-options
-Version: 0.1.0
+Version: @VERSION@
 Release: 1
 License: MIT
 Group: Development/Languages/Mono
 Requires: mono-core >= 1.2.0
 Requires: monodoc-core >= 1.2.0
-Source: http://www.jprl.com/Projects/ndesk-options/ndesk-options-0.1.0.tar.gz
-URL: http://www.jprl.com/Projects/ndesk-options
+Source: http://www.ndesk.org/archive/ndesk-options/@PACKAGE@-@VERSION@.tar.gz
+URL: http://www.ndesk.org/Options
 Packager: Jonathan Pryor <jonpryor@vt.edu>
 BuildArch: noarch
 BuildRoot: %{_tmppath}/%{name}-root

@@ -86,8 +86,7 @@ EXTRA_DIST = \
 	$(srcdir)/en/examples/localization.in \
 	$(srcdir)/en/examples/localization.txt \
 	$(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo \
-	$(DOCUMENTATION) \
-	$(srcdir)/web/index.html
+	$(DOCUMENTATION)
 
 CLEANFILES = \
 	ndesk-options-docs.zip \
@@ -100,7 +99,9 @@ edit:
 	monodoc --edit $(srcdir)/en
 
 html: $(DOCUMENTATION)
-	monodocs2html -template:doc-template.html -source:en -ext:html -dest:web/docs
+	monodocs2html -template:doc-template.html -source:en -ext:html \
+		-dest:ndesk-options && \
+		tar czf ../archive/$(PACKAGE)-$(VERSION)-docs.tar.gz ndesk-options
 
 clean:
 	-rm $(CLEANFILES)

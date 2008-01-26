@@ -1,4 +1,5 @@
 aclocal.m4
+archive
 autom4te.cache
 bin
 config.*
@@ -7,3 +8,4 @@ install-sh
 Makefile
 Makefile.in
 missing
+ndesk-options.spec

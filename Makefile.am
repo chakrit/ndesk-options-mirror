@@ -51,15 +51,23 @@ check: $(nobindir)/options-test.exe $(nobindir)/options-test-linq.exe
 	mono --debug bin/options-test.exe && mono --debug bin/options-test-linq.exe
 
 rpm:
-	cp $(DIST_ARCHIVES) /usr/src/packages/SOURCES/ndesk-options-0.1.0.tar.gz && \
+	tgz=$(DIST_ARCHIVES); \
+	if [ ! -e $(DIST_ARCHIVES) ] ; then tgz=archive/$(DIST_ARCHIVES) ; fi ; \
+	cp $$tgz /usr/src/packages/SOURCES/$(DIST_ARCHIVES).tar.gz && \
 		rpmbuild -bb ndesk-options.spec && \
-		cp /usr/src/packages/RPMS/noarch/$(distdir)*.rpm doc/web/archive
+		cp /usr/src/packages/RPMS/noarch/$(distdir)*.rpm archive
 
 bin-zip:
-	-rm doc/web/archive/$(distdir).bin.zip
+	-rm archive/$(distdir).bin.zip
 	$(MAKE) prefix= DESTDIR=$(distdir).bin install && \
-		zip -r doc/web/archive/$(distdir).bin.zip $(distdir).bin && \
+		zip -r archive/$(distdir).bin.zip $(distdir).bin && \
 		rm -Rf $(distdir).bin
+
+prepare-release:
+	$(MAKE) distcheck
+	$(MAKE) bin-zip
+	cd doc && $(MAKE) html
+	mv $(DIST_ARCHIVES) archive
 
 CLEANFILES = \
 	$(nobindir)/options-test.exe              \
