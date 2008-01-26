@@ -15,6 +15,8 @@ ASSEMBLIES = \
 
 UPDATER = $(MONODOCER) -overrides -pretty -path:en
 
+.PHONY: assemble update update-delete edit clean
+
 assemble: ndesk-options-docs.zip ndesk-options-docs.tree
 
 $(srcdir)/en/examples/NDesk.Options.dll: $(srcdir)/../lib/ndesk-options/net2/NDesk.Options.dll

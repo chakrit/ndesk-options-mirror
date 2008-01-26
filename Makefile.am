@@ -22,6 +22,8 @@ nolibdir=lib/ndesk-options
 
 CSC = $(MCS)
 
+.PHONY: all check rpm
+
 all: $(nolibdir)/net2/NDesk.Options.dll $(nolibdir)/net3.5/NDesk.Options.dll
 
 dist-hook:
