@@ -15,7 +15,7 @@ ASSEMBLIES = \
 
 UPDATER = $(MONODOCER) -overrides -pretty -path:en
 
-.PHONY: assemble update update-delete edit clean
+.PHONY: assemble clean edit html update update-delete
 
 assemble: ndesk-options-docs.zip ndesk-options-docs.tree
 
@@ -96,6 +96,9 @@ CLEANFILES = \
 
 edit:
 	monodoc --edit $(srcdir)/en
+
+html: $(DOCUMENTATION)
+	monodocs2html -template:doc-template.html -source:en -ext:html -dest:html
 
 clean:
 	-rm $(CLEANFILES)

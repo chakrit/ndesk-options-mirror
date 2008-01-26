@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+  <xsl:output method="xml" encoding="UTF-8" omit-xml-declaration="yes" />
+  <xsl:template match="Page">
+    <html>
+      <head>
+        <title><xsl:value-of select="Title" /></title>
+        <link rel="stylesheet" href="/style.css" type="text/css" />
+        <style>
+          div.information {
+            float: right;
+            width: 15em;
+            border-color: #D3D3D3;
+            border-style: solid;
+            border-width: thin;
+            margin-left: 0.5em;
+            margin-top: 2em;
+            margin-bottom: 1em;
+            background-color: #f0f0df;
+          }
+          div.information p {
+            margin-top:     0;
+            margin-bottom:  0;
+            padding-top:    0.5em;
+            padding-bottom: 0.5em;
+            padding-left:   0.5em;
+          }
+          a {
+            text-decoration: none;
+          }
+          th {
+            text-align: left;
+          }
+          .CollectionTitle { font-weight: bold }
+          .PageTitle { font-size: 150%; font-weight: bold }
+
+          .Summary { }
+          .Signature { }					
+          .Remarks { }
+          .Members { }
+          .Copyright { }
+
+          .Section { font-size: 125%; font-weight: bold }
+          .SectionBox { margin-left: 2em }
+          .NamespaceName { font-size: 105%; font-weight: bold }
+          .NamespaceSumary { }
+          .MemberName { font-size: 115%; font-weight: bold; margin-top: 1em }
+          .MemberSignature {
+            font-family: monospace; 
+            margin-top: 1em; 
+            margin-left: 2em;
+  border: thin solid black;
+  padding: .25em;
+           background-color: #f2f2f2;
+          }
+          .MemberBox { }
+          .Subsection { font-size: 105%; font-weight: bold }
+          .SubsectionBox { margin-left: 2em; margin-bottom: 1em }
+
+          .SignatureTable { background-color: #c0c0c0; }
+          .EnumerationsTable th { background-color: #f2f2f2; }
+          .CodeExampleTable { background-color: #f5f5dd; border: thin solid black; padding: .25em; }
+
+          .MembersListing td { margin: 0px; border: 1px solid black; padding: .25em }
+
+          .TypesListing, .ExceptionsTable {
+            border-collapse: collapse;
+          }
+          .TypesListing td, .ExceptionsTable td { 
+            margin: 0px;  
+            padding: .25em;
+            border: solid gray 1px;
+          }
+          .InnerSignatureTable tr { background-color: #f2f2f2; }
+          .TypePermissionsTable tr { background-color: #f2f2f2; }
+			  </style>
+      </head>
+			<body>
+        <div class="information">
+          <p><a href="/Options">NDesk.Options</a></p>
+          <p><a href="http://git.ndesk.org/?p=ndesk-options;a=summary"
+            >GIT Repository</a></p>
+        </div>
+        <!-- HEADER -->
+        <div class="CollectionTitle">
+          <xsl:apply-templates select="CollectionTitle/node()" />
+        </div>
+				<h1>
+          <xsl:apply-templates select="PageTitle/node()" />
+        </h1>
+        <p class="Summary">
+          <xsl:apply-templates select="Summary/node()" />
+        </p>
+        <div class="Signature">
+          <xsl:apply-templates select="Signature/node()" />
+        </div>
+        <div class="Remarks">
+          <xsl:apply-templates select="Remarks/node()" />
+        </div>
+        <div class="Members">
+          <xsl:apply-templates select="Members/node()" />
+        </div>
+			</body>
+		</html>
+  </xsl:template>
+  <!-- IDENTITY TRANSFORMATION -->
+  <xsl:template match="@*|node()">
+    <xsl:copy>
+      <xsl:apply-templates select="@*|node()" />
+    </xsl:copy>
+  </xsl:template>
+</xsl:stylesheet>
+
