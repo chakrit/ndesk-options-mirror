@@ -74,6 +74,7 @@ update-delete: $(addprefix ../lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/en/ex
 	done
 
 EXTRA_DIST = \
+	$(srcdir)/doc-template.html \
 	$(srcdir)/ndesk-options-docs.source \
 	$(srcdir)/en/examples/context.cs \
 	$(srcdir)/en/examples/context.in \
@@ -85,7 +86,8 @@ EXTRA_DIST = \
 	$(srcdir)/en/examples/localization.in \
 	$(srcdir)/en/examples/localization.txt \
 	$(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo \
-	$(DOCUMENTATION)
+	$(DOCUMENTATION) \
+	$(srcdir)/web/index.html
 
 CLEANFILES = \
 	ndesk-options-docs.zip \
@@ -98,7 +100,7 @@ edit:
 	monodoc --edit $(srcdir)/en
 
 html: $(DOCUMENTATION)
-	monodocs2html -template:doc-template.html -source:en -ext:html -dest:html
+	monodocs2html -template:doc-template.html -source:en -ext:html -dest:web/docs
 
 clean:
 	-rm $(CLEANFILES)

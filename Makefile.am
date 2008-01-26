@@ -27,7 +27,9 @@ CSC = $(MCS)
 all: $(nolibdir)/net2/NDesk.Options.dll $(nolibdir)/net3.5/NDesk.Options.dll
 
 dist-hook:
-	git-log > $(distdir)/ChangeLog
+	if [ -d $(srcdir)/.git ] ; then \
+		(cd $(srcdir) && git-log > $(distdir)/ChangeLog) ; \
+	fi
 	
 $(nolibdir)/net2/NDesk.Options.dll: $(OPTIONS_SRC)
 	-mkdir -p `dirname $@`
@@ -51,7 +53,13 @@ check: $(nobindir)/options-test.exe $(nobindir)/options-test-linq.exe
 rpm:
 	cp $(DIST_ARCHIVES) /usr/src/packages/SOURCES/ndesk-options-0.1.0.tar.gz && \
 		rpmbuild -bb ndesk-options.spec && \
-		cp /usr/src/packages/RPMS/noarch/$(distdir)*.rpm .
+		cp /usr/src/packages/RPMS/noarch/$(distdir)*.rpm doc/web/archive
+
+bin-zip:
+	-rm doc/web/archive/$(distdir).bin.zip
+	$(MAKE) prefix= DESTDIR=$(distdir).bin install && \
+		zip -r doc/web/archive/$(distdir).bin.zip $(distdir).bin && \
+		rm -Rf $(distdir).bin
 
 CLEANFILES = \
 	$(nobindir)/options-test.exe              \
