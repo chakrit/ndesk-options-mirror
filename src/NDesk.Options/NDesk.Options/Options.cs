@@ -77,7 +77,7 @@
 // The above would parse the argument string array, and would invoke the
 // lambda expression three times, setting `verbose' to 3 when complete.  
 // It would also print out "A" and "B" to standard output.
-// The returned arrray would contain the string "extra".
+// The returned array would contain the string "extra".
 //
 // C# 3.0 collection initializers are supported:
 //  var p = new OptionSet () {

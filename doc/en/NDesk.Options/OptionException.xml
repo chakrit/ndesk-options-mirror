@@ -69,7 +69,7 @@
           data.
         </summary>
         <remarks>
-          This constructor is called during deserialization to reconstitue the
+          This constructor is called during deserialization to reconstitute the
           exception object transmitted over a stream, e.g. from Remoting.
         </remarks>
         <altmember cref="M:NDesk.Options.OptionException.GetObjectData(System.Runtime.Serialization.SerializationInfo,System.Runtime.Serialization.StreamingContext)" />
@@ -100,7 +100,7 @@
         </summary>
         <remarks>
           This constructor initializes the 
-          <see cref="P:System.Exception.Message" /> propery of the new
+          <see cref="P:System.Exception.Message" /> property of the new
           instance using <paramref name="message" />, and the 
           <see cref="P:NDesk.Options.OptionException.OptionName" />
           property of the new instance using <paramref name="optionName" />.
@@ -139,7 +139,7 @@
         </summary>
         <remarks>
           This constructor initializes the 
-          <see cref="P:System.Exception.Message" /> propery of the new
+          <see cref="P:System.Exception.Message" /> property of the new
           instance using <paramref name="message" />, the
           <see cref="P:System.Exception.InnerException" /> property of the new
           instance using <paramref name="innerException" />, and the 

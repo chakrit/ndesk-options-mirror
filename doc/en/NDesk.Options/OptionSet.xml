@@ -226,7 +226,7 @@ class Test {
 	{
 		Console.WriteLine ("Usage: greet [OPTIONS]+ message");
 		Console.WriteLine ("Greet a list of individuals with an optional message.");
-		Console.WriteLine ("If no messge is specified, a generic greeting is used.");
+		Console.WriteLine ("If no message is specified, a generic greeting is used.");
 		Console.WriteLine ();
 		Console.WriteLine ("Options:");
 		p.WriteOptionDescriptions (Console.Out);
@@ -247,7 +247,7 @@ class Test {
       <code lang="sh" src="examples/greet.txt">$ mono greet.exe --help
 Usage: greet [OPTIONS]+ message
 Greet a list of individuals with an optional message.
-If no messge is specified, a generic greeting is used.
+If no message is specified, a generic greeting is used.
 
 Options:
   -n, --name=VALUE           the name of someone to greet.
@@ -311,7 +311,7 @@ Try `greet --help' for more information.
       <list type="number">
         <item>
           <term>
-          Option name lookup is done in a case insenitive fashion, so
+          Option name lookup is done in a case insensitive fashion, so
           <c>--name</c> and <c>--NAME</c> are identical.
         </term>
         </item>
@@ -1035,13 +1035,13 @@ f=&lt;null&gt;
 n=-1
 s=
 
-$ mono context.exe -f A --n=42 /s fourty-two
+$ mono context.exe -f A --n=42 /s forty-two
 # Parsed -f; Value=A; Index=1
 # Parsed --n; Value=42; Index=2
-# Parsed /s; Value=fourty-two; Index=4
+# Parsed /s; Value=forty-two; Index=4
 f=A
 n=42
-s=fourty-two
+s=forty-two
 </code>
         </example>
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
@@ -1408,13 +1408,13 @@ f=&lt;null&gt;
 n=-1
 s=
 
-$ mono context.exe -f A --n=42 /s fourty-two
+$ mono context.exe -f A --n=42 /s forty-two
 # Parsed -f; Value=A; Index=1
 # Parsed --n; Value=42; Index=2
-# Parsed /s; Value=fourty-two; Index=4
+# Parsed /s; Value=forty-two; Index=4
 f=A
 n=42
-s=fourty-two
+s=forty-two
 </code>
         </example>
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
@@ -1833,7 +1833,7 @@ class Test {
 	{
 		Console.WriteLine ("Usage: greet [OPTIONS]+ message");
 		Console.WriteLine ("Greet a list of individuals with an optional message.");
-		Console.WriteLine ("If no messge is specified, a generic greeting is used.");
+		Console.WriteLine ("If no message is specified, a generic greeting is used.");
 		Console.WriteLine ();
 		Console.WriteLine ("Options:");
 		p.WriteOptionDescriptions (Console.Out);
@@ -2106,7 +2106,7 @@ class Test {
 	{
 		Console.WriteLine ("Usage: greet [OPTIONS]+ message");
 		Console.WriteLine ("Greet a list of individuals with an optional message.");
-		Console.WriteLine ("If no messge is specified, a generic greeting is used.");
+		Console.WriteLine ("If no message is specified, a generic greeting is used.");
 		Console.WriteLine ();
 		Console.WriteLine ("Options:");
 		p.WriteOptionDescriptions (Console.Out);
@@ -2132,7 +2132,7 @@ class Test {
           <code lang="sh" src="examples/greet.txt">$ mono greet.exe --help
 Usage: greet [OPTIONS]+ message
 Greet a list of individuals with an optional message.
-If no messge is specified, a generic greeting is used.
+If no message is specified, a generic greeting is used.
 
 Options:
   -n, --name=VALUE           the name of someone to greet.
