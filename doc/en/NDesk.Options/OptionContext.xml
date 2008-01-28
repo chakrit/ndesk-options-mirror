@@ -88,7 +88,7 @@
         <summary>The actual option name used.</summary>
         <value>A <see cref="T:System.String" /> containing the actual option name used.</value>
         <remarks>
-          A <see cref="NDesk.Options.Option.Prototype" /> can contain multiple
+          A <see cref="T:NDesk.Options.Option.Prototype" /> can contain multiple
           <c>|</c>-delimited aliases, e.g. <c>h|help</c>.  This property
           contains the actual option name specified, e.g. <c>-h</c> vs.
           <c>--help</c>.
