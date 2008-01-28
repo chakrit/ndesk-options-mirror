@@ -154,7 +154,7 @@ namespace NDesk.Options {
 		string[] names;
 		OptionValueType type;
 
-		public Option (string prototype, string description)
+		protected Option (string prototype, string description)
 		{
 			if (prototype == null)
 				throw new ArgumentNullException ("prototype");

@@ -611,22 +611,27 @@ using NDesk.Options;
 class LocalizationDemo {
 	public static void Main (string[] args)
 	{
-		Converter&lt;string, string&gt; localizer = f =&gt; f;
 		bool with_gettext = false;
+		string useLocalizer = null;
 		var p = new OptionSet () {
-			{ "with-gettext",
-				v =&gt; { with_gettext = true; 
-			         localizer = f =&gt; { return Catalog.GetString (f); }; } },
-			{ "with-hello",   
-				v =&gt; { localizer = f =&gt; { return "hello:" + f; }; } },
+			{ "with-gettext", v =&gt; { useLocalizer = "gettext"; } },
+			{ "with-hello",   v =&gt; { useLocalizer = "hello"; } },
 			{ "with-default", v =&gt; { /* do nothing */ } },
 		};
 		p.Parse (args);
 
-		if (with_gettext)
-			Catalog.Init ("localization", 
-					Path.Combine (AppDomain.CurrentDomain.BaseDirectory,
-						"locale"));
+		Converter&lt;string, string&gt; localizer = f =&gt; f;
+		switch (useLocalizer) {
+			case "gettext":
+				Catalog.Init ("localization", 
+						Path.Combine (AppDomain.CurrentDomain.BaseDirectory,
+							"locale"));
+				localizer = f =&gt; { return Catalog.GetString (f); };
+				break;
+			case "hello":
+				localizer = f =&gt; { return "hello:" + f; };;
+				break;
+		}
 
 		bool help = false;
 		int verbose = 0;
@@ -1035,13 +1040,13 @@ f=&lt;null&gt;
 n=-1
 s=
 
-$ mono context.exe -f A --n=42 /s forty-two
+$ mono context.exe -f A --n=42 /s fourty-two
 # Parsed -f; Value=A; Index=1
 # Parsed --n; Value=42; Index=2
-# Parsed /s; Value=forty-two; Index=4
+# Parsed /s; Value=fourty-two; Index=4
 f=A
 n=42
-s=forty-two
+s=fourty-two
 </code>
         </example>
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
@@ -1408,13 +1413,13 @@ f=&lt;null&gt;
 n=-1
 s=
 
-$ mono context.exe -f A --n=42 /s forty-two
+$ mono context.exe -f A --n=42 /s fourty-two
 # Parsed -f; Value=A; Index=1
 # Parsed --n; Value=42; Index=2
-# Parsed /s; Value=forty-two; Index=4
+# Parsed /s; Value=fourty-two; Index=4
 f=A
 n=42
-s=forty-two
+s=fourty-two
 </code>
         </example>
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />

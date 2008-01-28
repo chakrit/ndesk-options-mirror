@@ -65,7 +65,7 @@
   </Docs>
   <Members>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="public Option (string prototype, string description);" />
+      <MemberSignature Language="C#" Value="protected Option (string prototype, string description);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>2.0.0.0</AssemblyVersion>
