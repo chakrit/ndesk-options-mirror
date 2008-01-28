@@ -10,22 +10,27 @@ using NDesk.Options;
 class LocalizationDemo {
 	public static void Main (string[] args)
 	{
-		Converter<string, string> localizer = f => f;
 		bool with_gettext = false;
+		string useLocalizer = null;
 		var p = new OptionSet () {
-			{ "with-gettext",
-				v => { with_gettext = true; 
-			         localizer = f => { return Catalog.GetString (f); }; } },
-			{ "with-hello",   
-				v => { localizer = f => { return "hello:" + f; }; } },
+			{ "with-gettext", v => { useLocalizer = "gettext"; } },
+			{ "with-hello",   v => { useLocalizer = "hello"; } },
 			{ "with-default", v => { /* do nothing */ } },
 		};
 		p.Parse (args);
 
-		if (with_gettext)
-			Catalog.Init ("localization", 
-					Path.Combine (AppDomain.CurrentDomain.BaseDirectory,
-						"locale"));
+		Converter<string, string> localizer = f => f;
+		switch (useLocalizer) {
+			case "gettext":
+				Catalog.Init ("localization", 
+						Path.Combine (AppDomain.CurrentDomain.BaseDirectory,
+							"locale"));
+				localizer = f => { return Catalog.GetString (f); };
+				break;
+			case "hello":
+				localizer = f => { return "hello:" + f; };;
+				break;
+		}
 
 		bool help = false;
 		int verbose = 0;
