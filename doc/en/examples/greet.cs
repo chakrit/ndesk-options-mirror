@@ -58,7 +58,7 @@ class Test {
 	{
 		Console.WriteLine ("Usage: greet [OPTIONS]+ message");
 		Console.WriteLine ("Greet a list of individuals with an optional message.");
-		Console.WriteLine ("If no messge is specified, a generic greeting is used.");
+		Console.WriteLine ("If no message is specified, a generic greeting is used.");
 		Console.WriteLine ();
 		Console.WriteLine ("Options:");
 		p.WriteOptionDescriptions (Console.Out);
