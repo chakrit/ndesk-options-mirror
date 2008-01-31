@@ -53,7 +53,7 @@ check: $(nobindir)/options-test.exe $(nobindir)/options-test-linq.exe
 rpm:
 	tgz=$(DIST_ARCHIVES); \
 	if [ ! -e $(DIST_ARCHIVES) ] ; then tgz=archive/$(DIST_ARCHIVES) ; fi ; \
-	cp $$tgz /usr/src/packages/SOURCES/$(DIST_ARCHIVES).tar.gz && \
+	cp $$tgz /usr/src/packages/SOURCES/$(DIST_ARCHIVES) && \
 		rpmbuild -bb ndesk-options.spec && \
 		cp /usr/src/packages/RPMS/noarch/$(distdir)*.rpm archive
 
