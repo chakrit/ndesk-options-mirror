@@ -529,7 +529,7 @@ namespace NDesk.Options {
 			if (this.options.TryGetValue (n [0].ToString (), out p)) {
 				// -DNAME option
 				string opt = "-" + n [0].ToString ();
-				if (p.OptionValueType == OptionValueType.Required) {
+				if (p.OptionValueType != OptionValueType.None) {
 					Invoke (c, opt, n.Substring (1), p);
 					return true;
 				}
@@ -701,16 +701,22 @@ namespace Tests.NDesk.Options {
 		static void CheckBundledValue ()
 		{
 			var defines = new List<string> ();
+			var libs    = new List<string> ();
 			bool debug  = false;
 			var p = new OptionSet () {
-				{ "D|define=", v => defines.Add (v) },
-				{ "Debug",     v => debug = v != null },
-				{ "E",         v => { /* ignore */ } },
+				{ "D|define=",  v => defines.Add (v) },
+				{ "L|library:", v => libs.Add (v) },
+				{ "Debug",      v => debug = v != null },
+				{ "E",          v => { /* ignore */ } },
 			};
-			p.Parse (_("-DNAME", "-Debug"));
-			Assert (defines.Count, 1);
+			p.Parse (_("-DNAME", "-D", "NAME2", "-Debug", "-L/foo", "-L", "/bar"));
+			Assert (defines.Count, 2);
 			Assert (defines [0], "NAME");
+			Assert (defines [1], "NAME2");
 			Assert (debug, true);
+			Assert (libs.Count, 2);
+			Assert (libs [0], "/foo");
+			Assert (libs [1], "/bar");
 
 			AssertException (typeof(OptionException), 
 					"Cannot bundle unregistered option '-V'.",
