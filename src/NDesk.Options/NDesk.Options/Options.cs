@@ -284,7 +284,7 @@ namespace NDesk.Options {
 
 		protected override void InsertItem (int index, Option item)
 		{
-			Add (item);
+			AddImpl (item);
 			base.InsertItem (index, item);
 		}
 
@@ -305,9 +305,9 @@ namespace NDesk.Options {
 		}
 
 		class ActionOption : Option {
-			Action<string, OptionContext> action;
+			Action<string> action;
 
-			public ActionOption (string prototype, string description, Action<string, OptionContext> action)
+			public ActionOption (string prototype, string description, Action<string> action)
 				: base (prototype, description)
 			{
 				if (action == null)
@@ -317,11 +317,11 @@ namespace NDesk.Options {
 
 			protected override void OnParseComplete (OptionContext c)
 			{
-				action (c.OptionValue, c);
+				action (c.OptionValue);
 			}
 		}
 
-		public new OptionSet Add (Option option)
+		private void AddImpl (Option option)
 		{
 			if (option == null)
 				throw new ArgumentNullException ("option");
@@ -336,6 +336,11 @@ namespace NDesk.Options {
 					this.options.Remove (name);
 				throw;
 			}
+		}
+
+		public new OptionSet Add (Option option)
+		{
+			base.Add (option);
 			return this;
 		}
 
@@ -344,20 +349,10 @@ namespace NDesk.Options {
 			return Add (options, null, action);
 		}
 
-		public OptionSet Add (string options, Action<string, OptionContext> action)
-		{
-			return Add (options, null, action);
-		}
-
 		public OptionSet Add (string options, string description, Action<string> action)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
-			return Add (options, description, (v,c) => {action (v);});
-		}
-
-		public OptionSet Add (string options, string description, Action<string, OptionContext> action)
-		{
 			Option p = new ActionOption (options, description, action);
 			base.Add (p);
 			return this;
@@ -368,35 +363,41 @@ namespace NDesk.Options {
 			return Add (options, null, action);
 		}
 
-		public OptionSet Add<T> (string options, Action<T, OptionContext> action)
-		{
-			return Add (options, null, action);
-		}
+		class ActionOption<T> : Option {
+			Action<T> action;
+			Converter<string, string> localizer;
 
-		public OptionSet Add<T> (string options, string description, Action<T> action)
-		{
-			return Add (options, description, (T v, OptionContext c) => {action (v);});
-		}
+			public ActionOption (string prototype, string description, Converter<string, string> localizer, Action<T> action)
+				: base (prototype, description)
+			{
+				if (action == null)
+					throw new ArgumentNullException ("action");
+				this.localizer = localizer;
+				this.action = action;
+			}
 
-		public OptionSet Add<T> (string options, string description, Action<T, OptionContext> action)
-		{
-			TypeConverter conv = TypeDescriptor.GetConverter (typeof(T));
-			Action<string, OptionContext> a = delegate (string s, OptionContext c) {
-				T t = default(T);
+			protected override void OnParseComplete (OptionContext c)
+			{
+				TypeConverter conv = TypeDescriptor.GetConverter (typeof(T));
+				T t = default (T);
 				try {
-					if (s != null)
-						t = (T) conv.ConvertFromString (s);
+					if (c.OptionValue != null)
+						t = (T) conv.ConvertFromString (c.OptionValue);
 				}
 				catch (Exception e) {
 					throw new OptionException (
 							string.Format (
 								localizer ("Could not convert string `{0}' to type {1} for option `{2}'."),
-								s, typeof(T).Name, c.OptionName),
+								c.OptionValue, typeof(T).Name, c.OptionName),
 							c.OptionName, e);
 				}
-				action (t, c);
-			};
-			return Add (options, description, a);
+				action (t);
+			}
+		}
+
+		public OptionSet Add<T> (string options, string description, Action<T> action)
+		{
+			return Add (new ActionOption<T> (options, description, localizer, action));
 		}
 
 		protected virtual OptionContext CreateOptionContext ()
@@ -893,9 +894,6 @@ namespace Tests.NDesk.Options {
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: action",
 					p, v => { v.Add ("foo", (Action<string>) null); });
-			AssertException (typeof(ArgumentNullException), 
-					"Argument cannot be null.\nParameter name: action",
-					p, v => { v.Add ("foo", (Action<string, OptionContext>) null); });
 		}
 
 		static void AssertException<T> (Type exception, string message, T a, Action<T> action)
@@ -1037,38 +1035,37 @@ namespace Tests.NDesk.Options {
 					p, v => { v.GetOptionForName (null); });
 		}
 
+		class ContextCheckerOption : Option {
+			string eName, eValue;
+			int index;
+
+			public ContextCheckerOption (string p, string d, string eName, string eValue, int index)
+				: base (p, d)
+			{
+				this.eName  = eName;
+				this.eValue = eValue;
+				this.index  = index;
+			}
+
+			protected override void OnParseComplete (OptionContext c)
+			{
+				Assert (c.OptionValue, eValue);
+				Assert (c.OptionName, eName);
+				Assert (c.OptionIndex, index);
+				Assert (c.Option, this);
+				Assert (c.Option.Description, base.Description);
+			}
+		}
+
 		static void CheckOptionContext ()
 		{
 			var p = new OptionSet () {
-				{ "a=", "a desc", (v,c) => {
-					Assert (v, "a-val");
-					Assert (c.Option.Description, "a desc");
-					Assert (c.OptionName, "/a");
-					Assert (c.OptionIndex, 1);
-					Assert (c.OptionValue, v);
-				} },
-				{ "b", "b desc", (v, c) => {
-					Assert (v, "--b+");
-					Assert (c.Option.Description, "b desc");
-					Assert (c.OptionName, "--b+");
-					Assert (c.OptionIndex, 2);
-					Assert (c.OptionValue, v);
-				} },
-				{ "c=", "c desc", (v, c) => {
-					Assert (v, "C");
-					Assert (c.Option.Description, "c desc");
-					Assert (c.OptionName, "--c");
-					Assert (c.OptionIndex, 3);
-					Assert (c.OptionValue, v);
-				} },
-				{ "d", "d desc", (v, c) => {
-					Assert (v, null);
-					Assert (c.Option.Description, "d desc");
-					Assert (c.OptionName, "/d-");
-					Assert (c.OptionIndex, 4);
-					Assert (c.OptionValue, v);
-				} },
+				new ContextCheckerOption ("a=", "a desc", "/a",   "a-val", 1),
+				new ContextCheckerOption ("b",  "b desc", "--b+", "--b+",  2),
+				new ContextCheckerOption ("c=", "c desc", "--c",  "C",     3),
+				new ContextCheckerOption ("d",  "d desc", "/d-",  null,    4),
 			};
+			Assert (p.Count, 4);
 			p.Parse (_("/a", "a-val", "--b+", "--c=C", "/d-"));
 		}
 	}
