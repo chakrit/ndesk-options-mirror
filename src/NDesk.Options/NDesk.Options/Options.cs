@@ -524,23 +524,37 @@ namespace NDesk.Options {
 		private bool ParseBundled (string f, string n, OptionContext c)
 		{
 			Option p;
-			if (f == "-" && this.options.TryGetValue (n [0].ToString (), out p)) {
-				int i = 0;
-				do {
-					string opt = "-" + n [i].ToString ();
-					if (p.OptionValueType != OptionValueType.None) {
-						throw new OptionException (string.Format (
-									localizer ("Cannot bundle option '{0}' that requires a value."), opt),
-								opt);
-					}
-					c.OptionName  = opt;
-					c.OptionValue = n;
-					c.Option      = p;
-					p.Invoke (c);
-				} while (++i < n.Length && this.options.TryGetValue (n [i].ToString (), out p));
+			if (f != "-")
+				return false;
+			if (this.options.TryGetValue (n [0].ToString (), out p)) {
+				// -DNAME option
+				string opt = "-" + n [0].ToString ();
+				if (p.OptionValueType == OptionValueType.Required) {
+					Invoke (c, opt, n.Substring (1), p);
+					return true;
+				}
+				Invoke (c, opt, n, p);
+				for (int i = 1; i < n.Length; ++i) {
+					opt = "-" + n [i].ToString ();
+					if (!this.options.TryGetValue (n [i].ToString (), out p))
+						throw new OptionException (string.Format (localizer (
+										"Cannot bundle unregistered option '{0}'."), opt), opt);
+					if (p.OptionValueType != OptionValueType.None)
+						throw new OptionException (string.Format (localizer (
+										"Cannot bundle option '{0}' that requires a value."), opt), opt);
+					Invoke (c, opt, n, p);
+				}
 				return true;
 			}
 			return false;
+		}
+
+		private void Invoke (OptionContext c, string name, string value, Option option)
+		{
+			c.OptionName  = name;
+			c.OptionValue = value;
+			c.Option      = option;
+			option.Invoke (c);
 		}
 
 		private void NoValue (OptionContext c)
@@ -646,8 +660,10 @@ namespace Tests.NDesk.Options {
 		{
 			var tests = new Dictionary<string, Action> () {
 				{ "boolean",      () => CheckBoolean () },
+				{ "bundled-val",  () => CheckBundledValue () },
 				{ "bundling",     () => CheckOptionBundling () },
 				{ "context",      () => CheckOptionContext () },
+				{ "derived-type", () => CheckDerivedType () },
 				{ "descriptions", () => CheckWriteOptionDescriptions () },
 				{ "exceptions",   () => CheckExceptions () },
 				{ "halt",         () => CheckHaltProcessing () },
@@ -655,7 +671,6 @@ namespace Tests.NDesk.Options {
 				{ "many",         () => CheckMany () },
 				{ "optional",     () => CheckOptional () },
 				{ "required",     () => CheckRequired () },
-				{ "derived-type", () => CheckDerivedType () },
 			};
 			bool run  = true;
 			bool help = false;
@@ -681,6 +696,25 @@ namespace Tests.NDesk.Options {
 		static IEnumerable<string> _ (params string[] a)
 		{
 			return a;
+		}
+
+		static void CheckBundledValue ()
+		{
+			var defines = new List<string> ();
+			bool debug  = false;
+			var p = new OptionSet () {
+				{ "D|define=", v => defines.Add (v) },
+				{ "Debug",     v => debug = v != null },
+				{ "E",         v => { /* ignore */ } },
+			};
+			p.Parse (_("-DNAME", "-Debug"));
+			Assert (defines.Count, 1);
+			Assert (defines [0], "NAME");
+			Assert (debug, true);
+
+			AssertException (typeof(OptionException), 
+					"Cannot bundle unregistered option '-V'.",
+					p, v => { v.Parse (_("-EVALUENOTSUP")); });
 		}
 
 		static void CheckRequired ()
@@ -834,6 +868,9 @@ namespace Tests.NDesk.Options {
 			AssertException (typeof(OptionException), 
 					"Cannot bundle option '-a' that requires a value.", 
 					p, v => { v.Parse (_("-ca", "value")); });
+			AssertException (typeof(OptionException), 
+					"Cannot bundle unregistered option '-z'.", 
+					p, v => { v.Parse (_("-cz", "extra")); });
 
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: prototype", 
