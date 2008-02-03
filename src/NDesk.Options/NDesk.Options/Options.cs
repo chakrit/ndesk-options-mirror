@@ -132,27 +132,122 @@ namespace System {
 
 namespace NDesk.Options {
 
+	public class OptionValueCollection : IList, IList<string> {
+
+		List<string> values = new List<string> ();
+		OptionContext c;
+
+		internal OptionValueCollection (OptionContext c)
+		{
+			this.c = c;
+		}
+
+		#region ICollection
+		void ICollection.CopyTo (Array array, int index)  {(values as ICollection).CopyTo (array, index);}
+		bool ICollection.IsSynchronized                   {get {return (values as ICollection).IsSynchronized;}}
+		object ICollection.SyncRoot                       {get {return (values as ICollection).SyncRoot;}}
+		#endregion
+
+		#region ICollection<T>
+		public void Add (string item)                       {values.Add (item);}
+		public void Clear ()                                {values.Clear ();}
+		public bool Contains (string item)                  {return values.Contains (item);}
+		public void CopyTo (string[] array, int arrayIndex) {values.CopyTo (array, arrayIndex);}
+		public bool Remove (string item)                    {return values.Remove (item);}
+		public int Count                                    {get {return values.Count;}}
+		public bool IsReadOnly                              {get {return false;}}
+		#endregion
+
+		#region IEnumerable
+		IEnumerator IEnumerable.GetEnumerator () {return values.GetEnumerator ();}
+		#endregion
+
+		#region IEnumerable<T>
+		public IEnumerator<string> GetEnumerator () {return values.GetEnumerator ();}
+		#endregion
+
+		#region IList
+		int IList.Add (object value)                {return (values as IList).Add (value);}
+		bool IList.Contains (object value)          {return (values as IList).Contains (value);}
+		int IList.IndexOf (object value)            {return (values as IList).IndexOf (value);}
+		void IList.Insert (int index, object value) {(values as IList).Insert (index, value);}
+		void IList.Remove (object value)            {(values as IList).Remove (value);}
+		void IList.RemoveAt (int index)             {(values as IList).RemoveAt (index);}
+		bool IList.IsFixedSize                      {get {return false;}}
+		object IList.this [int index]               {get {return this [index];} set {(values as IList)[index] = value;}}
+		#endregion
+
+		#region IList<T>
+		public int IndexOf (string item)            {return values.IndexOf (item);}
+		public void Insert (int index, string item) {values.Insert (index, item);}
+		public void RemoveAt (int index)            {values.RemoveAt (index);}
+
+		private void AssertValid (int index)
+		{
+			if (c.Option == null)
+				throw new InvalidOperationException ("OptionContext.Option is null.");
+			if (index >= c.Option.ValueCount)
+				throw new ArgumentOutOfRangeException ("index");
+			if (c.Option.OptionValueType == OptionValueType.Required &&
+					index >= values.Count)
+				throw new OptionException (string.Format (
+							c.OptionSet.MessageLocalizer ("Missing required value for option '{0}'."), c.OptionName), 
+						c.OptionName);
+		}
+
+		public string this [int index] {
+			get {
+				AssertValid (index);
+				return index >= values.Count ? null : values [index];
+			}
+			set {
+				values [index] = value;
+			}
+		}
+		#endregion
+
+		public List<string> ToList ()
+		{
+			return new List<string> (values);
+		}
+
+		public string[] ToArray ()
+		{
+			return values.ToArray ();
+		}
+
+		public override string ToString ()
+		{
+			return string.Join (", ", values.ToArray ());
+		}
+	}
+
+	public class OptionContext {
+		public OptionContext (OptionSet set)
+		{
+			OptionValues = new OptionValueCollection (this);
+			OptionSet    = set;
+		}
+
+		public Option                 Option        { get; set; }
+		public string                 OptionName    { get; set; }
+		public int                    OptionIndex   { get; set; }
+		public OptionSet              OptionSet     { get; private set; }
+		public OptionValueCollection  OptionValues  { get; private set; }
+	}
+
 	public enum OptionValueType {
 		None, 
 		Optional,
 		Required,
 	}
 
-	public class OptionContext {
-		public OptionContext ()
-		{
-		}
-
-		public Option Option { get; set; }
-		public string OptionName { get; set; }
-		public int    OptionIndex { get; set; }
-		public string OptionValue { get; set; }
-	}
-
 	public abstract class Option {
 		string prototype, description;
 		string[] names;
 		OptionValueType type;
+		int count;
+		string[] separators;
 
 		protected Option (string prototype, string description)
 		{
@@ -165,20 +260,55 @@ namespace NDesk.Options {
 			this.names       = prototype.Split ('|');
 			this.description = description;
 			this.type        = ValidateNames ();
+			this.count       = 1;
 		}
 
-		public string Prototype { get { return prototype; } }
-		public string Description { get { return description; } }
-		public OptionValueType OptionValueType { get { return type; } }
+		protected Option (string prototype, string description, int valueCount, string[] valueSeparators)
+			: this (prototype, description)
+		{
+			if (valueCount < 0)
+				throw new ArgumentOutOfRangeException ("valueCount");
+			if (valueCount == 0 && type != OptionValueType.None)
+				throw new ArgumentException (
+						"Cannot provide valueCount of 0 for OptionValueType.Required or " +
+							"OptionValueType.Optional.",
+						"valueCount");
+			if ((valueCount == 0 || valueCount == 1) && valueSeparators != null && valueSeparators.Length > 0)
+				throw new ArgumentException ("Cannot provide valueSeparators if valueCount is 0 or 1.", "valueSeparators");
+			if (valueCount > 1 && valueSeparators != null) {
+				for (int i = 0; i < valueSeparators.Length; ++i) {
+					if (valueSeparators [i] == null)
+						throw new ArgumentNullException ("valueSeparators");
+					if (valueSeparators [i].Length == 0)
+						throw new ArgumentException ("Cannot be the empty string.", "valueSeparators");
+				}
+			}
+			this.count      = valueCount;
+			this.separators = valueSeparators;
+		}
+
+		public string           Prototype       {get {return prototype;}}
+		public string           Description     {get {return description;}}
+		public OptionValueType  OptionValueType {get {return type;}}
+		public int              ValueCount      {get {return count;}}
 
 		public string[] GetNames ()
 		{
 			return (string[]) names.Clone ();
 		}
 
-		internal string[] Names { get { return names; } }
+		public string[] GetValueSeparators ()
+		{
+			if (separators == null)
+				return new string [0];
+			return (string[]) separators.Clone ();
+		}
+
+		internal string[] Names           {get {return names;}}
+		internal string[] ValueSeparators {get {return separators;}}
 
 		static readonly char[] NameTerminator = new char[]{'=', ':'};
+
 		private OptionValueType ValidateNames ()
 		{
 			char type = '\0';
@@ -207,8 +337,8 @@ namespace NDesk.Options {
 		{
 			OnParseComplete (c);
 			c.OptionName  = null;
-			c.OptionValue = null;
 			c.Option      = null;
+			c.OptionValues.Clear ();
 		}
 
 		protected abstract void OnParseComplete (OptionContext c);
@@ -267,6 +397,10 @@ namespace NDesk.Options {
 		Dictionary<string, Option> options = new Dictionary<string, Option> ();
 		Converter<string, string> localizer;
 
+		public Converter<string, string> MessageLocalizer {
+			get {return localizer;}
+		}
+
 		protected Option GetOptionForName (string option)
 		{
 			if (option == null)
@@ -304,23 +438,6 @@ namespace NDesk.Options {
 			base.SetItem (index, item);
 		}
 
-		class ActionOption : Option {
-			Action<string> action;
-
-			public ActionOption (string prototype, string description, Action<string> action)
-				: base (prototype, description)
-			{
-				if (action == null)
-					throw new ArgumentNullException ("action");
-				this.action = action;
-			}
-
-			protected override void OnParseComplete (OptionContext c)
-			{
-				action (c.OptionValue);
-			}
-		}
-
 		private void AddImpl (Option option)
 		{
 			if (option == null)
@@ -331,7 +448,7 @@ namespace NDesk.Options {
 					this.options.Add (name, option);
 				}
 			}
-			catch (Exception e) {
+			catch (Exception) {
 				foreach (string name in added)
 					this.options.Remove (name);
 				throw;
@@ -344,6 +461,23 @@ namespace NDesk.Options {
 			return this;
 		}
 
+		class ActionOption : Option {
+			Action<OptionValueCollection> action;
+
+			public ActionOption (string prototype, string description, int count, string[] seps, Action<OptionValueCollection> action)
+				: base (prototype, description, count, seps)
+			{
+				if (action == null)
+					throw new ArgumentNullException ("action");
+				this.action = action;
+			}
+
+			protected override void OnParseComplete (OptionContext c)
+			{
+				action (c.OptionValues);
+			}
+		}
+
 		public OptionSet Add (string options, Action<string> action)
 		{
 			return Add (options, null, action);
@@ -353,9 +487,81 @@ namespace NDesk.Options {
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
-			Option p = new ActionOption (options, description, action);
+			Option p = new ActionOption (options, description, 1, null, v => action (v [0]));
 			base.Add (p);
 			return this;
+		}
+
+		public OptionSet Add (string options, Action<string, string> action)
+		{
+			return Add (options, null, action);
+		}
+
+		public OptionSet Add (string options, string description, Action<string, string> action)
+		{
+			if (action == null)
+				throw new ArgumentNullException ("action");
+			Option p = new ActionOption (options, description, 2, null, (v) => action (v [0], v [1]));
+			base.Add (p);
+			return this;
+		}
+
+		private T ConvertFromString<T> (string value, string optionName)
+		{
+			TypeConverter conv = TypeDescriptor.GetConverter (typeof (T));
+			T t = default (T);
+			try {
+				if (value != null)
+					t = (T) conv.ConvertFromString (value);
+			}
+			catch (Exception e) {
+				throw new OptionException (
+						string.Format (
+							localizer ("Could not convert string `{0}' to type {1} for option `{2}'."),
+							value, typeof (T).Name, optionName),
+						optionName, e);
+			}
+			return t;
+		}
+
+		class ActionOption<T> : Option {
+			Action<T> action;
+			OptionSet set;
+
+			public ActionOption (string prototype, string description, OptionSet set, Action<T> action)
+				: base (prototype, description, 1, null)
+			{
+				if (action == null)
+					throw new ArgumentNullException ("action");
+				this.set    = set;
+				this.action = action;
+			}
+
+			protected override void OnParseComplete (OptionContext c)
+			{
+				action (set.ConvertFromString<T> (c.OptionValues [0], c.OptionName));
+			}
+		}
+
+		class ActionOption<TKey, TValue> : Option {
+			Action<TKey, TValue> action;
+			OptionSet set;
+
+			public ActionOption (string prototype, string description, string[] seps, OptionSet set, Action<TKey, TValue> action)
+				: base (prototype, description, 2, seps)
+			{
+				if (action == null)
+					throw new ArgumentNullException ("action");
+				this.set    = set;
+				this.action = action;
+			}
+
+			protected override void OnParseComplete (OptionContext c)
+			{
+				action (
+						set.ConvertFromString<TKey> (c.OptionValues [0], c.OptionName),
+						set.ConvertFromString<TValue> (c.OptionValues [1], c.OptionName));
+			}
 		}
 
 		public OptionSet Add<T> (string options, Action<T> action)
@@ -363,46 +569,24 @@ namespace NDesk.Options {
 			return Add (options, null, action);
 		}
 
-		class ActionOption<T> : Option {
-			Action<T> action;
-			Converter<string, string> localizer;
-
-			public ActionOption (string prototype, string description, Converter<string, string> localizer, Action<T> action)
-				: base (prototype, description)
-			{
-				if (action == null)
-					throw new ArgumentNullException ("action");
-				this.localizer = localizer;
-				this.action = action;
-			}
-
-			protected override void OnParseComplete (OptionContext c)
-			{
-				TypeConverter conv = TypeDescriptor.GetConverter (typeof(T));
-				T t = default (T);
-				try {
-					if (c.OptionValue != null)
-						t = (T) conv.ConvertFromString (c.OptionValue);
-				}
-				catch (Exception e) {
-					throw new OptionException (
-							string.Format (
-								localizer ("Could not convert string `{0}' to type {1} for option `{2}'."),
-								c.OptionValue, typeof(T).Name, c.OptionName),
-							c.OptionName, e);
-				}
-				action (t);
-			}
-		}
-
 		public OptionSet Add<T> (string options, string description, Action<T> action)
 		{
-			return Add (new ActionOption<T> (options, description, localizer, action));
+			return Add (new ActionOption<T> (options, description, this, action));
+		}
+
+		public OptionSet Add<TKey, TValue> (string options, Action<TKey, TValue> action)
+		{
+			return Add (options, null, action);
+		}
+
+		public OptionSet Add<TKey, TValue> (string options, string description, Action<TKey, TValue> action)
+		{
+			return Add (new ActionOption<TKey, TValue> (options, description, null, this, action));
 		}
 
 		protected virtual OptionContext CreateOptionContext ()
 		{
-			return new OptionContext ();
+			return new OptionContext (this);
 		}
 
 #if LINQ
@@ -421,7 +605,7 @@ namespace NDesk.Options {
 				select option;
 			List<string> r = unprocessed.ToList ();
 			if (c.Option != null)
-				NoValue (c);
+				c.Option.Invoke (c);
 			return r;
 		}
 #else
@@ -445,7 +629,7 @@ namespace NDesk.Options {
 					unprocessed.Add (option);
 			}
 			if (c.Option != null)
-				NoValue (c);
+				c.Option.Invoke (c);
 			return unprocessed;
 		}
 #endif
@@ -469,8 +653,7 @@ namespace NDesk.Options {
 		protected virtual bool Parse (string option, OptionContext c)
 		{
 			if (c.Option != null) {
-				c.OptionValue = option;
-				c.Option.Invoke (c);
+				ParseValue (option, c);
 				return true;
 			}
 
@@ -484,15 +667,13 @@ namespace NDesk.Options {
 				c.Option     = p;
 				switch (p.OptionValueType) {
 					case OptionValueType.None:
-						c.OptionValue = n;
+						c.OptionValues.Add (n);
 						c.Option.Invoke (c);
 						break;
 					case OptionValueType.Optional:
 					case OptionValueType.Required: 
-						if (v != null) {
-							c.OptionValue = v;
-							c.Option.Invoke (c);
-						}
+						if (v != null)
+							ParseValue (v, c);
 						break;
 				}
 				return true;
@@ -507,6 +688,22 @@ namespace NDesk.Options {
 			return false;
 		}
 
+		private void ParseValue (string option, OptionContext c)
+		{
+			foreach (var o in c.Option.ValueSeparators != null 
+					? option.Split (c.Option.ValueSeparators, StringSplitOptions.None)
+					: new string[]{option}) {
+				c.OptionValues.Add (o);
+			}
+			if (c.OptionValues.Count == c.Option.ValueCount)
+				c.Option.Invoke (c);
+			else if (c.OptionValues.Count > c.Option.ValueCount)
+				throw new OptionException (localizer (string.Format (
+								"Error: Found {0} option values when expecting {1}.", 
+								c.OptionValues.Count, c.Option.ValueCount)),
+						c.OptionName);
+		}
+
 		private bool ParseBool (string option, string n, OptionContext c)
 		{
 			Option p;
@@ -514,8 +711,8 @@ namespace NDesk.Options {
 					this.options.TryGetValue (n.Substring (0, n.Length-1), out p)) {
 				string v = n [n.Length-1] == '+' ? option : null;
 				c.OptionName  = option;
-				c.OptionValue = v;
 				c.Option      = p;
+				c.OptionValues.Add (v);
 				p.Invoke (c);
 				return true;
 			}
@@ -553,23 +750,9 @@ namespace NDesk.Options {
 		private void Invoke (OptionContext c, string name, string value, Option option)
 		{
 			c.OptionName  = name;
-			c.OptionValue = value;
 			c.Option      = option;
+			c.OptionValues.Add (value);
 			option.Invoke (c);
-		}
-
-		private void NoValue (OptionContext c)
-		{
-			c.OptionValue = null;
-			Option p = c.Option;
-			if (p != null && p.OptionValueType == OptionValueType.Optional) {
-				p.Invoke (c);
-			}
-			else if (p != null && p.OptionValueType == OptionValueType.Required) {
-				throw new OptionException (string.Format (
-							localizer ("Missing required value for option '{0}'."), c.OptionName), 
-						c.OptionName);
-			}
 		}
 
 		private const int OptionWidth = 29;
@@ -668,6 +851,8 @@ namespace Tests.NDesk.Options {
 				{ "descriptions", () => CheckWriteOptionDescriptions () },
 				{ "exceptions",   () => CheckExceptions () },
 				{ "halt",         () => CheckHaltProcessing () },
+				{ "key/value",    () => CheckKeyValue () },
+				{ "c-key/value",  () => CheckCustomKeyValue () },
 				{ "localization", () => CheckLocalization () },
 				{ "many",         () => CheckMany () },
 				{ "optional",     () => CheckOptional () },
@@ -832,6 +1017,11 @@ namespace Tests.NDesk.Options {
 			{
 			}
 
+			public DefaultOption (string prototypes, string description, int c, string[] sep)
+				: base (prototypes, description, c, sep)
+			{
+			}
+
 			protected override void OnParseComplete (OptionContext c)
 			{
 				throw new NotImplementedException ();
@@ -894,6 +1084,42 @@ namespace Tests.NDesk.Options {
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: action",
 					p, v => { v.Add ("foo", (Action<string>) null); });
+			AssertException (typeof(ArgumentOutOfRangeException),
+					"Argument is out of range.\nParameter name: valueCount",
+					p, v => { new DefaultOption ("a", null, -1, null); });
+			AssertException (typeof(ArgumentException),
+					"Cannot provide valueCount of 0 for OptionValueType.Required or " +
+						"OptionValueType.Optional.\nParameter name: valueCount",
+					p, v => { new DefaultOption ("a=", null, 0, null); });
+			AssertException (typeof(ArgumentException),
+					"Cannot provide valueSeparators if valueCount is 0 or 1.\nParameter name: valueSeparators",
+					p, v => { new DefaultOption ("a", null, 0, new string[]{"="}); });
+			AssertException (typeof(ArgumentException),
+					"Cannot provide valueSeparators if valueCount is 0 or 1.\nParameter name: valueSeparators",
+					p, v => { new DefaultOption ("a=", null, 1, new string[]{"="}); });
+			AssertException (typeof(ArgumentNullException),
+					"Argument cannot be null.\nParameter name: valueSeparators",
+					p, v => { new DefaultOption ("a=", null, 2, new string[]{null}); });
+			AssertException (typeof(ArgumentException),
+					"Cannot be the empty string.\nParameter name: valueSeparators",
+					p, v => { new DefaultOption ("a=", null, 2, new string[]{""}); });
+			AssertException (null, null,
+					p, v => { new DefaultOption ("a", null, 0, null); });
+			AssertException (null, null,
+					p, v => { new DefaultOption ("a", null, 0, new string[0]); });
+
+			OptionContext c = new OptionContext (p);
+			AssertException (typeof(InvalidOperationException),
+					"OptionContext.Option is null.",
+					c, v => { string s = v.OptionValues [0]; });
+			c.Option = p [0];
+			AssertException (typeof(ArgumentOutOfRangeException),
+					"Argument is out of range.\nParameter name: index",
+					c, v => { string s = v.OptionValues [2]; });
+			c.OptionName = "-a";
+			AssertException (typeof(OptionException),
+					"Missing required value for option '-a'.",
+					c, v => { string s = v.OptionValues [0]; });
 		}
 
 		static void AssertException<T> (Type exception, string message, T a, Action<T> action)
@@ -968,6 +1194,84 @@ namespace Tests.NDesk.Options {
 			Assert (e.Count, 2);
 			Assert (e [0], "-a");
 			Assert (e [1], "-b");
+		}
+
+		static void CheckKeyValue ()
+		{
+			var a = new Dictionary<string, string> ();
+			var b = new Dictionary<int, char> ();
+			var p = new OptionSet () {
+				{ "a=", (k,v) => a.Add (k, v) },
+				{ "b=", (int k, char v) => b.Add (k, v) },
+				{ "c:", (k, v) => {if (k != null) a.Add (k, v);} },
+			};
+			p.Parse (_("-a", "A", "B", "-a", "C", "D", "-b", "1", "a", "-b", "2", "b"));
+			Assert (a.Count, 2);
+			Assert (a.ContainsKey ("A"), true);
+			Assert (a.ContainsKey ("C"), true);
+			Assert (a ["A"], "B");
+			Assert (a ["C"], "D");
+
+			Assert (b.Count, 2);
+			Assert (b.ContainsKey (1), true);
+			Assert (b.ContainsKey (2), true);
+			Assert (b [1], 'a');
+			Assert (b [2], 'b');
+
+			a.Clear ();
+			p.Parse (_("-c"));
+			Assert (a.Count, 0);
+			p.Parse (_("-c", "a"));
+			Assert (a.Count, 1);
+			Assert (a ["a"], null);
+		}
+
+		class CustomOption : Option {
+			Action<OptionValueCollection> action;
+
+			public CustomOption (string p, string d, int c, string[] s, Action<OptionValueCollection> a)
+				: base (p, d, c, s)
+			{
+				this.action = a;
+			}
+
+			protected override void OnParseComplete (OptionContext c)
+			{
+				action (c.OptionValues);
+			}
+		}
+
+		static void CheckCustomKeyValue ()
+		{
+			var a = new Dictionary<string, string> ();
+			var b = new Dictionary<string, string[]> ();
+			var p = new OptionSet () {
+				new CustomOption ("a=", null, 2, new string[]{"=", ":"}, v => a.Add (v [0], v [1])),
+				new CustomOption ("b=", null, 3, new string[]{"=", ":"}, v => b.Add (v [0], new string[]{v [1], v [2]})),
+			};
+			p.Parse (_("-a=b=c", "-a=d", "e", "-a:f=g", "-a:h:i", "-a", "j=k", "-a", "l:m"));
+			Assert (a.Count, 6);
+			Assert (a ["b"], "c");
+			Assert (a ["d"], "e");
+			Assert (a ["f"], "g");
+			Assert (a ["h"], "i");
+			Assert (a ["j"], "k");
+			Assert (a ["l"], "m");
+
+			AssertException (typeof(OptionException),
+					"Missing required value for option '-a'.",
+					p, v => {v.Parse (_("-a=b"));});
+
+			p.Parse (_("-b", "a", "b", "c", "-b:d:e:f", "-b=g=h:i", "-b:j=k:l"));
+			Assert (b.Count, 4);
+			Assert (b ["a"][0], "b");
+			Assert (b ["a"][1], "c");
+			Assert (b ["d"][0], "e");
+			Assert (b ["d"][1], "f");
+			Assert (b ["g"][0], "h");
+			Assert (b ["g"][1], "i");
+			Assert (b ["j"][0], "k");
+			Assert (b ["j"][1], "l");
 		}
 
 		static void CheckLocalization ()
@@ -1047,9 +1351,18 @@ namespace Tests.NDesk.Options {
 				this.index  = index;
 			}
 
+			public ContextCheckerOption (string p, string d, int c, string[] sep)
+				: base (p, d, c, sep)
+			{
+				this.eName  = eName;
+				this.eValue = eValue;
+				this.index  = index;
+			}
+
 			protected override void OnParseComplete (OptionContext c)
 			{
-				Assert (c.OptionValue, eValue);
+				Assert (c.OptionValues.Count, 1);
+				Assert (c.OptionValues [0], eValue);
 				Assert (c.OptionName, eName);
 				Assert (c.OptionIndex, index);
 				Assert (c.Option, this);
