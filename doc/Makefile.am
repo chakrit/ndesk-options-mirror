@@ -101,7 +101,8 @@ edit:
 html: $(DOCUMENTATION)
 	monodocs2html -template:doc-template.html -source:en -ext:html \
 		-dest:ndesk-options && \
-		tar czf ../archive/$(PACKAGE)-$(VERSION)-docs.tar.gz ndesk-options
+		tar czf ../archive/$(PACKAGE)-$(VERSION)-docs.tar.gz ndesk-options && \
+		rm -Rf ndesk-options
 
 clean:
 	-rm $(CLEANFILES)
