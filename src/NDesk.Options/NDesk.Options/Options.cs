@@ -672,8 +672,7 @@ namespace NDesk.Options {
 						break;
 					case OptionValueType.Optional:
 					case OptionValueType.Required: 
-						if (v != null)
-							ParseValue (v, c);
+						ParseValue (v, c);
 						break;
 				}
 				return true;
@@ -690,12 +689,14 @@ namespace NDesk.Options {
 
 		private void ParseValue (string option, OptionContext c)
 		{
-			foreach (var o in c.Option.ValueSeparators != null 
-					? option.Split (c.Option.ValueSeparators, StringSplitOptions.None)
-					: new string[]{option}) {
-				c.OptionValues.Add (o);
-			}
-			if (c.OptionValues.Count == c.Option.ValueCount)
+			if (option != null)
+				foreach (var o in c.Option.ValueSeparators != null 
+						? option.Split (c.Option.ValueSeparators, StringSplitOptions.None)
+						: new string[]{option}) {
+					c.OptionValues.Add (o);
+				}
+			if (c.OptionValues.Count == c.Option.ValueCount || 
+					c.Option.OptionValueType == OptionValueType.Optional)
 				c.Option.Invoke (c);
 			else if (c.OptionValues.Count > c.Option.ValueCount)
 				throw new OptionException (localizer (string.Format (
@@ -902,7 +903,7 @@ namespace Tests.NDesk.Options {
 			Assert (debug, true);
 			Assert (libs.Count, 2);
 			Assert (libs [0], "/foo");
-			Assert (libs [1], "/bar");
+			Assert (libs [1], null);
 
 			AssertException (typeof(OptionException), 
 					"Cannot bundle unregistered option '-V'.",
@@ -947,11 +948,20 @@ namespace Tests.NDesk.Options {
 			Assert (a, "");
 
 			p.Parse (_("-f", "A"));
-			Assert (f, Foo.A);
+			Assert (f, null);
 			p.Parse (_("-f"));
 			Assert (f, null);
+			p.Parse (_("-f=A"));
+			Assert (f, Foo.A);
+			f = null;
+			p.Parse (_("-fA"));
+			Assert (f, Foo.A);
 
+			p.Parse (_("-n42"));
+			Assert (n, 42);
 			p.Parse (_("-n", "42"));
+			Assert (n, 0);
+			p.Parse (_("-n=42"));
 			Assert (n, 42);
 			p.Parse (_("-n"));
 			Assert (n, 0);
@@ -1222,6 +1232,8 @@ namespace Tests.NDesk.Options {
 			p.Parse (_("-c"));
 			Assert (a.Count, 0);
 			p.Parse (_("-c", "a"));
+			Assert (a.Count, 0);
+			p.Parse (_("-ca"));
 			Assert (a.Count, 1);
 			Assert (a ["a"], null);
 		}
