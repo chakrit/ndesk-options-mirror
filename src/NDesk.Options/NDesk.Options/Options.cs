@@ -297,6 +297,24 @@ namespace NDesk.Options {
 			return (string[]) separators.Clone ();
 		}
 
+		protected static T Parse<T> (string value, OptionContext c)
+		{
+			TypeConverter conv = TypeDescriptor.GetConverter (typeof (T));
+			T t = default (T);
+			try {
+				if (value != null)
+					t = (T) conv.ConvertFromString (value);
+			}
+			catch (Exception e) {
+				throw new OptionException (
+						string.Format (
+							c.OptionSet.MessageLocalizer ("Could not convert string `{0}' to type {1} for option `{2}'."),
+							value, typeof (T).Name, c.OptionName),
+						c.OptionName, e);
+			}
+			return t;
+		}
+
 		internal string[] Names           {get {return names;}}
 		internal string[] ValueSeparators {get {return separators;}}
 
@@ -548,61 +566,39 @@ namespace NDesk.Options {
 			return this;
 		}
 
-		private T ConvertFromString<T> (string value, string optionName)
-		{
-			TypeConverter conv = TypeDescriptor.GetConverter (typeof (T));
-			T t = default (T);
-			try {
-				if (value != null)
-					t = (T) conv.ConvertFromString (value);
-			}
-			catch (Exception e) {
-				throw new OptionException (
-						string.Format (
-							localizer ("Could not convert string `{0}' to type {1} for option `{2}'."),
-							value, typeof (T).Name, optionName),
-						optionName, e);
-			}
-			return t;
-		}
-
 		class ActionOption<T> : Option {
 			Action<T> action;
-			OptionSet set;
 
-			public ActionOption (string prototype, string description, OptionSet set, Action<T> action)
+			public ActionOption (string prototype, string description, Action<T> action)
 				: base (prototype, description, 1)
 			{
 				if (action == null)
 					throw new ArgumentNullException ("action");
-				this.set    = set;
 				this.action = action;
 			}
 
 			protected override void OnParseComplete (OptionContext c)
 			{
-				action (set.ConvertFromString<T> (c.OptionValues [0], c.OptionName));
+				action (Parse<T> (c.OptionValues [0], c));
 			}
 		}
 
 		class ActionOption<TKey, TValue> : Option {
 			Action<TKey, TValue> action;
-			OptionSet set;
 
-			public ActionOption (string prototype, string description, OptionSet set, Action<TKey, TValue> action)
+			public ActionOption (string prototype, string description, Action<TKey, TValue> action)
 				: base (prototype, description, 2)
 			{
 				if (action == null)
 					throw new ArgumentNullException ("action");
-				this.set    = set;
 				this.action = action;
 			}
 
 			protected override void OnParseComplete (OptionContext c)
 			{
 				action (
-						set.ConvertFromString<TKey> (c.OptionValues [0], c.OptionName),
-						set.ConvertFromString<TValue> (c.OptionValues [1], c.OptionName));
+						Parse<TKey> (c.OptionValues [0], c),
+						Parse<TValue> (c.OptionValues [1], c));
 			}
 		}
 
@@ -613,7 +609,7 @@ namespace NDesk.Options {
 
 		public OptionSet Add<T> (string options, string description, Action<T> action)
 		{
-			return Add (new ActionOption<T> (options, description, this, action));
+			return Add (new ActionOption<T> (options, description, action));
 		}
 
 		public OptionSet Add<TKey, TValue> (string options, Action<TKey, TValue> action)
@@ -623,7 +619,7 @@ namespace NDesk.Options {
 
 		public OptionSet Add<TKey, TValue> (string options, string description, Action<TKey, TValue> action)
 		{
-			return Add (new ActionOption<TKey, TValue> (options, description, this, action));
+			return Add (new ActionOption<TKey, TValue> (options, description, action));
 		}
 
 		protected virtual OptionContext CreateOptionContext ()
@@ -1236,15 +1232,15 @@ namespace Tests.NDesk.Options {
 			OptionContext c = new OptionContext (p);
 			AssertException (typeof(InvalidOperationException),
 					"OptionContext.Option is null.",
-					c, v => { string s = v.OptionValues [0]; });
+					c, v => { string ignore = v.OptionValues [0]; });
 			c.Option = p [0];
 			AssertException (typeof(ArgumentOutOfRangeException),
 					"Argument is out of range.\nParameter name: index",
-					c, v => { string s = v.OptionValues [2]; });
+					c, v => { string ignore = v.OptionValues [2]; });
 			c.OptionName = "-a";
 			AssertException (typeof(OptionException),
 					"Missing required value for option '-a'.",
-					c, v => { string s = v.OptionValues [0]; });
+					c, v => { string ignore = v.OptionValues [0]; });
 		}
 
 		static void AssertException<T> (Type exception, string message, T a, Action<T> action)
@@ -1551,14 +1547,6 @@ namespace Tests.NDesk.Options {
 
 			public ContextCheckerOption (string p, string d, string eName, string eValue, int index)
 				: base (p, d)
-			{
-				this.eName  = eName;
-				this.eValue = eValue;
-				this.index  = index;
-			}
-
-			public ContextCheckerOption (string p, string d, int c)
-				: base (p, d, c)
 			{
 				this.eName  = eName;
 				this.eValue = eValue;
