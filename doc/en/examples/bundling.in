@@ -1,0 +1,11 @@
+mono en/examples/bundling.exe --help
+
+mono en/examples/bundling.exe -D
+
+mono en/examples/bundling.exe -DA -DB=C -cf input --color -ooutput
+
+mono en/examples/bundling.exe -cfv input
+
+mono en/examples/bundling.exe -xctf input
+
+mono en/examples/bundling.exe --color=auto -o output -finput

@@ -19,12 +19,12 @@ UPDATER = $(MONODOCER) -overrides -pretty -path:en
 
 assemble: ndesk-options-docs.zip ndesk-options-docs.tree
 
-$(srcdir)/en/examples/NDesk.Options.dll: $(srcdir)/../lib/ndesk-options/net2/NDesk.Options.dll
+$(srcdir)/en/examples/NDesk.Options.dll: $(srcdir)/../lib/ndesk-options/net3.5/NDesk.Options.dll
 	cp $^ $@
 	-cp $^.mdb $@.mdb
 
 %.exe: %.cs $(srcdir)/en/examples/NDesk.Options.dll
-	gmcs -debug+ -r:Mono.Posix.dll -lib:en/examples -r:NDesk.Options.dll -out:$@ $<
+	gmcs -debug+ -r:Mono.Posix.dll -r:System.Core.dll -lib:en/examples -r:NDesk.Options.dll -out:$@ $<
 
 $(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo: $(srcdir)/en/examples/localization-es.po
 	msgfmt $< -o $@
@@ -43,6 +43,7 @@ DOCUMENTATION = \
 	$(srcdir)/en/System/Action`2.xml
 
 EXAMPLES_OUTPUT = \
+	$(srcdir)/en/examples/bundling.txt \
 	$(srcdir)/en/examples/context.txt \
 	$(srcdir)/en/examples/greet.txt \
 	$(srcdir)/en/examples/localization.txt \
@@ -77,6 +78,8 @@ update-delete: $(addprefix ../lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/en/ex
 EXTRA_DIST = \
 	$(srcdir)/doc-template.html \
 	$(srcdir)/ndesk-options-docs.source \
+	$(srcdir)/en/examples/bundling.cs \
+	$(srcdir)/en/examples/bundling.in \
 	$(srcdir)/en/examples/context.cs \
 	$(srcdir)/en/examples/context.in \
 	$(srcdir)/en/examples/greet.cs \

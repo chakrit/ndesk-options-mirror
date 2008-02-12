@@ -1,0 +1,53 @@
+$ mono bundling.exe --help
+Usage: bundling [OPTIONS]+
+Demo program to show the effects of bundling options and their values
+
+Options:
+  -D[=VALUE1:VALUE2]         Predefine a macro with an (optional) value.
+  -o=VALUE                   Specify the output file
+  -f=VALUE                   The input file
+  -x                         Extract the file
+  -c                         Create the file
+  -t                         List the file
+      --color[=VALUE]        control whether and when color is used
+  -h, --help                 show this message and exit
+
+$ mono bundling.exe -D
+bundling: Missing macro name for option -D.
+Try `greet --help' for more information.
+
+$ mono bundling.exe -DA -DB=C -cf input --color -ooutput
+Macros:
+	A=<null>
+	B=C
+Options:
+	 Input File: input
+	Ouptut File: output
+	     Create: True
+	    Extract: False
+	       List: False
+	      Color: <null>
+
+$ mono bundling.exe -cfv input
+bundling: Cannot bundle option '-f' that requires a value.
+Try `greet --help' for more information.
+
+$ mono bundling.exe -xctf input
+Macros:
+Options:
+	 Input File: input
+	Ouptut File: 
+	     Create: True
+	    Extract: True
+	       List: True
+	      Color: <null>
+
+$ mono bundling.exe --color=auto -o output -finput
+Macros:
+Options:
+	 Input File: input
+	Ouptut File: output
+	     Create: False
+	    Extract: False
+	       List: False
+	      Color: auto
