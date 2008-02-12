@@ -1,10 +1,13 @@
 SUBDIRS = doc
 
 OPTIONS_SRC = \
-	$(srcdir)/src/NDesk.Options/AssemblyInfo.cs           \
+	$(builddir)/src/NDesk.Options/AssemblyInfo.cs         \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs
 
-EXTRA_DIST = $(OPTIONS_SRC) ndesk-options.spec
+EXTRA_DIST = \
+	$(srcdir)/src/NDesk.Options/AssemblyInfo.cs.in        \
+	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs  \
+	$(srcdir)/ndesk-options.spec.in
 
 assemblydir=$(prefix)/lib/ndesk-options
 assembly_DATA = src/NDesk.Options/NDesk.Options/Options.cs
