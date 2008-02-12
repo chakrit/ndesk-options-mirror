@@ -8,7 +8,7 @@
   <ThreadingSafetyStatement>
     All public static members of this type are safe for multithreaded
     operations.  The 
-    <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;string&gt;)" />
+    <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;System.String&gt;)" />
     instance method is thread-safe if no concurrent modifying methods are
     invoked (<c>Add</c>, <c>Remove</c>, etc.).
   </ThreadingSafetyStatement>
