@@ -538,30 +538,30 @@ namespace NDesk.Options {
 			}
 		}
 
-		public OptionSet Add (string options, Action<string> action)
+		public OptionSet Add (string prototype, Action<string> action)
 		{
-			return Add (options, null, action);
+			return Add (prototype, null, action);
 		}
 
-		public OptionSet Add (string options, string description, Action<string> action)
+		public OptionSet Add (string prototype, string description, Action<string> action)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
-			Option p = new ActionOption (options, description, 1, v => action (v [0]));
+			Option p = new ActionOption (prototype, description, 1, v => action (v [0]));
 			base.Add (p);
 			return this;
 		}
 
-		public OptionSet Add (string options, Action<string, string> action)
+		public OptionSet Add (string prototype, Action<string, string> action)
 		{
-			return Add (options, null, action);
+			return Add (prototype, null, action);
 		}
 
-		public OptionSet Add (string options, string description, Action<string, string> action)
+		public OptionSet Add (string prototype, string description, Action<string, string> action)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
-			Option p = new ActionOption (options, description, 2, (v) => action (v [0], v [1]));
+			Option p = new ActionOption (prototype, description, 2, (v) => action (v [0], v [1]));
 			base.Add (p);
 			return this;
 		}
@@ -602,24 +602,24 @@ namespace NDesk.Options {
 			}
 		}
 
-		public OptionSet Add<T> (string options, Action<T> action)
+		public OptionSet Add<T> (string prototype, Action<T> action)
 		{
-			return Add (options, null, action);
+			return Add (prototype, null, action);
 		}
 
-		public OptionSet Add<T> (string options, string description, Action<T> action)
+		public OptionSet Add<T> (string prototype, string description, Action<T> action)
 		{
-			return Add (new ActionOption<T> (options, description, action));
+			return Add (new ActionOption<T> (prototype, description, action));
 		}
 
-		public OptionSet Add<TKey, TValue> (string options, Action<TKey, TValue> action)
+		public OptionSet Add<TKey, TValue> (string prototype, Action<TKey, TValue> action)
 		{
-			return Add (options, null, action);
+			return Add (prototype, null, action);
 		}
 
-		public OptionSet Add<TKey, TValue> (string options, string description, Action<TKey, TValue> action)
+		public OptionSet Add<TKey, TValue> (string prototype, string description, Action<TKey, TValue> action)
 		{
-			return Add (new ActionOption<TKey, TValue> (options, description, action));
+			return Add (new ActionOption<TKey, TValue> (prototype, description, action));
 		}
 
 		protected virtual OptionContext CreateOptionContext ()
