@@ -677,6 +677,9 @@ namespace NDesk.Options {
 
 		protected bool GetOptionParts (string option, out string flag, out string name, out string sep, out string value)
 		{
+			if (option == null)
+				throw new ArgumentNullException ("option");
+
 			flag = name = sep = value = null;
 			Match m = ValueOption.Match (option);
 			if (!m.Success) {
@@ -741,11 +744,12 @@ namespace NDesk.Options {
 			if (c.OptionValues.Count == c.Option.ValueCount || 
 					c.Option.OptionValueType == OptionValueType.Optional)
 				c.Option.Invoke (c);
-			else if (c.OptionValues.Count > c.Option.ValueCount)
+			else if (c.OptionValues.Count > c.Option.ValueCount) {
 				throw new OptionException (localizer (string.Format (
 								"Error: Found {0} option values when expecting {1}.", 
 								c.OptionValues.Count, c.Option.ValueCount)),
 						c.OptionName);
+			}
 		}
 
 		private bool ParseBool (string option, string n, OptionContext c)
