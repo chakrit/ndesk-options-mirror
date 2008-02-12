@@ -1,11 +1,7 @@
-// Case-Insensitive OptionSet
+// Case-Insensitive and Concatentating OptionSet
 using System;
 using System.Collections.Generic;
 using NDesk.Options;
-
-class DemoOptionContext : OptionContext {
-	public string OptionKey;
-}
 
 class DemoOptionSet : OptionSet {
 	protected override void InsertItem (int index, Option item)
@@ -17,97 +13,85 @@ class DemoOptionSet : OptionSet {
 
 	protected override OptionContext CreateOptionContext ()
 	{
-		return new DemoOptionContext ();
+		return new OptionContext (this);
 	}
 
 	protected override bool Parse (string option, OptionContext c)
 	{
-		DemoOptionContext d = (DemoOptionContext) c;
-		// Prevent --a --b
-		string f, n, v;
-		bool haveParts = GetOptionParts (option, out f, out n, out v);
-		Option nextOption = haveParts ? GetOptionForName (n.ToLower ()) : null;
-		if (haveParts && c.Option != null) {
-			if (nextOption == null)
-				; // ignore
-			else if (c.Option.OptionValueType == OptionValueType.Optional) {
-				c.OptionValue = null;
-				c.Option.Invoke (c);
-			}
-			else 
-				throw new OptionException (
-					string.Format ("Found option value `{0}' for option `{1}'.",
-						option, c.OptionName), c.OptionName);
+		string f, n, s, v;
+		bool haveParts = GetOptionParts (option, out f, out n, out s, out v);
+		Option nextOption = null;
+		string newOption  = option;
+
+		if (haveParts) {
+			nextOption = GetOptionForName (n.ToLower ());
+			newOption = f + n.ToLower () + (v != null ? s + v : "");
 		}
 
-		// option name already found, so `option' is the option value
 		if (c.Option != null) {
-			if (c.Option is KeyValueOption && d.OptionKey == null) {
-				HandleKeyValue (option, d);
+			// Prevent --a --b
+			if (c.Option != null && haveParts) {
+				if (nextOption == null) {
+					// ignore
+				}
+				else 
+					throw new OptionException (
+						string.Format ("Found option `{0}' as value for option `{1}'.",
+							option, c.OptionName), c.OptionName);
+			}
+
+			// have a option w/ required value; try to concat values.
+			if (AppendValue (option, c)) {
+				if (!option.EndsWith ("\\") && 
+						c.Option.ValueCount == c.OptionValues.Count) {
+					c.Option.Invoke (c);
+				}
 				return true;
 			}
-			return base.Parse (option, c);
+			else
+				base.Parse (newOption, c);
 		}
 
-		if (!haveParts)
+		if (!haveParts || v == null) {
 			// Not an option; let base handle as a non-option argument.
-			return base.Parse (option, c);
+			return base.Parse (newOption, c);
+		}
 
-		// use lower-case version of the option name.
-		if (nextOption != null && nextOption is KeyValueOption) {
-			d.Option     = nextOption;
-			d.OptionName = f + n.ToLower ();
-			HandleKeyValue (v, d);
+		if (nextOption.OptionValueType != OptionValueType.None && 
+				v.EndsWith ("\\")) {
+			c.Option = nextOption;
+			c.OptionValues.Add (v);
+			c.OptionName = f + n;
 			return true;
 		}
-		return base.Parse (f + n.ToLower () + (v != null ? "=" + v : ""), c);
+
+		return base.Parse (newOption, c);
 	}
 
-	static void HandleKeyValue (string option, DemoOptionContext d)
+	private bool AppendValue (string value, OptionContext c)
 	{
-		if (option == null)
-			return;
-		string[] parts = option.Split ('=');
-		if (parts.Length == 1) {
-			d.OptionKey = option;
-			return;
+		bool added = false;
+		string[] seps = c.Option.GetValueSeparators ();
+		foreach (var o in seps.Length != 0
+				? value.Split (seps, StringSplitOptions.None)
+				: new string[]{value}) {
+			int idx = c.OptionValues.Count-1;
+			if (idx == -1 || !c.OptionValues [idx].EndsWith ("\\")) {
+				c.OptionValues.Add (o);
+				added = true;
+			}
+			else {
+				c.OptionValues [idx] += value;
+				added = true;
+			}
 		}
-		d.OptionKey   = parts [0];
-		d.OptionValue = parts [1];
-		if (d.Option != null) {
-			d.Option.Invoke (d);
-		}
-	}
-
-	class KeyValueOption : Option {
-		public KeyValueOption (string prototype, Action<string,string,OptionContext> action)
-			: base (prototype, null)
-		{
-			this.action = action;
-		}
-
-		Action<string,string,OptionContext> action;
-
-		protected override void OnParseComplete (OptionContext c)
-		{
-			DemoOptionContext d = (DemoOptionContext) c;
-			action (d.OptionKey, d.OptionValue, d);
-			d.OptionKey = null;
-		}
-	}
-
-	public new DemoOptionSet Add (string prototype,
-		Action<string,string,OptionContext> action)
-	{
-		base.Add (new KeyValueOption (prototype, action));
-		return this;
+		return added;
 	}
 }
 
 class Demo {
 	public static void Main (string[] args)
 	{
-		bool show_help = false;
 		List<string> names = new List<string> ();
 		Dictionary<string,string> map = new Dictionary<string,string> ();
 		int repeat = 1;
@@ -115,7 +99,7 @@ class Demo {
 		OptionSet p = new DemoOptionSet () {
 			{ "n|name=",    v => names.Add (v) },
 			{ "r|repeat:",  (int v) => repeat = v },
-			{ "m|map=",     (k,v,c) => map.Add (k, v) },
+			{ "m|map=",     (k,v) => map.Add (k, v) },
 		};
 
 		List<string> extra;

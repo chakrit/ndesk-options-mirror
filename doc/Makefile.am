@@ -21,9 +21,10 @@ assemble: ndesk-options-docs.zip ndesk-options-docs.tree
 
 $(srcdir)/en/examples/NDesk.Options.dll: $(srcdir)/../lib/ndesk-options/net2/NDesk.Options.dll
 	cp $^ $@
+	-cp $^.mdb $@.mdb
 
 %.exe: %.cs $(srcdir)/en/examples/NDesk.Options.dll
-	gmcs -r:Mono.Posix.dll -lib:en/examples -r:NDesk.Options.dll -out:$@ $<
+	gmcs -debug+ -r:Mono.Posix.dll -lib:en/examples -r:NDesk.Options.dll -out:$@ $<
 
 $(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo: $(srcdir)/en/examples/localization-es.po
 	msgfmt $< -o $@
@@ -42,10 +43,10 @@ DOCUMENTATION = \
 	$(srcdir)/en/System/Action`2.xml
 
 EXAMPLES_OUTPUT = \
-	en/examples/context.txt \
-	en/examples/greet.txt \
-	en/examples/localization.txt \
-	en/examples/subclass.txt
+	$(srcdir)/en/examples/context.txt \
+	$(srcdir)/en/examples/greet.txt \
+	$(srcdir)/en/examples/localization.txt \
+	$(srcdir)/en/examples/subclass.txt
 
 %.txt: %.in %.exe
 	-rm $@
@@ -78,15 +79,15 @@ EXTRA_DIST = \
 	$(srcdir)/ndesk-options-docs.source \
 	$(srcdir)/en/examples/context.cs \
 	$(srcdir)/en/examples/context.in \
-	$(srcdir)/en/examples/context.txt \
 	$(srcdir)/en/examples/greet.cs \
 	$(srcdir)/en/examples/greet.in \
-	$(srcdir)/en/examples/greet.txt \
 	$(srcdir)/en/examples/localization.cs \
 	$(srcdir)/en/examples/localization.in \
-	$(srcdir)/en/examples/localization.txt \
 	$(srcdir)/en/examples/locale/es/LC_MESSAGES/localization.mo \
-	$(DOCUMENTATION)
+	$(srcdir)/en/examples/subclass.cs \
+	$(srcdir)/en/examples/subclass.in \
+	$(DOCUMENTATION) \
+	$(EXAMPLES_OUTPUT)
 
 CLEANFILES = \
 	ndesk-options-docs.zip \
@@ -100,9 +101,9 @@ edit:
 
 html: $(DOCUMENTATION)
 	monodocs2html -template:doc-template.html -source:en -ext:html \
-		-dest:ndesk-options && \
-		tar czf ../archive/$(PACKAGE)-$(VERSION)-docs.tar.gz ndesk-options && \
-		rm -Rf ndesk-options
+		-dest:$(PACKAGE)-$(VERSION) && \
+		tar czf ../archive/$(PACKAGE)-$(VERSION)-docs.tar.gz $(PACKAGE)-$(VERSION)
 
 clean:
 	-rm $(CLEANFILES)
+	-rm -Rf $(PACKAGE)-$(VERSION)

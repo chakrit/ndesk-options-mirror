@@ -1,6 +1,6 @@
 mono en/examples/greet.exe --help
 
-mono en/examples/greet.exe -v- -n A -name=B --name=C /name D
+mono en/examples/greet.exe -v- -n A -name=B --name=C /name D -nE
 
 mono en/examples/greet.exe -v -n E custom greeting for: {0}
 

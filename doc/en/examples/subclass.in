@@ -5,3 +5,5 @@ mono en/examples/subclass.exe --Repeat -name A
 mono en/examples/subclass.exe -Name --Repeat 3
 
 mono en/examples/subclass.exe --Map a b -mAp c=d /maP=e=f
+
+mono en/examples/subclass.exe --map 'a\\' 'b\\' c 'd\\' 'e\\' f
