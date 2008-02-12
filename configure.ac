@@ -47,4 +47,5 @@ ndesk-options.spec
 doc/Makefile
 lib/pkgconfig/ndesk-options.pc
 lib/pkgconfig/ndesk-options-linq.pc
+src/NDesk.Options/AssemblyInfo.cs
 ])
