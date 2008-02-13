@@ -2,7 +2,7 @@ mono en/examples/bundling.exe --help
 
 mono en/examples/bundling.exe -D
 
-mono en/examples/bundling.exe -DA -DB=C -cf input --color -ooutput
+mono en/examples/bundling.exe -DA -DB=C "-dD-->E" "-dF=>G" -d "H=>I" -cf input --color -ooutput
 
 mono en/examples/bundling.exe -cfv input
 

@@ -17,9 +17,12 @@ class Test {
 			{ "D:", "Predefine a macro with an (optional) value.",
 				(m, v) => {
 					if (m == null)
-						throw new OptionException ("Missing macro name for option -D.", "-D");
+						throw new OptionException ("Missing macro name for option -D.", 
+								"-D");
 					macros.Add (m, v);
 				} },
+			{ "d={-->}{=>}", "Alternate macro syntax.", 
+				(m, v) => macros.Add (m, v) },
 			{ "o=", "Specify the output file", v => output = v },
 
 			// tar-like options
@@ -29,7 +32,8 @@ class Test {
 			{ "t",  "List the file",    v => list = v != null },
 
 			// ls-like optional values
-			{ "color:", "control whether and when color is used", v => color = v },
+			{ "color:", "control whether and when color is used", 
+				v => color = v },
 
 			// other...
 			{ "h|help",  "show this message and exit", 

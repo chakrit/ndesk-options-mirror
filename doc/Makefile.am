@@ -39,6 +39,7 @@ DOCUMENTATION = \
 	$(srcdir)/en/NDesk.Options/OptionContext.xml \
 	$(srcdir)/en/NDesk.Options/OptionException.xml \
 	$(srcdir)/en/NDesk.Options/OptionSet.xml \
+	$(srcdir)/en/NDesk.Options/OptionValueCollection.xml \
 	$(srcdir)/en/NDesk.Options/OptionValueType.xml \
 	$(srcdir)/en/System/Action`2.xml
 

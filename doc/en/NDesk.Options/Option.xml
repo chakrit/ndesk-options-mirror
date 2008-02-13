@@ -2,13 +2,13 @@
   <TypeSignature Language="C#" Value="public abstract class Option" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <AssemblyVersion>3.5.0.0</AssemblyVersion>
+    <AssemblyVersion>2.0.2.0</AssemblyVersion>
+    <AssemblyVersion>3.0.2.0</AssemblyVersion>
   </AssemblyInfo>
   <ThreadingSafetyStatement>
     All members of this type are safe for multithreaded operations.
     Subclasses must be thread-safe if multithreaded invocation of 
-    <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;string&gt;)" />
+    <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;System.String&gt;)" />
     is required.
   </ThreadingSafetyStatement>
   <Base>
@@ -38,26 +38,46 @@
         </item>
         <item>
           <term>
-            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,NDesk.Options.OptionContext})" />
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,System.String})" />
           </term>
         </item>
         <item>
           <term>
-            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" />
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
+          </term>
+        </item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.Action{``0})" />
+          </term>
+        </item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0})" />
+          </term>
+        </item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.Action{``0,``1})" />
+          </term>
+        </item>
+        <item>
+          <term>
+            <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,System.Action{``0,``1})" />
           </term>
         </item>
       </list>
       <para>
         You can also add custom <see cref="T:NDesk.Options.Option" /> 
         subclasses to an <see cref="T:NDesk.Options.OptionSet" /> via the 
-        <see cref="T:System.Collections.ObjectModel.Collection{NDesk.Options.Option}.Add(`0)" />
+        <see cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
         method.
       </para>
       <block subset="none" type="overrides">
         Inheritors of this type must override the <see langword="abstract" /> method
         <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />,
         which is (indirectly) invoked from within 
-        <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
+        <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
         when an option matching one of the <paramref name="prototype" />
         aliases is encountered.
       </block>
@@ -68,8 +88,8 @@
       <MemberSignature Language="C#" Value="protected Option (string prototype, string description);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="prototype" Type="System.String" />
@@ -92,31 +112,17 @@
           <para>
             This constructor initializes the 
             <see cref="P:NDesk.Options.Option.Prototype" /> property of the
-            new instance using <paramref name="prototype" />, and the 
+            new instance using <paramref name="prototype" />, the 
             <see cref="P:NDesk.Options.Option.Description" /> property of the
-            new instance using <paramref name="description" />.
+            new instance using <paramref name="description" />. and
+            initializes the <see cref="P:NDesk.Options.Option.ValueCount" /> 
+            property of the new instance to <c>1</c>.
           </para>
           <para>
-            <paramref name="prototype" /> is a <c>|</c>-separated list of
-            option names.  It should be listed in shortest-to-longest order,
-            e.g. <c>h|help</c>.  <paramref name="prototype" /> may contain a
-            <see cref="T:NDesk.Options.OptionValueType" /> specifier following
-            one of the <c>|</c>-separated entries.
-          </para>
-          <para>
-            The <see cref="P:NDesk.Options.Option.OptionValueType" /> property
-            is initialized based on whether a <c>=</c> or <c>:</c> follows one
-            of the aliases within <paramref name="prototype" />.
-            <c>=</c> specifies a 
-            <see cref="F:NDesk.Options.OptionValueType.Required" /> value,
-            while <c>:</c> specifies an 
-            <see cref="F:NDesk.Options.OptionValueType.Optional" /> value.  
-            If neither <c>=</c> nor <c>:</c> is not specified, then 
-            <see cref="F:NDesk.Options.OptionValueType.None" /> is used.
-            The value specifier may be used anywhere within 
-            <paramref name="prototype" />, so <c>n|name=</c>, <c>n=|name</c> 
-            and <c>n=|name=</c> are equivalent, but you cannot mix types; 
-            <c>n:|name=</c> is invalid.
+            This is equivalent to calling the 
+            <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+            constructor as with <c>Option(<paramref name="prototype" />, 
+            <paramref name="description" />, 1)</c>.
           </para>
         </remarks>
         <exception cref="T:System.ArgumentException">
@@ -139,12 +145,172 @@
         </exception>
       </Docs>
     </Member>
+    <Member MemberName=".ctor">
+      <MemberSignature Language="C#" Value="protected Option (string prototype, string description, int valueCount);" />
+      <MemberType>Constructor</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+      </AssemblyInfo>
+      <Parameters>
+        <Parameter Name="prototype" Type="System.String" />
+        <Parameter Name="description" Type="System.String" />
+        <Parameter Name="valueCount" Type="System.Int32" />
+      </Parameters>
+      <Docs>
+        <param name="prototype">
+          A <see cref="T:System.String" /> containing a <c>|</c>-separated
+          list of option names (aliases) and an optional value-type specifier.
+        </param>
+        <param name="description">
+          A <see cref="T:System.String" /> containing documentation for the
+          option.
+        </param>
+        <param name="valueCount">
+          A <see cref="T:System.Int32" /> containing the number of values this
+          option accepts.
+        </param>
+        <summary>
+          Creates and initializes a new instance of the 
+          <see cref="T:NDesk.Options.Option" /> class.
+        </summary>
+        <remarks>
+          <para>
+            This constructor initializes the 
+            <see cref="P:NDesk.Options.Option.Prototype" /> property of the
+            new instance using <paramref name="prototype" />, the 
+            <see cref="P:NDesk.Options.Option.Description" /> property of the
+            new instance using <paramref name="description" />. and
+            initializes the <see cref="P:NDesk.Options.Option.ValueCount" /> 
+            property of the new instance using <paramref name="valueCount" />.
+          </para>
+          <para>
+            <paramref name="prototype" /> is a <c>|</c>-separated list of
+            option names.  It should be listed in shortest-to-longest order,
+            e.g. <c>h|help</c>.  <paramref name="prototype" /> may contain a
+            <see cref="T:NDesk.Options.OptionValueType" /> specifier following
+            one of the <c>|</c>-separated entries, and a value separator list
+            following the <see cref="T:NDesk.Options.OptionValueType" /> 
+            specifier.
+          </para>
+          <para>
+            The <see cref="P:NDesk.Options.Option.OptionValueType" /> property
+            is initialized based on whether a <c>=</c> or <c>:</c> follows one
+            of the aliases within <paramref name="prototype" />.
+            <c>=</c> specifies a 
+            <see cref="F:NDesk.Options.OptionValueType.Required" /> value,
+            while <c>:</c> specifies an 
+            <see cref="F:NDesk.Options.OptionValueType.Optional" /> value.  
+            If neither <c>=</c> nor <c>:</c> is not specified, then 
+            <see cref="F:NDesk.Options.OptionValueType.None" /> is used.
+            The value specifier may be used anywhere within 
+            <paramref name="prototype" />, so <c>n|name=</c>, <c>n=|name</c> 
+            and <c>n=|name=</c> are equivalent, but you cannot mix types; 
+            <c>n:|name=</c> is invalid.
+          </para>
+          <para>
+            Multiple values may be bundled together, such as 
+            <c>-opt key=value</c>.  The value separator list specifies which
+            characters can be used to split the value argument to generate
+            separate values.  The value separator list is available when 
+            <paramref name="valueCount" /> is greater than <c>1</c>, and
+            and an <see cref="T:NDesk.Options.OptionValueType" /> was
+            specified.  The value separator list follows the <c>=</c> or
+            <c>:</c> and is one of the following:
+          </para>
+          <list type="bullet">
+            <item>
+              <term>
+                <para>
+                A sequence of character enclosed by <c>{</c> and <c>}</c>.
+                Multiple such sequences may be specified by listing the 
+                <c>{...}</c> sequence multiple times.
+              </para>
+                <para>
+                The sequence <c>{}</c> requires that each value be a different 
+                argument, and no argument splitting will be performed.
+                This sequence has no effect if other separators are also
+                listed (as separate arguments are always permitted for
+                <see cref="F:NDesk.Options.OptionValueType.Required" />
+                values).
+              </para>
+              </term>
+            </item>
+            <item>
+              <term>
+              Any literal character other than <c>{</c> and <c>}</c>.
+            </term>
+            </item>
+          </list>
+          <para>
+            If the separator list is not provided, then <c>=:</c> is the
+            default separator list.
+          </para>
+          <para>
+            For example, the prototype <c>"A:+-*/"</c> would permit any of
+            `<c>+</c>', `<c>-</c>', `<c>*</c>', or `<c>/</c>' to be used to
+            split an argument into values, so <c>-A:5/2</c> would generate the
+            sequence of values <c>5</c> and <c>2</c> for the option <c>-A</c>.
+            Furthermore, the prototype <c>"A={--&gt;}{=&gt;}"</c> would permit
+            either the string <c>--&gt;</c> or the string <c>=&gt;</c> to be used,
+            so <c>-A A-&gt;B C</c> woud parse <c>A-&gt;B</c> as one value and
+            <c>C</c> as the other value, while <c>-A A--&gt;B C</c> would parse
+            <c>A</c> as one value and <c>B</c> as the other value while
+            <c>C</c> would be unhandled (unless the option required 3 values,
+            in which case <c>C</c> would be the 3rd value).
+          </para>
+        </remarks>
+        <exception cref="T:System.ArgumentException">
+          <para>
+            <paramref name="prototype" /> is the empty string <c>""</c>.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="prototype" /> contains an empty alias, such as
+            <c>a||b</c>.
+          </para>
+          <para>-or-</para>
+          <para>
+            Conflicting <see cref="T:NDesk.Options.OptionValueType" /> values
+            were found within <paramref name="prototype" />.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="valueCount" /> is <c>0</c> and 
+            <paramref name="prototype" /> specified an
+            <see cref="T:NDesk.Options.OptionValueType" /> value of
+            <see cref="F:NDesk.Options.OptionValueType.Optional" /> or
+            <see cref="F:NDesk.Options.OptionValueType.Required" />.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="valueCount" /> is greater than <c>1</c> and
+            <paramref name="prototype" /> specified an
+            <see cref="T:NDesk.Options.OptionValueType" /> value of
+            <see cref="F:NDesk.Options.OptionValueType.None" />.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="prototype" /> contains a separator list and
+            <paramref name="valueCount" /> is <c>0</c> or <c>1</c>.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="prototype" /> contains a badly formatted 
+            separator list, such as <c>{{</c>, <c>}}</c>, <c>{{}</c>, etc.
+          </para>
+        </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="prototype" /> is <see langword="null" />.
+        </exception>
+      </Docs>
+    </Member>
     <Member MemberName="Description">
       <MemberSignature Language="C#" Value="public string Description { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -174,15 +340,15 @@
       <MemberSignature Language="C#" Value="public string[] GetNames ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
       </ReturnValue>
       <Parameters />
       <Docs>
-        <summary>Retrieves all aliases that make up 
+        <summary>Retrieves all name aliases that make up 
           <see cref="P:NDesk.Options.Option.Prototype" />.</summary>
         <returns>
           A <see cref="T:System.String" /> array containing all name aliases
@@ -198,12 +364,61 @@
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="GetValueSeparators">
+      <MemberSignature Language="C#" Value="public string[] GetValueSeparators ();" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String[]</ReturnType>
+      </ReturnValue>
+      <Parameters />
+      <Docs>
+        <summary>
+          Retreives all value separators, strings which are used to split an
+          argument into one or more values for the this 
+          <see cref="T:NDesk.Options.Option" />.
+        </summary>
+        <returns>
+          A <see cref="T:System.String" /> array containing all strings that
+          should be used when splitting an argument into one or more values
+          for this <see cref="T:NDesk.Options.Option" />.
+        </returns>
+        <remarks>
+          <para>
+            Value separators may be provided within 
+            <see cref="P:NDesk.Options.Option.Prototype" /> only if:
+          </para>
+          <list type="bullet">
+            <item>
+              <term>
+                <see cref="P:NDesk.Options.Option.ValueCount" /> is greater than 1.
+            </term>
+            </item>
+            <item>
+              <term>
+                <see cref="P:NDesk.Options.Option.OptionValueType" /> is 
+              <see cref="F:NDesk.Options.OptionValueType.Optional" /> or
+              <see cref="F:NDesk.Options.OptionValueType.Required" />.
+            </term>
+            </item>
+          </list>
+          <para>
+            See the 
+            <see cref="C:NDesk.Options.Option(System.String,System.String,System.In32)" />
+            constructor for more information.
+          </para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="Invoke">
       <MemberSignature Language="C#" Value="public void Invoke (NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -218,55 +433,43 @@
         </param>
         <summary>
           Invokes 
-          <see cref="T:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext" />
+          <see cref="T:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
           then clears out <paramref name="c" />.
         </summary>
         <remarks>
           <para>
             This method is invoked from within 
             <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
-            when an option matching 
-            <see cref="M:NDesk.Options.Option.GetNames" /> is encountered with
-            the provided value (if a value is required or optional).
+            when an option with a name from
+            <see cref="M:NDesk.Options.Option.GetNames" /> is encountered and
+            matches the required number of values governed by
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> and
+            <see cref="P:NDesk.Options.Option.ValueCount" />.
           </para>
           <block subset="none" type="behaviors">
             <para>
               This method invokes 
-              <see cref="M:NDeks.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />,
+              <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />,
               passing along <paramref name="c" /> unchanged, and then sets the 
-              following <see cref="T:NDesk.Options.OptionContext" /> properties 
-              on <paramref name="c" /> to <see langword="null" />: 
+              <see cref="P:NDesk.Options.OptionContext.Option" /> and
+              <see cref="P:NDesk.Options.OptionContext.OptionName" />
+              properties to <see langword="null" />, and 
+              <see cref="M:NDesk.Options.OptionValueCollection.Clear" />s out
+              <see cref="P:NDesk.Options.OptionContext.OptionValues" />.
             </para>
-            <list type="bullet">
-              <item>
-                <term>
-                  <see cref="P:NDesk.Options.OptionContext.Option" />
-                </term>
-              </item>
-              <item>
-                <term>
-                  <see cref="P:NDesk.Options.OptionContext.OptionName" />
-                </term>
-              </item>
-              <item>
-                <term>
-                  <see cref="P:NDesk.Options.OptionContext.OptionValue" />
-                </term>
-              </item>
-            </list>
           </block>
         </remarks>
         <altmember cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
-        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String}" />
+        <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
       </Docs>
     </Member>
     <Member MemberName="OnParseComplete">
       <MemberSignature Language="C#" Value="protected abstract void OnParseComplete (NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -290,9 +493,11 @@
           <para>
             This method is invoked from within 
             <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
-            when an option matching 
-            <see cref="M:NDesk.Options.Option.GetNames" /> is encountered with
-            the provided value (if a value is required or optional).
+            when an option with a name from
+            <see cref="M:NDesk.Options.Option.GetNames" /> is encountered and
+            matches the required number of values governed by
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> and
+            <see cref="P:NDesk.Options.Option.ValueCount" />.
           </para>
         </remarks>
         <example>
@@ -301,14 +506,10 @@
             <see cref="T:NDesk.Options.Option" /> subclass which overrides
             <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />:
           </para>
-          <code lang="C#" src="examples/subclass.cs">// Case-Insensitive OptionSet
+          <code lang="C#" src="examples/subclass.cs">// Case-Insensitive and Concatentating OptionSet
 using System;
 using System.Collections.Generic;
 using NDesk.Options;
-
-class DemoOptionContext : OptionContext {
-	public string OptionKey;
-}
 
 class DemoOptionSet : OptionSet {
 	protected override void InsertItem (int index, Option item)
@@ -320,97 +521,85 @@ class DemoOptionSet : OptionSet {
 
 	protected override OptionContext CreateOptionContext ()
 	{
-		return new DemoOptionContext ();
+		return new OptionContext (this);
 	}
 
 	protected override bool Parse (string option, OptionContext c)
 	{
-		DemoOptionContext d = (DemoOptionContext) c;
-		// Prevent --a --b
-		string f, n, v;
-		bool haveParts = GetOptionParts (option, out f, out n, out v);
-		Option nextOption = haveParts ? GetOptionForName (n.ToLower ()) : null;
-		if (haveParts &amp;&amp; c.Option != null) {
-			if (nextOption == null)
-				; // ignore
-			else if (c.Option.OptionValueType == OptionValueType.Optional) {
-				c.OptionValue = null;
-				c.Option.Invoke (c);
-			}
-			else 
-				throw new OptionException (
-					string.Format ("Found option value `{0}' for option `{1}'.",
-						option, c.OptionName), c.OptionName);
+		string f, n, s, v;
+		bool haveParts = GetOptionParts (option, out f, out n, out s, out v);
+		Option nextOption = null;
+		string newOption  = option;
+
+		if (haveParts) {
+			nextOption = GetOptionForName (n.ToLower ());
+			newOption = f + n.ToLower () + (v != null ? s + v : "");
 		}
 
-		// option name already found, so `option' is the option value
 		if (c.Option != null) {
-			if (c.Option is KeyValueOption &amp;&amp; d.OptionKey == null) {
-				HandleKeyValue (option, d);
+			// Prevent --a --b
+			if (c.Option != null &amp;&amp; haveParts) {
+				if (nextOption == null) {
+					// ignore
+				}
+				else 
+					throw new OptionException (
+						string.Format ("Found option `{0}' as value for option `{1}'.",
+							option, c.OptionName), c.OptionName);
+			}
+
+			// have a option w/ required value; try to concat values.
+			if (AppendValue (option, c)) {
+				if (!option.EndsWith ("\\") &amp;&amp; 
+						c.Option.ValueCount == c.OptionValues.Count) {
+					c.Option.Invoke (c);
+				}
 				return true;
 			}
-			return base.Parse (option, c);
+			else
+				base.Parse (newOption, c);
 		}
 
-		if (!haveParts)
+		if (!haveParts || v == null) {
 			// Not an option; let base handle as a non-option argument.
-			return base.Parse (option, c);
+			return base.Parse (newOption, c);
+		}
 
-		// use lower-case version of the option name.
-		if (nextOption != null &amp;&amp; nextOption is KeyValueOption) {
-			d.Option     = nextOption;
-			d.OptionName = f + n.ToLower ();
-			HandleKeyValue (v, d);
+		if (nextOption.OptionValueType != OptionValueType.None &amp;&amp; 
+				v.EndsWith ("\\")) {
+			c.Option = nextOption;
+			c.OptionValues.Add (v);
+			c.OptionName = f + n;
 			return true;
 		}
-		return base.Parse (f + n.ToLower () + (v != null ? "=" + v : ""), c);
+
+		return base.Parse (newOption, c);
 	}
 
-	static void HandleKeyValue (string option, DemoOptionContext d)
+	private bool AppendValue (string value, OptionContext c)
 	{
-		if (option == null)
-			return;
-		string[] parts = option.Split ('=');
-		if (parts.Length == 1) {
-			d.OptionKey = option;
-			return;
+		bool added = false;
+		string[] seps = c.Option.GetValueSeparators ();
+		foreach (var o in seps.Length != 0
+				? value.Split (seps, StringSplitOptions.None)
+				: new string[]{value}) {
+			int idx = c.OptionValues.Count-1;
+			if (idx == -1 || !c.OptionValues [idx].EndsWith ("\\")) {
+				c.OptionValues.Add (o);
+				added = true;
+			}
+			else {
+				c.OptionValues [idx] += value;
+				added = true;
+			}
 		}
-		d.OptionKey   = parts [0];
-		d.OptionValue = parts [1];
-		if (d.Option != null) {
-			d.Option.Invoke (d);
-		}
-	}
-
-	class KeyValueOption : Option {
-		public KeyValueOption (string prototype, Action&lt;string,string,OptionContext&gt; action)
-			: base (prototype, null)
-		{
-			this.action = action;
-		}
-
-		Action&lt;string,string,OptionContext&gt; action;
-
-		protected override void OnParseComplete (OptionContext c)
-		{
-			DemoOptionContext d = (DemoOptionContext) c;
-			action (d.OptionKey, d.OptionValue, d);
-			d.OptionKey = null;
-		}
-	}
-
-	public new DemoOptionSet Add (string prototype,
-		Action&lt;string,string,OptionContext&gt; action)
-	{
-		base.Add (new KeyValueOption (prototype, action));
-		return this;
+		return added;
 	}
 }
 
 class Demo {
 	public static void Main (string[] args)
 	{
-		bool show_help = false;
 		List&lt;string&gt; names = new List&lt;string&gt; ();
 		Dictionary&lt;string,string&gt; map = new Dictionary&lt;string,string&gt; ();
 		int repeat = 1;
@@ -418,7 +607,7 @@ class Demo {
 		OptionSet p = new DemoOptionSet () {
 			{ "n|name=",    v =&gt; names.Add (v) },
 			{ "r|repeat:",  (int v) =&gt; repeat = v },
-			{ "m|map=",     (k,v,c) =&gt; map.Add (k, v) },
+			{ "m|map=",     (k,v) =&gt; map.Add (k, v) },
 		};
 
 		List&lt;string&gt; extra;
@@ -464,8 +653,8 @@ class Demo {
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionValueType OptionValueType { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionValueType</ReturnType>
@@ -488,12 +677,68 @@ class Demo {
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="Parse&lt;T&gt;">
+      <MemberSignature Language="C#" Value="protected static T Parse&lt;T&gt; (string value, NDesk.Options.OptionContext c);" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>T</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="value" Type="System.String" />
+        <Parameter Name="c" Type="NDesk.Options.OptionContext" />
+      </Parameters>
+      <Docs>
+        <typeparam name="T">
+          The type to convert the string <paramref name="value" /> to.
+        </typeparam>
+        <param name="value">
+          A <see cref="T:System.String" /> containing a representation of the
+          type <typeparamref name="T" /> that should be converted into an
+          instance of type <typeparamref name="T" />.
+        </param>
+        <param name="c">
+          A <see cref="T:NDesk.Options.OptionContext" /> containing additional
+          contextual information needed error handling.
+        </param>
+        <summary>
+          Converts the <see cref="T:System.String" /><paramref name="value" />
+          into an object of type <typeparamref name="T" />.
+        </summary>
+        <returns>
+          If <paramref name="value" /> is <see langword="null" />, then 
+          <see langword="default(T)" /> is returned.  Otherwise, 
+          <paramref name="value" /> is converted to a value of type 
+          <typeparamref name="T" />.
+        </returns>
+        <remarks>
+          <para>
+            <see cref="M:System.ComponentModel.TypeDescriptor.GetConverter" />
+            is used to get the 
+            <see cref="T:System.ComponentModel.TypeConverter" /> associated
+            with type <typeparamref name="T" />, and 
+            <see cref="M:System.ComponentModel.TypeConverter.ConvertFromString" />
+            is used to convert <paramref name="value" /> into a
+            <typeparamref name="T" />.
+          </para>
+        </remarks>
+        <exception cref="T:NDesk.Options.OptionException">
+          If <paramref name="value" /> is not <see langword="null" /> and
+          <see cref="M:System.ComponentModel.TypeConverter.ConvertFromString" />
+          generated an exception while trying to convert 
+          <paramref name="value" />.
+        </exception>
+      </Docs>
+    </Member>
     <Member MemberName="Prototype">
       <MemberSignature Language="C#" Value="public string Prototype { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -508,10 +753,16 @@ class Demo {
           <see cref="T:NDesk.Options.Option" /> instance.
         </value>
         <remarks>
-          The prototype contains a <c>|</c>-separated list of all option name
-          aliases and a value specifier of <c>=</c> for required values and
-          <c>:</c> for optional values; if neither <c>=</c> nor <c>:</c> is
-          present, no value is taken.
+          <para>
+            The prototype contains a <c>|</c>-separated list of all option name
+            aliases and a value specifier of <c>=</c> for required values and
+            <c>:</c> for optional values; if neither <c>=</c> nor <c>:</c> is
+            present, no value is taken.
+          </para>
+          <para>
+            If a value specifier is present, then a value separator list may
+            also be present after the value specifier.
+          </para>
         </remarks>
       </Docs>
     </Member>
@@ -519,8 +770,8 @@ class Demo {
       <MemberSignature Language="C#" Value="public override string ToString ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -535,6 +786,43 @@ class Demo {
           <see cref="P:NDesk.Options.Option.Prototype" />.
         </returns>
         <remarks>
+        </remarks>
+      </Docs>
+    </Member>
+    <Member MemberName="ValueCount">
+      <MemberSignature Language="C#" Value="public int ValueCount { get; }" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+          A <see cref="T:System.Int32" /> containing the maximum number of
+          values this <see cref="T:NDesk.Options.Option" /> accepts.
+        </summary>
+        <value>
+          A <see cref="T:System.Int32" /> containing the maximum number of
+          values this <see cref="T:NDesk.Options.Option" /> accepts.
+        </value>
+        <remarks>
+          <para>
+            This is a maximum, and may not be the number of values present
+            within <see cref="P:NDesk.Options.OptionContext.OptionValues" />
+            when 
+            <see cref="P:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
+            is invoked.  There will be 
+            <see cref="P:NDesk.Options.Option.ValueCount" /> values if
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> is
+            <see cref="F:NDesk.Options.OptionValueType.Required" />, but if
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> is
+            <see cref="F:NDesk.Options.OptionValueType.Optional" /> then
+            <see cref="P:NDesk.Options.OptionContext.OptionValues" /> may
+            contain fewer items.
+          </para>
         </remarks>
       </Docs>
     </Member>

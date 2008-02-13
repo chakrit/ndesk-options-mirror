@@ -2,15 +2,18 @@
   <TypeSignature Language="C#" Value="public class OptionSet : System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.0.0</AssemblyVersion>
-    <AssemblyVersion>3.5.0.0</AssemblyVersion>
+    <AssemblyVersion>2.0.2.0</AssemblyVersion>
+    <AssemblyVersion>3.0.2.0</AssemblyVersion>
   </AssemblyInfo>
   <ThreadingSafetyStatement>
     All public static members of this type are safe for multithreaded
     operations.  The 
     <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable&lt;System.String&gt;)" />
     instance method is thread-safe if no concurrent modifying methods are
-    invoked (<c>Add</c>, <c>Remove</c>, etc.).
+    invoked 
+    (<see cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />,
+    <see cref="M:System.Collections.ObjectModel.Collection{NDesk.Options.Option}.Remove(``0)" />,
+    etc.).
   </ThreadingSafetyStatement>
   <Base>
     <BaseTypeName>System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;</BaseTypeName>
@@ -25,11 +28,93 @@
     </summary>
     <remarks>
       <para>
-        Use the <see cref="T:NDesk.Options.OptionSet" /> class to associate a
-        list of option names with an <paramref name="action" /> to execute 
-        (either a <see cref="T:System.Action`1" /> or a 
-        <see cref="T:System.Action`2" />) when the option name is encountered.
+        A common requirement for command-line programs is option parsing.  
+        The command line consists of a sequence of 
+        <paramref name="arguments" />.  
+        <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
+        parses this argument
+        sequence, invoking actions of registered 
+        <see cref="T:NDesk.Options.Option" />s when a sequence of arguments 
+        matching the <see cref="T:NDesk.Options.Option" />s requirements are
+        encountered.  <see cref="T:NDesk.Options.Option" />'s are registered 
+        with <see cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
+        and its overloads.
       </para>
+      <para>
+        <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />,
+        returns a 
+        <see cref="T:System.Collections.Generic.List{System.String}" /> of all
+        arguments which were not matched by a registered
+        <see cref="T:NDesk.Options.Option" />.
+      </para>
+      <para>
+        Three conditions must be met for a sequence of arguments to be
+        considered as a match for an <see cref="T:NDesk.Options.Option" />:
+      </para>
+      <list type="bullet">
+        <item>
+          <term>
+          The <paramref name="name" /> must be matched.  An 
+          <see cref="T:NDesk.Options.Option" /> has one or more names, as
+          returned from <see cref="M:NDesk.Options.Option.GetNames" />.
+          Matched names must start with a <paramref name="flag" /> 
+          (even though the flag is not part of the
+          <see cref="P:NDesk.Options.Option.Prototype" />): <c>-</c>, 
+          <c>--</c>, or <c>/</c>.
+          There are several different name matching algorithms:
+          <list type="bullet"><item><term><para><paramref name="Simple" /> names are matched when the argument
+                consists solely of a flag followed by an option name.
+              </para><para>
+                Examples: <c>-opt</c>, <c>--opt</c>, and <c>/opt</c> are all
+                simple names for the <c>opt</c> option.
+              </para></term></item><item><term><para><paramref name="Boolean" /> names are matched when the
+                argument consists of a flag, followed by an option name,
+                followed by <c>+</c> or <c>-</c>.  If a <c>+</c> follows the
+                name, the option is enabled, otherwise the option is disabled.
+              </para><para>
+                Examples: <c>-opt+</c> and <c>-opt-</c> enable and disble the
+                <c>opt</c> option.
+              </para></term></item><item><term><para><paramref name="Assigned" /> names are matched when the
+                argument consists of a flag, followed by an option name,
+                followed by a <c>=</c> or <c>:</c>, followed by an (optional)
+                string.
+              </para><para>
+                Examples: <c>-opt=A</c>, <c>--opt:B</c>, and <c>/opt=C</c> all
+                provide a value for the <c>opt</c> option.
+              </para></term></item><item><term><para><paramref name="Bundled" /> names are matched only when
+                simple, boolean, and assigned names are not matched,
+                the flag is <c>-</c>, and the first character matches a
+                registered option.  Any number of (single-character) boolean 
+                options may be bundled in this fashion, and at most one
+                <see cref="F:NDesk.Options.OptionValueType.Optional" /> or
+                <see cref="F:NDesk.Options.OptionValueType.Required" /> option 
+                (which will use all remaining characters within the argument
+                as a value).
+              </para><para>
+                Examples: <c>-xvfinput-file</c> could match the boolean 
+                <see cref="T:NDesk.Options.Option" />s <c>x</c> and <c>v</c>
+                and the value-accepting option <c>f</c>, which will get the
+                value <c>input-file</c>.  (Other interpretations are also
+                possible, depending upon which options are registered.)
+              </para></term></item></list></term>
+        </item>
+        <item>
+          <term>
+          The <paramref name="type" /> must be matched.  
+          <see cref="P:NDesk.Options.Option.OptionValueType" /> specifies the
+          option's type.  See below for more information.
+        </term>
+        </item>
+        <item>
+          <term>
+          The <paramref name="value count" /> must be matched.  Whether an
+          option takes any values is dependent upon the option's type
+          (previous bullet), but the number of values the option either
+          accepts or requires is specified by the
+          <see cref="P:NDesk.Options.Option.ValueCount" /> property.
+        </term>
+        </item>
+      </list>
       <para>
         There are three types of <see cref="T:NDesk.Options.Option" />s that
         can be parsed:
@@ -40,7 +125,7 @@
           Boolean options, which correspond to a 
           <see cref="P:NDesk.Options.Option.OptionValueType" /> value of
           <see cref="F:NDesk.Options.OptionValueType.None" />.
-          When encountered, their registered
+          When a matching argument is encountered, their registered
           action is invoked immediately.  The <see cref="T:System.Action`1" />
           value will be non-<see langword="null" /> if the value is true, e.g.
           if <c>-option</c> or <c>-option+</c> is specified, and the value
@@ -50,30 +135,44 @@
         </item>
         <item>
           <term>
-          Optional value options, which correspond to a 
-          <see cref="P:NDesk.Options.Option.OptionValueType" /> value of
-          <see cref="F:NDesk.Options.OptionValueType.Optional" />.
-          When encountered, their corresponding <see cref="T:System.Action`1" />
-          is invoked when the option's value is found, which may be either
-          within the current option (for <c>-option=value</c> options)
-          or when the next option is encountered (for <c>-option value</c>
-          options).  If there is no option value, then <see langword="null" />
-          is provided as the option value.
-        </term>
+            <para>
+            Optional value options, which correspond to a 
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> value of
+            <see cref="F:NDesk.Options.OptionValueType.Optional" />.
+            Optional value options are not "greedy"; they will only get their
+            value only from the current argument.  If the value is not present, 
+            <see langword="null" /> is provided to their corresponding
+            <see cref="T:System.Action`1" />.
+          </para>
+            <para>
+            Thus, <c>-opt:value</c> would pass <c>value</c> to the
+            action registered for <c>opt</c>, while <c>-opt value</c> would pass
+            <see langword="null" /> to the action registered for <c>opt</c>
+            and <c>value</c> would be an unparsed argument.
+          </para>
+          </term>
         </item>
         <item>
           <term>
-          Required value options, which correspond to a 
-          <see cref="P:NDesk.Options.Option.OptionValueType" /> value of
-          <see cref="F:NDesk.Options.OptionValueType.Requried" />.
-          When encountered, their corresponding <see cref="T:System.Action`1" />
-          is invoked when the option's value is found, which may be either
-          within the current option (for <c>-option=value</c> options)
-          or when the next option is encountered (for <c>-option value</c>
-          options).  If there is no option value, an 
-          <see cref="T:NDesk.Options.OptionException" /> is thrown from
-          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />.
-        </term>
+            <para>
+            Required value options, which correspond to a 
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> value of
+            <see cref="F:NDesk.Options.OptionValueType.Required" />.
+            Required value options are "greedy" -- if the value is not found
+            within the current argument, the following argument(s) will be used to
+            supply the value(s).  Once enough values have been parsed, 
+            their corresponding <see cref="T:System.Action`1" /> is invoked.
+          </para>
+            <para>
+            Thus, both <c>-opt:value</c> and <c>-opt value</c> would pass 
+            <c>value</c> to the action registered for <c>opt</c>.
+          </para>
+            <para>
+            If no value can be found, an 
+            <see cref="T:NDesk.Options.OptionException" /> is thrown from
+            <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />.
+          </para>
+          </term>
         </item>
       </list>
       <block subset="none" type="behaviors">
@@ -121,7 +220,7 @@
             <term>
             By creating a new subclass of <see cref="T:NDesk.Options.Option" />
             and adding it via 
-            <see cref="M:System.Collections.ObjectModel.Collection{NDesk.Options.Option}.Add(`0)" />.
+            <see cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />.
             This is not recommended, but is available if you require more
             direct option handling than the default 
             <see cref="T:NDesk.Options.Option" /> implementation provides.
@@ -131,14 +230,15 @@
         <para>
           During the <paramref name="parsing" /> phase, an
           <see cref="T:System.Collections.Generic.IEnumerable{System.String}" />
-          is parsed, looking for options which match a registered option,
+          is enumerated, looking for arguments which match a registered option,
           and invoking the corresponding action when an option and associated
           (optional) value is encountered.  During this phase, the 
           <see cref="T:NDesk.Options.OptionSet" /> instance itself is thread
           safe, but full thread safety depends upon thread-safety of the
           registered actions.  Any option-like strings for names that haven't
-          been registered, e.g. <c>--this-was-never-registered=false</c> are
-          returned from <c>Parse</c>.
+          been registered, e.g. <c>--this-was-never-registered=false</c>, and
+          all arguments that are not used as option values are returned from 
+          <c>Parse</c>.
         </para>
         <code lang="C#">List&lt;string&gt; extra = p.Parse (new string[]{"-option-a"});</code>
       </block>
@@ -255,11 +355,12 @@ Options:
   -v                         increase debug message verbosity
   -h, --help                 show this message and exit
 
-$ mono greet.exe -v- -n A -name=B --name=C /name D
+$ mono greet.exe -v- -n A -name=B --name=C /name D -nE
 Hello A!
 Hello B!
 Hello C!
 Hello D!
+Hello E!
 
 $ mono greet.exe -v -n E custom greeting for: {0}
 # Using new message: custom greeting for: {0}
@@ -305,6 +406,161 @@ Try `greet --help' for more information.
     </example>
     <example>
       <para>
+        The following example shows how options and values can be bundled
+        together.
+      </para>
+      <code lang="C#" src="examples/bundling.cs">using System;
+using System.Linq;
+using System.Collections.Generic;
+using NDesk.Options;
+
+class Test {
+	public static void Main (string[] args)
+	{
+		var show_help = false;
+		var macros = new Dictionary&lt;string, string&gt;();
+		bool create = false, extract = false, list = false;
+		string output = null, input = null;
+		string color  = null;
+
+		var p = new OptionSet () {
+			// gcc-like options
+			{ "D:", "Predefine a macro with an (optional) value.",
+				(m, v) =&gt; {
+					if (m == null)
+						throw new OptionException ("Missing macro name for option -D.", 
+								"-D");
+					macros.Add (m, v);
+				} },
+			{ "d={--&gt;}{=&gt;}", "Alternate macro syntax.", 
+				(m, v) =&gt; macros.Add (m, v) },
+			{ "o=", "Specify the output file", v =&gt; output = v },
+
+			// tar-like options
+			{ "f=", "The input file",   v =&gt; input = v },
+			{ "x",  "Extract the file", v =&gt; extract = v != null },
+			{ "c",  "Create the file",  v =&gt; create = v != null },
+			{ "t",  "List the file",    v =&gt; list = v != null },
+
+			// ls-like optional values
+			{ "color:", "control whether and when color is used", 
+				v =&gt; color = v },
+
+			// other...
+			{ "h|help",  "show this message and exit", 
+			  v =&gt; show_help = v != null },
+		};
+
+		List&lt;string&gt; extra;
+		try {
+			extra = p.Parse (args);
+		}
+		catch (OptionException e) {
+			Console.Write ("bundling: ");
+			Console.WriteLine (e.Message);
+			Console.WriteLine ("Try `greet --help' for more information.");
+			return;
+		}
+
+		if (show_help) {
+			ShowHelp (p);
+			return;
+		}
+
+		Console.WriteLine ("Macros:");
+		foreach (var m in (from k in macros.Keys orderby k select k)) {
+			Console.WriteLine ("\t{0}={1}", m, macros [m] ?? "&lt;null&gt;");
+		}
+		Console.WriteLine ("Options:");
+		Console.WriteLine ("\t Input File: {0}", input);
+		Console.WriteLine ("\tOuptut File: {0}", output);
+		Console.WriteLine ("\t     Create: {0}", create);
+		Console.WriteLine ("\t    Extract: {0}", extract);
+		Console.WriteLine ("\t       List: {0}", list);
+		Console.WriteLine ("\t      Color: {0}", color ?? "&lt;null&gt;");
+	}
+
+	static void ShowHelp (OptionSet p)
+	{
+		Console.WriteLine ("Usage: bundling [OPTIONS]+");
+		Console.WriteLine ("Demo program to show the effects of bundling options and their values");
+		Console.WriteLine ();
+		Console.WriteLine ("Options:");
+		p.WriteOptionDescriptions (Console.Out);
+	}
+}
+
+</code>
+      <para>
+        The output (under the influence of different command-line arguments) is:
+      </para>
+      <code lang="sh" src="examples/bundling.txt">$ mono bundling.exe --help
+Usage: bundling [OPTIONS]+
+Demo program to show the effects of bundling options and their values
+
+Options:
+  -D[=VALUE1:VALUE2]         Predefine a macro with an (optional) value.
+  -d=VALUE1--&gt;VALUE2         Alternate macro syntax.
+  -o=VALUE                   Specify the output file
+  -f=VALUE                   The input file
+  -x                         Extract the file
+  -c                         Create the file
+  -t                         List the file
+      --color[=VALUE]        control whether and when color is used
+  -h, --help                 show this message and exit
+
+$ mono bundling.exe -D
+bundling: Missing macro name for option -D.
+Try `greet --help' for more information.
+
+$ mono bundling.exe -DA -DB=C "-dD--&gt;E" "-dF=&gt;G" -d "H=&gt;I" -cf input --color -ooutput
+Macros:
+	A=&lt;null&gt;
+	B=C
+	D=E
+	F=G
+	H=I
+Options:
+	 Input File: input
+	Ouptut File: output
+	     Create: True
+	    Extract: False
+	       List: False
+	      Color: &lt;null&gt;
+
+$ mono bundling.exe -cfv input
+Macros:
+Options:
+	 Input File: v
+	Ouptut File: 
+	     Create: True
+	    Extract: False
+	       List: False
+	      Color: &lt;null&gt;
+
+$ mono bundling.exe -xctf input
+Macros:
+Options:
+	 Input File: input
+	Ouptut File: 
+	     Create: True
+	    Extract: True
+	       List: True
+	      Color: &lt;null&gt;
+
+$ mono bundling.exe --color=auto -o output -finput
+Macros:
+Options:
+	 Input File: input
+	Ouptut File: output
+	     Create: False
+	    Extract: False
+	       List: False
+	      Color: auto
+</code>
+    </example>
+    <example>
+      <para>
         The following example shows a custom <c>OptionSet</c> subclass with
         the following additional functionality:
       </para>
@@ -329,14 +585,10 @@ Try `greet --help' for more information.
         </term>
         </item>
       </list>
-      <code lang="C#" src="examples/subclass.cs">// Case-Insensitive OptionSet
+      <code lang="C#" src="examples/subclass.cs">// Case-Insensitive and Concatentating OptionSet
 using System;
 using System.Collections.Generic;
 using NDesk.Options;
-
-class DemoOptionContext : OptionContext {
-	public string OptionKey;
-}
 
 class DemoOptionSet : OptionSet {
 	protected override void InsertItem (int index, Option item)
@@ -348,97 +600,85 @@ class DemoOptionSet : OptionSet {
 
 	protected override OptionContext CreateOptionContext ()
 	{
-		return new DemoOptionContext ();
+		return new OptionContext (this);
 	}
 
 	protected override bool Parse (string option, OptionContext c)
 	{
-		DemoOptionContext d = (DemoOptionContext) c;
-		// Prevent --a --b
-		string f, n, v;
-		bool haveParts = GetOptionParts (option, out f, out n, out v);
-		Option nextOption = haveParts ? GetOptionForName (n.ToLower ()) : null;
-		if (haveParts &amp;&amp; c.Option != null) {
-			if (nextOption == null)
-				; // ignore
-			else if (c.Option.OptionValueType == OptionValueType.Optional) {
-				c.OptionValue = null;
-				c.Option.Invoke (c);
-			}
-			else 
-				throw new OptionException (
-					string.Format ("Found option value `{0}' for option `{1}'.",
-						option, c.OptionName), c.OptionName);
+		string f, n, s, v;
+		bool haveParts = GetOptionParts (option, out f, out n, out s, out v);
+		Option nextOption = null;
+		string newOption  = option;
+
+		if (haveParts) {
+			nextOption = GetOptionForName (n.ToLower ());
+			newOption = f + n.ToLower () + (v != null ? s + v : "");
 		}
 
-		// option name already found, so `option' is the option value
 		if (c.Option != null) {
-			if (c.Option is KeyValueOption &amp;&amp; d.OptionKey == null) {
-				HandleKeyValue (option, d);
+			// Prevent --a --b
+			if (c.Option != null &amp;&amp; haveParts) {
+				if (nextOption == null) {
+					// ignore
+				}
+				else 
+					throw new OptionException (
+						string.Format ("Found option `{0}' as value for option `{1}'.",
+							option, c.OptionName), c.OptionName);
+			}
+
+			// have a option w/ required value; try to concat values.
+			if (AppendValue (option, c)) {
+				if (!option.EndsWith ("\\") &amp;&amp; 
+						c.Option.ValueCount == c.OptionValues.Count) {
+					c.Option.Invoke (c);
+				}
 				return true;
 			}
-			return base.Parse (option, c);
+			else
+				base.Parse (newOption, c);
 		}
 
-		if (!haveParts)
+		if (!haveParts || v == null) {
 			// Not an option; let base handle as a non-option argument.
-			return base.Parse (option, c);
+			return base.Parse (newOption, c);
+		}
 
-		// use lower-case version of the option name.
-		if (nextOption != null &amp;&amp; nextOption is KeyValueOption) {
-			d.Option     = nextOption;
-			d.OptionName = f + n.ToLower ();
-			HandleKeyValue (v, d);
+		if (nextOption.OptionValueType != OptionValueType.None &amp;&amp; 
+				v.EndsWith ("\\")) {
+			c.Option = nextOption;
+			c.OptionValues.Add (v);
+			c.OptionName = f + n;
 			return true;
 		}
-		return base.Parse (f + n.ToLower () + (v != null ? "=" + v : ""), c);
+
+		return base.Parse (newOption, c);
 	}
 
-	static void HandleKeyValue (string option, DemoOptionContext d)
+	private bool AppendValue (string value, OptionContext c)
 	{
-		if (option == null)
-			return;
-		string[] parts = option.Split ('=');
-		if (parts.Length == 1) {
-			d.OptionKey = option;
-			return;
+		bool added = false;
+		string[] seps = c.Option.GetValueSeparators ();
+		foreach (var o in seps.Length != 0
+				? value.Split (seps, StringSplitOptions.None)
+				: new string[]{value}) {
+			int idx = c.OptionValues.Count-1;
+			if (idx == -1 || !c.OptionValues [idx].EndsWith ("\\")) {
+				c.OptionValues.Add (o);
+				added = true;
+			}
+			else {
+				c.OptionValues [idx] += value;
+				added = true;
+			}
 		}
-		d.OptionKey   = parts [0];
-		d.OptionValue = parts [1];
-		if (d.Option != null) {
-			d.Option.Invoke (d);
-		}
-	}
-
-	class KeyValueOption : Option {
-		public KeyValueOption (string prototype, Action&lt;string,string,OptionContext&gt; action)
-			: base (prototype, null)
-		{
-			this.action = action;
-		}
-
-		Action&lt;string,string,OptionContext&gt; action;
-
-		protected override void OnParseComplete (OptionContext c)
-		{
-			DemoOptionContext d = (DemoOptionContext) c;
-			action (d.OptionKey, d.OptionValue, d);
-			d.OptionKey = null;
-		}
-	}
-
-	public new DemoOptionSet Add (string prototype,
-		Action&lt;string,string,OptionContext&gt; action)
-	{
-		base.Add (new KeyValueOption (prototype, action));
-		return this;
+		return added;
 	}
 }
 
 class Demo {
 	public static void Main (string[] args)
 	{
-		bool show_help = false;
 		List&lt;string&gt; names = new List&lt;string&gt; ();
 		Dictionary&lt;string,string&gt; map = new Dictionary&lt;string,string&gt; ();
 		int repeat = 1;
@@ -446,7 +686,7 @@ class Demo {
 		OptionSet p = new DemoOptionSet () {
 			{ "n|name=",    v =&gt; names.Add (v) },
 			{ "r|repeat:",  (int v) =&gt; repeat = v },
-			{ "m|map=",     (k,v,c) =&gt; map.Add (k, v) },
+			{ "m|map=",     (k,v) =&gt; map.Add (k, v) },
 		};
 
 		List&lt;string&gt; extra;
@@ -492,18 +732,21 @@ Hello D!
 $ mono subclass.exe --Repeat -name A
 
 $ mono subclass.exe -Name --Repeat 3
-subclass: Found option value `--Repeat' for option `-name'.
+subclass: Found option `--Repeat' as value for option `-name'.
 
 $ mono subclass.exe --Map a b -mAp c=d /maP=e=f
 Key: a=b
 Key: c=d
 Key: e=f
+
+$ mono subclass.exe --map 'a\' 'b\' c 'd\' 'e\' f
+Key: a\b\c=d\e\f
 </code>
       <para>Notice:</para>
       <list type="bullet">
         <item>
           <term>
-          Notice that <c>--name</c> is treated in a case-insensitive fashion.
+          That <c>--name</c> is treated in a case-insensitive fashion.
         </term>
         </item>
         <item>
@@ -533,8 +776,8 @@ Key: e=f
       <MemberSignature Language="C#" Value="public OptionSet ();" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -557,8 +800,8 @@ Key: e=f
       <MemberSignature Language="C#" Value="public OptionSet (Converter&lt;string,string&gt; localizer);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="localizer" Type="System.Converter&lt;System.String,System.String&gt;" />
@@ -574,6 +817,11 @@ Key: e=f
         </summary>
         <remarks>
           <para>
+            This constructor initializes the 
+            <see cref="P:NDesk.Options.OptionSet.MessageLocalizer" /> property
+            of the new instance using <paramref name="localizer" />.
+          </para>
+          <para>
             Use this constructor when you want to perform some form of
             localization or internationalization on text strings generated
             from the <see cref="T:NDesk.Options.OptionSet" /> class.
@@ -583,7 +831,7 @@ Key: e=f
             <item>
               <term>
               The <see cref="P:NDesk.Options.Option.Description" /> written by
-              <see cref="M:NDesk.Options.OptionSet.WriteOptionDescriptions(System.Out.TextWriter)" />,
+              <see cref="M:NDesk.Options.OptionSet.WriteOptionDescriptions(System.IO.TextWriter)" />,
               but not the option names themselves.
             </term>
             </item>
@@ -722,8 +970,8 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (NDesk.Options.Option option);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -762,32 +1010,34 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, Action&lt;string,NDesk.Options.OptionContext&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, Action&lt;string,string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="options" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;System.String,NDesk.Options.OptionContext&gt;" />
+        <Parameter Name="prototype" Type="System.String" />
+        <Parameter Name="action" Type="System.Action&lt;System.String,System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="options">
+        <param name="prototype">
           A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
         </param>
         <param name="action">
-          A <see cref="T:System.Action{System.String,NDesk.Options.OptionContext}" />
+          A <see cref="T:System.Action{System.String,System.String}" />
           to invoke when an option is parsed.
         </param>
         <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
           handled by <paramref name="action" /> during any subsequent
           <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
           calls.
@@ -798,20 +1048,20 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </returns>
         <remarks>
           Calls 
-          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" />
+          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
           with a <paramref name="description" /> value of 
           <see langword="null" />.
         </remarks>
-        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,NDesk.Options.OptionContext})" />
+        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
         <exception cref="T:System.ArgumentException">
-          <paramref name="option" /> has an alias (as returned from
+          <paramref name="prototype" /> has an alias (as returned from
           <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
           a previously registered <see cref="T:NDesk.Options.Option" />.
         </exception>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="options" /> is <see langword="null" /></para>
+            <paramref name="prototype" /> is <see langword="null" /></para>
           <para>-or-</para>
           <para>
             <paramref name="action" /> is <see langword="null" /></para>
@@ -819,32 +1069,34 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, Action&lt;string&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, Action&lt;string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="options" Type="System.String" />
+        <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="action" Type="System.Action&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="options">
+        <param name="prototype">
           A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
         </param>
         <param name="action">
           A <see cref="T:System.Action{System.String}" />
           to invoke when an option is parsed.
         </param>
         <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
           handled by <paramref name="action" /> during any subsequent
           <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
           calls.
@@ -855,20 +1107,20 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </returns>
         <remarks>
           Calls 
-          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String})" />
+          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
           with a <paramref name="description" /> value of 
           <see langword="null" />.
         </remarks>
-        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String})" />
+        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
         <exception cref="T:System.ArgumentException">
-          <paramref name="option" /> has an alias (as returned from
+          <paramref name="prototype" /> has an alias (as returned from
           <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
           a previously registered <see cref="T:NDesk.Options.Option" />.
         </exception>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="options" /> is <see langword="null" /></para>
+            <paramref name="prototype" /> is <see langword="null" /></para>
           <para>-or-</para>
           <para>
             <paramref name="action" /> is <see langword="null" /></para>
@@ -876,37 +1128,39 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, string description, Action&lt;string,NDesk.Options.OptionContext&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, string description, Action&lt;string,string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="options" Type="System.String" />
+        <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="description" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;System.String,NDesk.Options.OptionContext&gt;" />
+        <Parameter Name="action" Type="System.Action&lt;System.String,System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="options">
+        <param name="prototype">
           A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
         </param>
         <param name="description">
-          A <see cref="T:System.String" /> containing to used to initialize
+          A <see cref="T:System.String" /> to be used to initialize
           the <see cref="P:NDesk.Options.Option.Description" /> property.
         </param>
         <param name="action">
-          An <see cref="T:System.Action{System.String,NDesk.Options.OptionContext}" />
+          A <see cref="T:System.Action{System.String,System.String}" />
           to invoke when an option is parsed.
         </param>
         <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
           handled by <paramref name="action" /> during any subsequent
           <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
           calls.
@@ -917,147 +1171,25 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </returns>
         <remarks>
           <para>
-            Use this overload when your action needs access to additional 
-            <see cref="T:NDesk.Options.OptionContext" />, such as for additional
-            error context reporting.
+            Use this method when <paramref name="prototype" /> should accept
+            two values, generally a key and a value.
           </para>
-          <para>
-            The <see cref="T:NDesk.Options.OptionContext" /> provided to 
-            <paramref name="action" /> is shared between all registered
-            actions during the controlling 
-            <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
-            invocation.  Consequently, care must be taken to not modify any of
-            the <see cref="T:NDesk.Options.OptionContext" /> members.
-          </para>
+          <block subset="none" type="note">
+            If <paramref name="prototype" /> specifies a 
+            <see cref="F:NDesk.Options.OptionValueType.Optional" /> option,
+            then it's possible that both the key and the value will be
+            <see langword="null" /> in the callback function.
+          </block>
         </remarks>
-        <example>
-          <para>
-            The following example shows several actions which make use of the
-            provided <see cref="T:NDesk.Options.OptionContext" /> parameter:
-          </para>
-          <code lang="C#" src="examples/context.cs">using System;
-using System.ComponentModel;
-using System.Globalization;
-using NDesk.Options;
-
-class FooConverter : TypeConverter {
-	public override bool CanConvertFrom (ITypeDescriptorContext context, Type sourceType)
-	{
-		if (sourceType == typeof (string))
-			return true;
-		return base.CanConvertFrom (context, sourceType);
-	}
-
-	public override object ConvertFrom (ITypeDescriptorContext context,
-			CultureInfo culture, object value)
-	{
-		string v = value as string;
-		if (v != null) {
-			switch (v) {
-				case "A": return Foo.A;
-				case "B": return Foo.B;
-			}
-		}
-
-		return base.ConvertFrom (context, culture, value);
-	}
-}
-
-[TypeConverter (typeof(FooConverter))]
-class Foo {
-	public static readonly Foo A = new Foo ("A");
-	public static readonly Foo B = new Foo ("B");
-	string s;
-	Foo (string s) { this.s = s; }
-	public override string ToString () {return s;}
-}
-
-class Test {
-	public static void Main (string[] args)
-	{
-		Foo    f = null;
-		int    n = -1;
-		string s = null;
-		OptionSet p = new OptionSet () {
-			{ "f:", (Foo v, OptionContext c) =&gt; {
-				Console.WriteLine ("# Parsed {0}; Value={1}; Index={2}",
-					c.OptionName, c.OptionValue ?? "&lt;null&gt;", c.OptionIndex);
-				f = v;
-			} },
-			{ "n=", (int v, OptionContext c) =&gt; {
-				Console.WriteLine ("# Parsed {0}; Value={1}; Index={2}",
-					c.OptionName, c.OptionValue, c.OptionIndex);
-				n = v;
-			} },
-			{ "s:", (v, c) =&gt; {
-				Console.WriteLine ("# Parsed {0}; Value={1}; Index={2}",
-					c.OptionName, c.OptionValue, c.OptionIndex);
-				s = v;
-			} },
-		};
-		try {
-			p.Parse (args);
-		}
-		catch (OptionException e) {
-			Console.Write ("context: ");
-			Console.WriteLine (e.Message);
-			return;
-		}
-		Console.WriteLine ("f={0}", f == null ? "&lt;null&gt;" : f.ToString ());
-		Console.WriteLine ("n={0}", n);
-		Console.WriteLine ("s={0}", s ?? "&lt;null&gt;");
-	}
-}
-</code>
-          <para>
-            The following <c>sh</c> output shows the above programs behavior
-            under the influence of a variety of program options.
-          </para>
-          <code lang="sh" src="examples/context.txt">$ mono context.exe -f
-# Parsed -f; Value=&lt;null&gt;; Index=0
-f=&lt;null&gt;
-n=-1
-s=&lt;null&gt;
-
-$ mono context.exe -n
-context: Missing required value for option '-n'.
-
-$ mono context.exe -s
-# Parsed -s; Value=; Index=0
-f=&lt;null&gt;
-n=-1
-s=&lt;null&gt;
-
-$ mono context.exe -f invalid
-context: Could not convert string `invalid' to type Foo for option `-f'.
-
-$ mono context.exe -n invalid
-context: Could not convert string `invalid' to type Int32 for option `-n'.
-
-$ mono context.exe -s=
-# Parsed -s; Value=; Index=0
-f=&lt;null&gt;
-n=-1
-s=
-
-$ mono context.exe -f A --n=42 /s fourty-two
-# Parsed -f; Value=A; Index=1
-# Parsed --n; Value=42; Index=2
-# Parsed /s; Value=fourty-two; Index=4
-f=A
-n=42
-s=fourty-two
-</code>
-        </example>
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
         <exception cref="T:System.ArgumentException">
-          <paramref name="option" /> has an alias (as returned from
+          <paramref name="prototype" /> has an alias (as returned from
           <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
           a previously registered <see cref="T:NDesk.Options.Option" />.
         </exception>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="options" /> is <see langword="null" /></para>
+            <paramref name="prototype" /> is <see langword="null" /></para>
           <para>-or-</para>
           <para>
             <paramref name="action" /> is <see langword="null" /></para>
@@ -1065,25 +1197,27 @@ s=fourty-two
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string options, string description, Action&lt;string&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, string description, Action&lt;string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="options" Type="System.String" />
+        <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="description" Type="System.String" />
         <Parameter Name="action" Type="System.Action&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="options">
+        <param name="prototype">
           A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
         </param>
         <param name="description">
           A <see cref="T:System.String" /> containing to used to initialize
@@ -1094,8 +1228,8 @@ s=fourty-two
           to invoke when an option is parsed.
         </param>
         <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
           handled by <paramref name="action" /> during any subsequent
           <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
           calls.
@@ -1114,7 +1248,7 @@ s=fourty-two
         </exception>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="options" /> is <see langword="null" /></para>
+            <paramref name="prototype" /> is <see langword="null" /></para>
           <para>-or-</para>
           <para>
             <paramref name="action" /> is <see langword="null" /></para>
@@ -1122,78 +1256,17 @@ s=fourty-two
       </Docs>
     </Member>
     <Member MemberName="Add&lt;T&gt;">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, Action&lt;T,NDesk.Options.OptionContext&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string prototype, Action&lt;T&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="options" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;T,NDesk.Options.OptionContext&gt;" />
-      </Parameters>
-      <Docs>
-        <typeparam name="T">
-          The type of the option to parse and provide to the 
-          <paramref name="action" /> callback.
-        </typeparam>
-        <param name="options">
-          A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
-        </param>
-        <param name="action">
-          A <see cref="T:System.Action{``0,NDesk.Options.OptionContext}" />
-          to invoke when an option is parsed.
-        </param>
-        <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
-          handled by <paramref name="action" /> during any subsequent
-          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
-          calls.
-        </summary>
-        <returns>
-          The current <see cref="T:NDesk.Options.OptionSet" /> instance.
-          This is to permit method chaining.
-        </returns>
-        <remarks>
-          Calls 
-          <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" />
-          with a <paramref name="description" /> value of 
-          <see langword="null" />.
-        </remarks>
-        <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
-        <altmember cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" />
-        <exception cref="T:System.ArgumentException">
-          <paramref name="option" /> has an alias (as returned from
-          <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
-          a previously registered <see cref="T:NDesk.Options.Option" />.
-        </exception>
-        <exception cref="T:System.ArgumentNullException">
-          <para>
-            <paramref name="options" /> is <see langword="null" /></para>
-          <para>-or-</para>
-          <para>
-            <paramref name="action" /> is <see langword="null" /></para>
-        </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="Add&lt;T&gt;">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, Action&lt;T&gt; action);" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>NDesk.Options.OptionSet</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="options" Type="System.String" />
+        <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="action" Type="System.Action&lt;T&gt;" />
       </Parameters>
       <Docs>
@@ -1201,18 +1274,20 @@ s=fourty-two
           The type of the option to parse and provide to the 
           <paramref name="action" /> callback.
         </typeparam>
-        <param name="options">
+        <param name="prototype">
           A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
         </param>
         <param name="action">
           A <see cref="T:System.Action{``0}" />
           to invoke when an option is parsed.
         </param>
         <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
           handled by <paramref name="action" /> during any subsequent
           <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
           calls.
@@ -1237,218 +1312,17 @@ s=fourty-two
       </Docs>
     </Member>
     <Member MemberName="Add&lt;T&gt;">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, string description, Action&lt;T,NDesk.Options.OptionContext&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string prototype, string description, Action&lt;T&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="options" Type="System.String" />
-        <Parameter Name="description" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;T,NDesk.Options.OptionContext&gt;" />
-      </Parameters>
-      <Docs>
-        <typeparam name="T">
-          The type of the option to parse and provide to the 
-          <paramref name="action" /> callback.
-        </typeparam>
-        <param name="options">
-          A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
-        </param>
-        <param name="description">
-          A <see cref="T:System.String" /> containing to used to initialize
-          the <see cref="P:NDesk.Options.Option.Description" /> property.
-        </param>
-        <param name="action">
-          A <see cref="T:System.Action{``0,NDesk.Options.OptionContext}" />
-          to invoke when an option is parsed.
-        </param>
-        <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
-          handled by <paramref name="action" /> during any subsequent
-          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
-          calls.
-        </summary>
-        <returns>
-          The current <see cref="T:NDesk.Options.OptionSet" /> instance.
-          This is to permit method chaining.
-        </returns>
-        <remarks>
-          <para>
-            Use this typed overload when you want strongly typed option values
-            that correspond to a managed type.
-            <see cref="M:System.ComponentModel.TypeDescriptor.GetConverter(System.Type)" />
-            is used to lookup the
-            <see cref="T:System.ComponentModel.TypeConverter" /> to use when
-            performing the string-to-type conversion.
-          </para>
-          <para>
-            Use this overload when your action needs access to additional 
-            <see cref="T:NDesk.Options.OptionContext" />, such as for additional
-            error context reporting.
-          </para>
-          <para>
-            The <see cref="T:NDesk.Options.OptionContext" /> provided to 
-            <paramref name="action" /> is shared between all registered
-            actions during the controlling 
-            <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
-            invocation.  Consequently, care must be taken to not modify any of
-            the <see cref="T:NDesk.Options.OptionContext" /> members.
-          </para>
-        </remarks>
-        <example>
-          <para>
-            The following example shows several actions which make use of the
-            provided <see cref="T:NDesk.Options.OptionContext" /> parameter:
-          </para>
-          <code lang="C#" src="examples/context.cs">using System;
-using System.ComponentModel;
-using System.Globalization;
-using NDesk.Options;
-
-class FooConverter : TypeConverter {
-	public override bool CanConvertFrom (ITypeDescriptorContext context, Type sourceType)
-	{
-		if (sourceType == typeof (string))
-			return true;
-		return base.CanConvertFrom (context, sourceType);
-	}
-
-	public override object ConvertFrom (ITypeDescriptorContext context,
-			CultureInfo culture, object value)
-	{
-		string v = value as string;
-		if (v != null) {
-			switch (v) {
-				case "A": return Foo.A;
-				case "B": return Foo.B;
-			}
-		}
-
-		return base.ConvertFrom (context, culture, value);
-	}
-}
-
-[TypeConverter (typeof(FooConverter))]
-class Foo {
-	public static readonly Foo A = new Foo ("A");
-	public static readonly Foo B = new Foo ("B");
-	string s;
-	Foo (string s) { this.s = s; }
-	public override string ToString () {return s;}
-}
-
-class Test {
-	public static void Main (string[] args)
-	{
-		Foo    f = null;
-		int    n = -1;
-		string s = null;
-		OptionSet p = new OptionSet () {
-			{ "f:", (Foo v, OptionContext c) =&gt; {
-				Console.WriteLine ("# Parsed {0}; Value={1}; Index={2}",
-					c.OptionName, c.OptionValue ?? "&lt;null&gt;", c.OptionIndex);
-				f = v;
-			} },
-			{ "n=", (int v, OptionContext c) =&gt; {
-				Console.WriteLine ("# Parsed {0}; Value={1}; Index={2}",
-					c.OptionName, c.OptionValue, c.OptionIndex);
-				n = v;
-			} },
-			{ "s:", (v, c) =&gt; {
-				Console.WriteLine ("# Parsed {0}; Value={1}; Index={2}",
-					c.OptionName, c.OptionValue, c.OptionIndex);
-				s = v;
-			} },
-		};
-		try {
-			p.Parse (args);
-		}
-		catch (OptionException e) {
-			Console.Write ("context: ");
-			Console.WriteLine (e.Message);
-			return;
-		}
-		Console.WriteLine ("f={0}", f == null ? "&lt;null&gt;" : f.ToString ());
-		Console.WriteLine ("n={0}", n);
-		Console.WriteLine ("s={0}", s ?? "&lt;null&gt;");
-	}
-}
-</code>
-          <para>
-            The following <c>sh</c> output shows the above programs behavior
-            under the influence of a variety of program options.
-          </para>
-          <code lang="sh" src="examples/context.txt">$ mono context.exe -f
-# Parsed -f; Value=&lt;null&gt;; Index=0
-f=&lt;null&gt;
-n=-1
-s=&lt;null&gt;
-
-$ mono context.exe -n
-context: Missing required value for option '-n'.
-
-$ mono context.exe -s
-# Parsed -s; Value=; Index=0
-f=&lt;null&gt;
-n=-1
-s=&lt;null&gt;
-
-$ mono context.exe -f invalid
-context: Could not convert string `invalid' to type Foo for option `-f'.
-
-$ mono context.exe -n invalid
-context: Could not convert string `invalid' to type Int32 for option `-n'.
-
-$ mono context.exe -s=
-# Parsed -s; Value=; Index=0
-f=&lt;null&gt;
-n=-1
-s=
-
-$ mono context.exe -f A --n=42 /s fourty-two
-# Parsed -f; Value=A; Index=1
-# Parsed --n; Value=42; Index=2
-# Parsed /s; Value=fourty-two; Index=4
-f=A
-n=42
-s=fourty-two
-</code>
-        </example>
-        <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
-        <exception cref="T:System.ArgumentException">
-          <paramref name="option" /> has an alias (as returned from
-          <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
-          a previously registered <see cref="T:NDesk.Options.Option" />.
-        </exception>
-        <exception cref="T:System.ArgumentNullException">
-          <para>
-            <paramref name="options" /> is <see langword="null" /></para>
-          <para>-or-</para>
-          <para>
-            <paramref name="action" /> is <see langword="null" /></para>
-        </exception>
-      </Docs>
-    </Member>
-    <Member MemberName="Add&lt;T&gt;">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string options, string description, Action&lt;T&gt; action);" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>NDesk.Options.OptionSet</ReturnType>
-      </ReturnValue>
-      <Parameters>
-        <Parameter Name="options" Type="System.String" />
+        <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="description" Type="System.String" />
         <Parameter Name="action" Type="System.Action&lt;T&gt;" />
       </Parameters>
@@ -1457,10 +1331,12 @@ s=fourty-two
           The type of the option to parse and provide to the 
           <paramref name="action" /> callback.
         </typeparam>
-        <param name="options">
+        <param name="prototype">
           A <see cref="T:System.String" /> containing all option aliases to
-          register and an (optional) type specifier; see
-          <see cref="P:NDesk.Options.Option.Prototype" /> for details.
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
         </param>
         <param name="description">
           A <see cref="T:System.String" /> containing to used to initialize
@@ -1471,8 +1347,8 @@ s=fourty-two
           to invoke when an option is parsed.
         </param>
         <summary>
-          Registers each alias within <paramref name="options" /> so that any 
-          options matching the aliases in <paramref name="options" /> will be
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
           handled by <paramref name="action" /> during any subsequent
           <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
           calls.
@@ -1490,6 +1366,14 @@ s=fourty-two
             <see cref="T:System.ComponentModel.TypeConverter" /> to use when
             performing the string-to-type conversion.
           </para>
+          <block subset="none" type="note">
+            <para>
+              If <paramref name="prototype" /> specifies an
+              <see cref="F:NDesk.Options.OptionValueType.Optional" /> value
+              and the value is not provided, then <c>default(T)</c> is
+              provided as the value to <paramref name="action" />.
+            </para>
+          </block>
         </remarks>
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
         <exception cref="T:System.ArgumentException">
@@ -1499,7 +1383,154 @@ s=fourty-two
         </exception>
         <exception cref="T:System.ArgumentNullException">
           <para>
-            <paramref name="options" /> is <see langword="null" /></para>
+            <paramref name="prototype" /> is <see langword="null" /></para>
+          <para>-or-</para>
+          <para>
+            <paramref name="action" /> is <see langword="null" /></para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Add&lt;TKey,TValue&gt;">
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, Action&lt;TKey,TValue&gt; action);" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>NDesk.Options.OptionSet</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="prototype" Type="System.String" />
+        <Parameter Name="action" Type="System.Action&lt;TKey,TValue&gt;" />
+      </Parameters>
+      <Docs>
+        <typeparam name="TKey">
+          The type of the first argument to parse and provide to the 
+          <paramref name="action" /> callback.
+        </typeparam>
+        <typeparam name="TValue">
+          The type of the second argument to parse and provide to the 
+          <paramref name="action" /> callback.
+        </typeparam>
+        <param name="prototype">
+          A <see cref="T:System.String" /> containing all option aliases to
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
+        </param>
+        <param name="action">
+          A <see cref="T:System.Action{TKey,TValue}" />
+          to invoke when an option is parsed.
+        </param>
+        <summary>
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
+          handled by <paramref name="action" /> during any subsequent
+          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
+          calls.
+        </summary>
+        <returns>
+          The current <see cref="T:NDesk.Options.OptionSet" /> instance.
+          This is to permit method chaining.
+        </returns>
+        <remarks>
+          Calls 
+          <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,System.Action{``0,``1})" />
+          with a <paramref name="description" /> value of 
+          <see langword="null" />.
+        </remarks>
+        <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
+        <altmember cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,System.Action{``0,``1})" />
+        <exception cref="T:System.ArgumentException">
+          <paramref name="prototype" /> has an alias (as returned from
+          <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
+          a previously registered <see cref="T:NDesk.Options.Option" />.
+        </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="prototype" /> is <see langword="null" /></para>
+          <para>-or-</para>
+          <para>
+            <paramref name="action" /> is <see langword="null" /></para>
+        </exception>
+      </Docs>
+    </Member>
+    <Member MemberName="Add&lt;TKey,TValue&gt;">
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, string description, Action&lt;TKey,TValue&gt; action);" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>NDesk.Options.OptionSet</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="prototype" Type="System.String" />
+        <Parameter Name="description" Type="System.String" />
+        <Parameter Name="action" Type="System.Action&lt;TKey,TValue&gt;" />
+      </Parameters>
+      <Docs>
+        <typeparam name="TKey">
+          The type of the first argument to parse and provide to the 
+          <paramref name="action" /> callback.
+        </typeparam>
+        <typeparam name="TValue">
+          The type of the second argument to parse and provide to the 
+          <paramref name="action" /> callback.
+        </typeparam>
+        <param name="prototype">
+          A <see cref="T:System.String" /> containing all option aliases to
+          register, an (optional) type specifier, and an (optional) value
+          separator list; see 
+          <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+          for details.
+        </param>
+        <param name="description">
+          A <see cref="T:System.String" /> to be used to initialize
+          the <see cref="P:NDesk.Options.Option.Description" /> property.
+        </param>
+        <param name="action">
+          A <see cref="T:System.Action{TKey,TValue}" />
+          to invoke when an option is parsed.
+        </param>
+        <summary>
+          Registers each alias within <paramref name="prototype" /> so that any 
+          options matching the aliases in <paramref name="prototype" /> will be
+          handled by <paramref name="action" /> during any subsequent
+          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
+          calls.
+        </summary>
+        <returns>
+          The current <see cref="T:NDesk.Options.OptionSet" /> instance.
+          This is to permit method chaining.
+        </returns>
+        <remarks>
+          <para>
+            Use this method when <paramref name="prototype" /> should accept
+            two typed values, generally a key and a value.
+          </para>
+          <block subset="none" type="note">
+            <para>
+              If <paramref name="prototype" /> specifies an
+              <see cref="F:NDesk.Options.OptionValueType.Optional" /> value
+              and the value is not provided, then <c>default(TKey)</c> and
+              <c>default(TValue)</c> may be provided as the values to
+              <paramref name="action" />.
+            </para>
+          </block>
+        </remarks>
+        <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
+        <exception cref="T:System.ArgumentException">
+          <paramref name="prototype" /> has an alias (as returned from
+          <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
+          a previously registered <see cref="T:NDesk.Options.Option" />.
+        </exception>
+        <exception cref="T:System.ArgumentNullException">
+          <para>
+            <paramref name="prototype" /> is <see langword="null" /></para>
           <para>-or-</para>
           <para>
             <paramref name="action" /> is <see langword="null" /></para>
@@ -1510,8 +1541,8 @@ s=fourty-two
       <MemberSignature Language="C#" Value="protected override void ClearItems ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1530,8 +1561,8 @@ s=fourty-two
       <MemberSignature Language="C#" Value="protected virtual NDesk.Options.OptionContext CreateOptionContext ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionContext</ReturnType>
@@ -1568,8 +1599,8 @@ s=fourty-two
       <MemberSignature Language="C#" Value="protected NDesk.Options.Option GetOptionForName (string option);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.Option</ReturnType>
@@ -1606,75 +1637,103 @@ s=fourty-two
       </Docs>
     </Member>
     <Member MemberName="GetOptionParts">
-      <MemberSignature Language="C#" Value="protected bool GetOptionParts (string option, out string flag, out string name, out string value);" />
+      <MemberSignature Language="C#" Value="protected bool GetOptionParts (string argument, out string flag, out string name, out string sep, out string value);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="option" Type="System.String" />
+        <Parameter Name="argument" Type="System.String" />
         <Parameter Name="flag" Type="System.String&amp;" RefType="out" />
         <Parameter Name="name" Type="System.String&amp;" RefType="out" />
+        <Parameter Name="sep" Type="System.String&amp;" RefType="out" />
         <Parameter Name="value" Type="System.String&amp;" RefType="out" />
       </Parameters>
       <Docs>
-        <param name="option">
+        <param name="argument">
           A <see cref="T:System.String" /> containing the option to parse into
           its constituent parts.
         </param>
         <param name="flag">
-          If the method returns <see langword="true" />, a 
-          <see cref="T:System.String" /> reference which contains the flag
-          this option started with.  Valid flags include: <c>-</c>, <c>--</c>,
-          and <c>/</c>.
+          A <see cref="T:System.String" /> reference which will be set to 
+          <see langword="null" /> if the method returns 
+          <see langword="false" />, or set to the flag the option starts with
+          if the method returns <see langword="true" />.
+          Valid flags include: <c>-</c>, <c>--</c>, and <c>/</c>.
         </param>
         <param name="name">
-          If the method returns <see langword="true" />, a 
-          <see cref="T:System.String" /> reference which will contain the
-          option name following a valid <paramref name="flag" />.
-          No lookup is made to determine that <paramref name="flag" /> has
-          been registered via a prior 
-          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String}" />
-          or related call.
+          A <see cref="T:System.String" /> reference which will be set to 
+          <see langword="null" /> if the method returns 
+          <see langword="false" />, or set to the option name following a
+          valid flag if the method returns <see langword="true" />.
+          No lookup is made to determine that flag has been registered via a 
+          prior call to 
+          <see cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
+          or related overload.
+        </param>
+        <param name="sep">
+          A <see cref="T:System.String" /> reference which will be set to 
+          <see langword="null" /> if either the method returns 
+          <see langword="false" /> or if <c>=</c> or <c>:</c> was not found
+          within <paramref name="argument" />; if the method returns 
+          <see langword="true" /> and <paramref name="argument" /> contains a
+          <c>=</c> or <c>:</c>, then <paramref name="sep" /> will contain
+          either <c>=</c> or <c>:</c>, whichever was found within 
+          <paramref name="argument" />.
         </param>
         <param name="value">
-          If the method returns <see langword="true" />, and 
-          <paramref name="option" /> contains a <c>=</c>, 
-          <paramref name="value" /> will contain the text after the <c>=</c>.
-          Otherwise, <paramref name="value" /> will be set to 
-          <see langword="null" />.
+          A <see cref="T:System.String" /> reference which will be set to 
+          <see langword="null" /> if either the method returns 
+          <see langword="false" /> or if <paramref name="sep" /> is null;
+          if the method returns <see langword="true" /> and 
+          <paramref name="sep" /> is not <see langword="null" />, then
+          <paramref name="value" /> will contain all text after 
+          <paramref name="sep" />.
         </param>
         <summary>
-          Splits <paramref name="option" /> into its constituent parts.
+          Splits <paramref name="argument" /> into its constituent parts.
         </summary>
         <returns>
-          A <see cref="T:System.Boolean" />; if <see langword="true" />, then
-          <paramref name="flag" /> and <paramref name="name" /> will contain
-          the option flag and name found within <paramref name="option" />,
-          and <paramref name="value" /> will contain any string found after
-          a <c>=</c> (including the empty string).
-          If <see langword="false" /> is returned, <paramref name="flag" />,
-          <paramref name="name" />, and <paramref name="value" /> are all
-          set to <see langword="null" />.
+          <see langword="true" /> if <paramref name="argument" /> could be split
+          into its constituent parts, and <paramref name="flag" /> and 
+          <paramref name="name" /> are set (<paramref name="sep" /> and
+          <paramref name="value" /> may not be set, depending on whether or
+          not they are present within <paramref name="argument" />);
+          <see langword="true" /> if <paramref name="argument" /> is not the
+          possible start of a valid option.
         </returns>
         <remarks>
-          Subclasses can call this method from their 
-          <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext" />
-          method to determine whether a given string is an option, and to
-          split the option up for further processing.
+          <para>
+            Subclasses can call this method from their 
+            <see cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
+            method to determine whether a given string is an option, and to
+            split the option up for further processing.
+          </para>
+          <para>
+            For example, <c>GetOptionParts("foo", ...)</c> would return 
+            <see langword="false" />, while 
+            <c>GetOptionParts("--foo=bar", ...)</c>
+            would result in <paramref name="flag" /> containing <c>--</c>, 
+            <paramref name="name" /> containing <c>foo</c>, 
+            <paramref name="sep" /> containing <c>=</c>, and
+            <paramref name="value" /> containing <c>bar</c>.
+          </para>
         </remarks>
+        <exception cref="T:System.ArgumentNullException">
+          <paramref name="argument" /> is <see langword="null" />.
+        </exception>
       </Docs>
     </Member>
     <Member MemberName="InsertItem">
       <MemberSignature Language="C#" Value="protected override void InsertItem (int index, NDesk.Options.Option item);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1699,27 +1758,56 @@ s=fourty-two
         </remarks>
       </Docs>
     </Member>
+    <Member MemberName="MessageLocalizer">
+      <MemberSignature Language="C#" Value="public Converter&lt;string,string&gt; MessageLocalizer { get; }" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Converter&lt;System.String,System.String&gt;</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+          Permits access to the message localization facility.
+        </summary>
+        <value>
+          A <see cref="T:System.Converter{System.String,System.String}" />
+          that can be used to localize messages.
+        </value>
+        <remarks>
+          <para>
+            <see cref="T:NDesk.Options.Option" /> subclasses can use this
+            property 
+            (via <see cref="P:NDesk.Options.OptionContext.OptionSet" />) to
+            perform message localization for their own exception messages.
+          </para>
+        </remarks>
+        <altmember cref="C:NDesk.Options.Option(System.Converter{System.String,System.String})" />
+      </Docs>
+    </Member>
     <Member MemberName="Parse">
-      <MemberSignature Language="C#" Value="public System.Collections.Generic.List&lt;string&gt; Parse (System.Collections.Generic.IEnumerable&lt;string&gt; options);" />
+      <MemberSignature Language="C#" Value="public System.Collections.Generic.List&lt;string&gt; Parse (System.Collections.Generic.IEnumerable&lt;string&gt; arguments);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.List&lt;System.String&gt;</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="options" Type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" />
+        <Parameter Name="arguments" Type="System.Collections.Generic.IEnumerable&lt;System.String&gt;" />
       </Parameters>
       <Docs>
-        <param name="options">
+        <param name="arguments">
           A <see cref="T:System.Collections.Generic.IEnumerable&lt;System.String&gt;" />
           containing all options to parse.
         </param>
         <summary>
           Parses each <see cref="T:System.String" /> within 
-          <paramref name="options" />, invoking any registered
+          <paramref name="arguments" />, invoking any registered
           <paramref name="actions" /> if a registered option is encountered.
         </summary>
         <returns>
@@ -1768,7 +1856,7 @@ s=fourty-two
           <para>
             An exception was generated when trying to convert the value to the
             type <typeparamref name="T" />, for options added with
-            <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" />
+            <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0})" />
             and related methods.  The originating exception is provided via
             the <see cref="P:System.Exception.InnerException" /> property.
           </para>
@@ -1858,21 +1946,21 @@ class Test {
       </Docs>
     </Member>
     <Member MemberName="Parse">
-      <MemberSignature Language="C#" Value="protected virtual bool Parse (string option, NDesk.Options.OptionContext c);" />
+      <MemberSignature Language="C#" Value="protected virtual bool Parse (string argument, NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
       </ReturnValue>
       <Parameters>
-        <Parameter Name="option" Type="System.String" />
+        <Parameter Name="argument" Type="System.String" />
         <Parameter Name="c" Type="NDesk.Options.OptionContext" />
       </Parameters>
       <Docs>
-        <param name="option">
+        <param name="argument">
           A <see cref="T:System.String" /> containing the current option to
           parse.
         </param>
@@ -1881,16 +1969,16 @@ class Test {
           current parser context.
         </param>
         <summary>
-          Parses <paramref name="option" /> and invokes
+          Parses <paramref name="argument" /> and invokes
           <see cref="M:NDesk.Options.Option.Invoke(NDesk.Options.OptionContext)" /> 
           if appropriate.
         </summary>
         <returns>
           A <see cref="T:System.Boolean" /> specifying whether or not
-          <paramref name="option" /> was handled.
+          <paramref name="argument" /> was handled.
           If <see langword="false" />, then
           <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
-          will return <paramref name="option" /> as an unhandled option.
+          will return <paramref name="argument" /> as an unhandled option.
         </returns>
         <remarks>
           <para>
@@ -1901,7 +1989,7 @@ class Test {
             which thus gives this method a chance to parse a single option, or
             chain together multiple options to form a single option (as is
             necessary when an option and its value are separated, e.g. with
-            <c>-option value</c>.
+            <c>-option value</c>).
           </para>
           <block subset="none" type="behaviors">
             <para>
@@ -1910,10 +1998,11 @@ class Test {
               assumed to be a <see cref="T:NDesk.Options.Option" /> in need of
               a value.  If 
               <see cref="P:NDesk.Options.OptionContext.Option" /> is 
-              non-<see langword="null" />, then
-              <see cref="P:NDesk.Options.OptionContext.OptionValue" /> is set
-              to <paramref name="option" /> and
-              <see cref="P:NDesk.Options.Option.Invoke(NDesk.Options.OptionContext" />
+              non-<see langword="null" />, then <paramref name="argument" />
+              is 
+              <see cref="M:NDesk.Options.OptionValueCollection.Add(System.String)" />ed
+              to <see cref="P:NDesk.Options.OptionContext.OptionValues" /> and
+              <see cref="M:NDesk.Options.Option.Invoke(NDesk.Options.OptionContext)" />
               is invoked.
             </para>
             <para>
@@ -1955,8 +2044,8 @@ class Test {
       <MemberSignature Language="C#" Value="protected override void RemoveItem (int index);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1981,8 +2070,8 @@ class Test {
       <MemberSignature Language="C#" Value="protected override void SetItem (int index, NDesk.Options.Option item);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -2013,8 +2102,8 @@ class Test {
       <MemberSignature Language="C#" Value="public void WriteOptionDescriptions (System.IO.TextWriter o);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.0.0</AssemblyVersion>
-        <AssemblyVersion>3.5.0.0</AssemblyVersion>
+        <AssemblyVersion>2.0.2.0</AssemblyVersion>
+        <AssemblyVersion>3.0.2.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -2130,8 +2219,8 @@ class Test {
           <para>
             Notice that when the above program is invoked with the
             <c>--help</c> parameter, 
-            <see cref="M:NDesk.Options.OptionSet.WriteOptionDescriptions" />
-            is used to generate the <see cref="NDesk.Options.Option" />
+            <see cref="M:NDesk.Options.OptionSet.WriteOptionDescriptions(System.IO.TextWriter)" />
+            is used to generate the <see cref="T:NDesk.Options.Option" />
             description:
           </para>
           <code lang="sh" src="examples/greet.txt">$ mono greet.exe --help
@@ -2145,11 +2234,12 @@ Options:
   -v                         increase debug message verbosity
   -h, --help                 show this message and exit
 
-$ mono greet.exe -v- -n A -name=B --name=C /name D
+$ mono greet.exe -v- -n A -name=B --name=C /name D -nE
 Hello A!
 Hello B!
 Hello C!
 Hello D!
+Hello E!
 
 $ mono greet.exe -v -n E custom greeting for: {0}
 # Using new message: custom greeting for: {0}

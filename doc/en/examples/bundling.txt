@@ -4,6 +4,7 @@ Demo program to show the effects of bundling options and their values
 
 Options:
   -D[=VALUE1:VALUE2]         Predefine a macro with an (optional) value.
+  -d=VALUE1-->VALUE2         Alternate macro syntax.
   -o=VALUE                   Specify the output file
   -f=VALUE                   The input file
   -x                         Extract the file
@@ -16,10 +17,13 @@ $ mono bundling.exe -D
 bundling: Missing macro name for option -D.
 Try `greet --help' for more information.
 
-$ mono bundling.exe -DA -DB=C -cf input --color -ooutput
+$ mono bundling.exe -DA -DB=C "-dD-->E" "-dF=>G" -d "H=>I" -cf input --color -ooutput
 Macros:
 	A=<null>
 	B=C
+	D=E
+	F=G
+	H=I
 Options:
 	 Input File: input
 	Ouptut File: output
@@ -29,8 +33,14 @@ Options:
 	      Color: <null>
 
 $ mono bundling.exe -cfv input
-bundling: Cannot bundle option '-f' that requires a value.
-Try `greet --help' for more information.
+Macros:
+Options:
+	 Input File: v
+	Ouptut File: 
+	     Create: True
+	    Extract: False
+	       List: False
+	      Color: <null>
 
 $ mono bundling.exe -xctf input
 Macros:
