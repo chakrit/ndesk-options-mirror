@@ -351,7 +351,7 @@ namespace NDesk.Options {
 						"prototype");
 			if (count > 1) {
 				if (seps.Count == 0)
-					this.separators = new string[]{"=", ":"};
+					this.separators = new string[]{":", "="};
 				else if (seps.Count == 1 && seps [0].Length == 0)
 					this.separators = null;
 				else
@@ -727,8 +727,6 @@ namespace NDesk.Options {
 			// is it a bundled option?
 			if (ParseBundledValue (f, string.Concat (n + s + v), c))
 				return true;
-			if (ParseBundled (f, n, c))
-				return true;
 
 			return false;
 		}
@@ -769,37 +767,34 @@ namespace NDesk.Options {
 
 		private bool ParseBundledValue (string f, string n, OptionContext c)
 		{
-			Option p;
-			if (f != "-" || !this.options.TryGetValue (n [0].ToString (), out p) || 
-					p.OptionValueType == OptionValueType.None)
-				return false;
-			c.Option = p;
-			string v = n.Substring (1);
-			ParseValue (v, c);
-			return true;
-		}
-
-		private bool ParseBundled (string f, string n, OptionContext c)
-		{
-			Option p;
 			if (f != "-")
 				return false;
-			if (this.options.TryGetValue (n [0].ToString (), out p)) {
-				string opt = f + n [0].ToString ();
-				Invoke (c, opt, n, p);
-				for (int i = 1; i < n.Length; ++i) {
-					opt = "-" + n [i].ToString ();
-					if (!this.options.TryGetValue (n [i].ToString (), out p))
-						throw new OptionException (string.Format (localizer (
-										"Cannot bundle unregistered option '{0}'."), opt), opt);
-					if (p.OptionValueType != OptionValueType.None)
-						throw new OptionException (string.Format (localizer (
-										"Cannot bundle option '{0}' that requires a value."), opt), opt);
-					Invoke (c, opt, n, p);
+			for (int i = 0; i < n.Length; ++i) {
+				Option p;
+				string opt = f + n [i].ToString ();
+				if (!this.options.TryGetValue (n [i].ToString (), out p)) {
+					if (i == 0)
+						return false;
+					throw new OptionException (string.Format (localizer (
+									"Cannot bundle unregistered option '{0}'."), opt), opt);
 				}
-				return true;
+				switch (p.OptionValueType) {
+					case OptionValueType.None:
+						Invoke (c, opt, n, p);
+						break;
+					case OptionValueType.Optional:
+					case OptionValueType.Required: {
+						string v     = n.Substring (i+1);
+						c.Option     = p;
+						c.OptionName = opt;
+						ParseValue (v.Length != 0 ? v : null, c);
+						return true;
+					}
+					default:
+						throw new InvalidOperationException ("Unknown OptionValueType: " + p.OptionValueType);
+				}
 			}
-			return false;
+			return true;
 		}
 
 		private void Invoke (OptionContext c, string name, string value, Option option)
@@ -833,10 +828,24 @@ namespace NDesk.Options {
 					Write (o, ref written, names [i]);
 				}
 
-				if (p.OptionValueType == OptionValueType.Optional)
-					Write (o, ref written, localizer ("[=VALUE]"));
-				else if (p.OptionValueType == OptionValueType.Required)
+				if (p.OptionValueType == OptionValueType.Optional ||
+						p.OptionValueType == OptionValueType.Required) {
+					if (p.OptionValueType == OptionValueType.Optional) {
+						Write (o, ref written, localizer ("["));
+					}
 					Write (o, ref written, localizer ("=VALUE"));
+					if (p.ValueCount > 1)
+						Write (o, ref written, localizer ("1"));
+					string[] seps = p.ValueSeparators;
+					for (int c = 1; c < p.ValueCount; ++c) {
+						Write (o, ref written, localizer (
+									seps != null && seps.Length > 0 ? seps [0] : " "));
+						Write (o, ref written, localizer ("VALUE" + (c+1)));
+					}
+					if (p.OptionValueType == OptionValueType.Optional) {
+						Write (o, ref written, localizer ("]"));
+					}
+				}
 
 				if (written < OptionWidth)
 					o.Write (new string (' ', OptionWidth - written));
@@ -951,10 +960,11 @@ namespace Tests.NDesk.Options {
 				{ "Debug",      v => debug = v != null },
 				{ "E",          v => { /* ignore */ } },
 			};
-			p.Parse (_("-DNAME", "-D", "NAME2", "-Debug", "-L/foo", "-L", "/bar"));
-			Assert (defines.Count, 2);
+			p.Parse (_("-DNAME", "-D", "NAME2", "-Debug", "-L/foo", "-L", "/bar", "-EDNAME3"));
+			Assert (defines.Count, 3);
 			Assert (defines [0], "NAME");
 			Assert (defines [1], "NAME2");
+			Assert (defines [2], "NAME3");
 			Assert (debug, true);
 			Assert (libs.Count, 2);
 			Assert (libs [0], "/foo");
@@ -1100,6 +1110,7 @@ namespace Tests.NDesk.Options {
 			string a = null;
 			var p = new OptionSet () {
 				{ "a=", v => a = v },
+				{ "b",  v => { } },
 				{ "c",  v => { } },
 				{ "n=", (int v) => { } },
 				{ "f=", (Foo v) => { } },
@@ -1129,9 +1140,6 @@ namespace Tests.NDesk.Options {
 					p, v => { v.Parse (_("--f", "invalid")); });
 
 			// try to bundle with an option requiring a value
-			AssertException (typeof(OptionException), 
-					"Cannot bundle option '-a' that requires a value.", 
-					p, v => { v.Parse (_("-ca", "value")); });
 			AssertException (typeof(OptionException), 
 					"Cannot bundle unregistered option '-z'.", 
 					p, v => { v.Parse (_("-cz", "extra")); });
@@ -1205,8 +1213,8 @@ namespace Tests.NDesk.Options {
 						var d = new DefaultOption ("a=", null, 2);
 						string[] s = d.GetValueSeparators ();
 						Assert (s.Length, 2);
-						Assert (s [0], "=");
-						Assert (s [1], ":");
+						Assert (s [0], ":");
+						Assert (s [1], "=");
 					});
 			AssertException (null, null,
 					p, v => {
@@ -1275,16 +1283,20 @@ namespace Tests.NDesk.Options {
 		static void CheckWriteOptionDescriptions ()
 		{
 			var p = new OptionSet () {
-				{ "p|indicator-style=", "append / indicator to directories", v => {} },
-				{ "color:", "controls color info", v => {} },
-				{ "h|?|help", "show help text", v => {} },
-				{ "version", "output version information and exit", v => {} },
+				{ "p|indicator-style=", "append / indicator to directories",    v => {} },
+				{ "color:",             "controls color info",                  v => {} },
+				{ "rk=",                "required key/value option",            (k, v) => {} },
+				{ "ok:",                "optional key/value option",            (k, v) => {} },
+				{ "h|?|help",           "show help text",                       v => {} },
+				{ "version",            "output version information and exit",  v => {} },
 			};
 
 			StringWriter expected = new StringWriter ();
 			expected.WriteLine ("  -p, --indicator-style=VALUE");
 			expected.WriteLine ("                             append / indicator to directories");
 			expected.WriteLine ("      --color[=VALUE]        controls color info");
+			expected.WriteLine ("      --rk=VALUE1:VALUE2     required key/value option");
+			expected.WriteLine ("      --ok[=VALUE1:VALUE2]   optional key/value option");
 			expected.WriteLine ("  -h, -?, --help             show help text");
 			expected.WriteLine ("      --version              output version information and exit");
 
@@ -1296,17 +1308,21 @@ namespace Tests.NDesk.Options {
 
 		static void CheckOptionBundling ()
 		{
-			string a, b, c;
-			a = b = c = null;
+			string a, b, c, f;
+			a = b = c = f = null;
 			var p = new OptionSet () {
 				{ "a", v => a = "a" },
 				{ "b", v => b = "b" },
 				{ "c", v => c = "c" },
+				{ "f=", v => f = v },
 			};
-			p.Parse (_ ("-abc"));
+			List<string> extra = p.Parse (_ ("-abcf", "foo", "bar"));
+			Assert (extra.Count, 1);
+			Assert (extra [0], "bar");
 			Assert (a, "a");
 			Assert (b, "b");
 			Assert (c, "c");
+			Assert (f, "foo");
 		}
 
 		static void CheckHaltProcessing ()
