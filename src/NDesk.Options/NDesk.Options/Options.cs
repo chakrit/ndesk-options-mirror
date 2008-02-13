@@ -628,43 +628,43 @@ namespace NDesk.Options {
 		}
 
 #if LINQ
-		public List<string> Parse (IEnumerable<string> options)
+		public List<string> Parse (IEnumerable<string> arguments)
 		{
 			bool process = true;
 			OptionContext c = CreateOptionContext ();
 			c.OptionIndex = -1;
 			var unprocessed = 
-				from option in options
+				from argument in arguments
 				where ++c.OptionIndex >= 0 && process 
-					? option == "--" 
+					? argument == "--" 
 						? (process = false)
-						: !Parse (option, c)
+						: !Parse (argument, c)
 					: true
-				select option;
+				select argument;
 			List<string> r = unprocessed.ToList ();
 			if (c.Option != null)
 				c.Option.Invoke (c);
 			return r;
 		}
 #else
-		public List<string> Parse (IEnumerable<string> options)
+		public List<string> Parse (IEnumerable<string> arguments)
 		{
 			OptionContext c = CreateOptionContext ();
 			c.OptionIndex = -1;
 			bool process = true;
 			List<string> unprocessed = new List<string> ();
-			foreach (string option in options) {
+			foreach (string argument in arguments) {
 				++c.OptionIndex;
-				if (option == "--") {
+				if (argument == "--") {
 					process = false;
 					continue;
 				}
 				if (!process) {
-					unprocessed.Add (option);
+					unprocessed.Add (argument);
 					continue;
 				}
-				if (!Parse (option, c))
-					unprocessed.Add (option);
+				if (!Parse (argument, c))
+					unprocessed.Add (argument);
 			}
 			if (c.Option != null)
 				c.Option.Invoke (c);
@@ -675,13 +675,13 @@ namespace NDesk.Options {
 		private readonly Regex ValueOption = new Regex (
 			@"^(?<flag>--|-|/)(?<name>[^:=]+)((?<sep>[:=])(?<value>.*))?$");
 
-		protected bool GetOptionParts (string option, out string flag, out string name, out string sep, out string value)
+		protected bool GetOptionParts (string argument, out string flag, out string name, out string sep, out string value)
 		{
-			if (option == null)
-				throw new ArgumentNullException ("option");
+			if (argument == null)
+				throw new ArgumentNullException ("argument");
 
 			flag = name = sep = value = null;
-			Match m = ValueOption.Match (option);
+			Match m = ValueOption.Match (argument);
 			if (!m.Success) {
 				return false;
 			}
@@ -694,15 +694,15 @@ namespace NDesk.Options {
 			return true;
 		}
 
-		protected virtual bool Parse (string option, OptionContext c)
+		protected virtual bool Parse (string argument, OptionContext c)
 		{
 			if (c.Option != null) {
-				ParseValue (option, c);
+				ParseValue (argument, c);
 				return true;
 			}
 
 			string f, n, s, v;
-			if (!GetOptionParts (option, out f, out n, out s, out v))
+			if (!GetOptionParts (argument, out f, out n, out s, out v))
 				return false;
 
 			Option p;
@@ -722,7 +722,7 @@ namespace NDesk.Options {
 				return true;
 			}
 			// no match; is it a bool option?
-			if (ParseBool (option, n, c))
+			if (ParseBool (argument, n, c))
 				return true;
 			// is it a bundled option?
 			if (ParseBundledValue (f, string.Concat (n + s + v), c))
