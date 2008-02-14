@@ -102,8 +102,8 @@ edit:
 
 html: $(DOCUMENTATION)
 	monodocs2html -template:doc-template.html -source:en -ext:html \
-		-dest:$(PACKAGE)-$(VERSION) && \
-		tar czf ../archive/$(PACKAGE)-$(VERSION)-docs.tar.gz $(PACKAGE)-$(VERSION)
+		-dest:$(PACKAGE) && \
+		zip -q -r ../archive/$(PACKAGE)-$(VERSION)-docs.zip $(PACKAGE)
 
 clean:
 	-rm $(CLEANFILES)
