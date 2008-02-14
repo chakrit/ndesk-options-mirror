@@ -1,7 +1,7 @@
+*.mdb
 bundling.exe
 context.exe
 greet.exe
 localization.exe
 NDesk.Options.dll
-NDesk.Options.dll.mdb
 subclass.exe
