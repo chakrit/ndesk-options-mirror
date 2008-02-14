@@ -9,9 +9,7 @@ endif
 monodocdir=$(SOURCESDIR)
 monodoc_DATA=$(TARGETS)
 
-ASSEMBLIES = \
-	net2/NDesk.Options.dll \
-	net3.5/NDesk.Options.dll
+ASSEMBLIES = NDesk.Options.dll
 
 UPDATER = $(MONODOCER) -overrides -pretty -path:en
 
@@ -19,7 +17,7 @@ UPDATER = $(MONODOCER) -overrides -pretty -path:en
 
 assemble: ndesk-options-docs.zip ndesk-options-docs.tree
 
-$(srcdir)/en/examples/NDesk.Options.dll: $(srcdir)/../lib/ndesk-options/net3.5/NDesk.Options.dll
+$(srcdir)/en/examples/NDesk.Options.dll: $(srcdir)/../lib/ndesk-options/NDesk.Options.dll
 	cp $^ $@
 	-cp $^.mdb $@.mdb
 
@@ -34,14 +32,13 @@ $(srcdir)/en/examples/localization.exe: $(srcdir)/en/examples/locale/es/LC_MESSA
 DOCUMENTATION = \
 	$(srcdir)/en/index.xml \
 	$(srcdir)/en/ns-NDesk.Options.xml \
-	$(srcdir)/en/ns-System.xml \
 	$(srcdir)/en/NDesk.Options/Option.xml \
+	$(srcdir)/en/NDesk.Options/OptionAction`2.xml \
 	$(srcdir)/en/NDesk.Options/OptionContext.xml \
 	$(srcdir)/en/NDesk.Options/OptionException.xml \
 	$(srcdir)/en/NDesk.Options/OptionSet.xml \
 	$(srcdir)/en/NDesk.Options/OptionValueCollection.xml \
-	$(srcdir)/en/NDesk.Options/OptionValueType.xml \
-	$(srcdir)/en/System/Action`2.xml
+	$(srcdir)/en/NDesk.Options/OptionValueType.xml
 
 EXAMPLES_OUTPUT = \
 	$(srcdir)/en/examples/bundling.txt \
@@ -96,7 +93,7 @@ EXTRA_DIST = \
 CLEANFILES = \
 	ndesk-options-docs.zip \
 	ndesk-options-docs.tree \
-	en/examples/NDesk.Options.dll \
+	en/examples/NDesk.Options.dll* \
 	en/examples/*.exe \
 	$(EXAMPLES_OUTPUT)
 

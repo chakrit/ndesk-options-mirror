@@ -2,8 +2,7 @@
   <TypeSignature Language="C#" Value="public class OptionSet : System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>
-    <AssemblyVersion>3.0.2.0</AssemblyVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
   </AssemblyInfo>
   <ThreadingSafetyStatement>
     All public static members of this type are safe for multithreaded
@@ -111,7 +110,7 @@
           option takes any values is dependent upon the option's type
           (previous bullet), but the number of values the option either
           accepts or requires is specified by the
-          <see cref="P:NDesk.Options.Option.ValueCount" /> property.
+          <see cref="P:NDesk.Options.Option.MaxValueCount" /> property.
         </term>
         </item>
       </list>
@@ -630,7 +629,7 @@ class DemoOptionSet : OptionSet {
 			// have a option w/ required value; try to concat values.
 			if (AppendValue (option, c)) {
 				if (!option.EndsWith ("\\") &amp;&amp; 
-						c.Option.ValueCount == c.OptionValues.Count) {
+						c.Option.MaxValueCount == c.OptionValues.Count) {
 					c.Option.Invoke (c);
 				}
 				return true;
@@ -776,8 +775,7 @@ Key: a\b\c=d\e\f
       <MemberSignature Language="C#" Value="public OptionSet ();" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -800,8 +798,7 @@ Key: a\b\c=d\e\f
       <MemberSignature Language="C#" Value="public OptionSet (Converter&lt;string,string&gt; localizer);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="localizer" Type="System.Converter&lt;System.String,System.String&gt;" />
@@ -970,8 +967,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (NDesk.Options.Option option);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1010,18 +1006,17 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, Action&lt;string,string&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, NDesk.Options.OptionAction&lt;string,string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="prototype" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;System.String,System.String&gt;" />
+        <Parameter Name="action" Type="NDesk.Options.OptionAction&lt;System.String,System.String&gt;" />
       </Parameters>
       <Docs>
         <param name="prototype">
@@ -1032,7 +1027,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
           for details.
         </param>
         <param name="action">
-          A <see cref="T:System.Action{System.String,System.String}" />
+          A <see cref="T:NDesk.Options.OptionAction{System.String,System.String}" />
           to invoke when an option is parsed.
         </param>
         <summary>
@@ -1048,11 +1043,11 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </returns>
         <remarks>
           Calls 
-          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
+          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,NDesk.Options.OptionAction{System.String,System.String})" />
           with a <paramref name="description" /> value of 
           <see langword="null" />.
         </remarks>
-        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
+        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,NDesk.Options.OptionAction{System.String,System.String})" />
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
         <exception cref="T:System.ArgumentException">
           <paramref name="prototype" /> has an alias (as returned from
@@ -1072,8 +1067,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, Action&lt;string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1107,11 +1101,11 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </returns>
         <remarks>
           Calls 
-          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
+          <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String})" />
           with a <paramref name="description" /> value of 
           <see langword="null" />.
         </remarks>
-        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
+        <altmember cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String})" />
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
         <exception cref="T:System.ArgumentException">
           <paramref name="prototype" /> has an alias (as returned from
@@ -1128,11 +1122,10 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       </Docs>
     </Member>
     <Member MemberName="Add">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, string description, Action&lt;string,string&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, string description, NDesk.Options.OptionAction&lt;string,string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1140,7 +1133,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <Parameters>
         <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="description" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;System.String,System.String&gt;" />
+        <Parameter Name="action" Type="NDesk.Options.OptionAction&lt;System.String,System.String&gt;" />
       </Parameters>
       <Docs>
         <param name="prototype">
@@ -1155,7 +1148,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
           the <see cref="P:NDesk.Options.Option.Description" /> property.
         </param>
         <param name="action">
-          A <see cref="T:System.Action{System.String,System.String}" />
+          A <see cref="T:NDesk.Options.OptionAction{System.String,System.String}" />
           to invoke when an option is parsed.
         </param>
         <summary>
@@ -1200,8 +1193,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add (string prototype, string description, Action&lt;string&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1259,8 +1251,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string prototype, Action&lt;T&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1315,8 +1306,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string prototype, string description, Action&lt;T&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1391,18 +1381,17 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       </Docs>
     </Member>
     <Member MemberName="Add&lt;TKey,TValue&gt;">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, Action&lt;TKey,TValue&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, NDesk.Options.OptionAction&lt;TKey,TValue&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
       </ReturnValue>
       <Parameters>
         <Parameter Name="prototype" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;TKey,TValue&gt;" />
+        <Parameter Name="action" Type="NDesk.Options.OptionAction&lt;TKey,TValue&gt;" />
       </Parameters>
       <Docs>
         <typeparam name="TKey">
@@ -1421,7 +1410,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
           for details.
         </param>
         <param name="action">
-          A <see cref="T:System.Action{TKey,TValue}" />
+          A <see cref="T:NDesk.Options.OptionAction{TKey,TValue}" />
           to invoke when an option is parsed.
         </param>
         <summary>
@@ -1437,12 +1426,12 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </returns>
         <remarks>
           Calls 
-          <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,System.Action{``0,``1})" />
+          <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,NDesk.Options.OptionAction{``0,``1})" />
           with a <paramref name="description" /> value of 
           <see langword="null" />.
         </remarks>
         <altmember cref="M:NDesk.Options.OptionSet.Add(NDesk.Options.Option)" />
-        <altmember cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,System.Action{``0,``1})" />
+        <altmember cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,NDesk.Options.OptionAction{``0,``1})" />
         <exception cref="T:System.ArgumentException">
           <paramref name="prototype" /> has an alias (as returned from
           <see cref="M:NDesk.Options.Option.GetNames" />) that conflicts with
@@ -1458,11 +1447,10 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       </Docs>
     </Member>
     <Member MemberName="Add&lt;TKey,TValue&gt;">
-      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, string description, Action&lt;TKey,TValue&gt; action);" />
+      <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, string description, NDesk.Options.OptionAction&lt;TKey,TValue&gt; action);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1470,7 +1458,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <Parameters>
         <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="description" Type="System.String" />
-        <Parameter Name="action" Type="System.Action&lt;TKey,TValue&gt;" />
+        <Parameter Name="action" Type="NDesk.Options.OptionAction&lt;TKey,TValue&gt;" />
       </Parameters>
       <Docs>
         <typeparam name="TKey">
@@ -1493,7 +1481,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
           the <see cref="P:NDesk.Options.Option.Description" /> property.
         </param>
         <param name="action">
-          A <see cref="T:System.Action{TKey,TValue}" />
+          A <see cref="T:NDesk.Options.OptionAction{TKey,TValue}" />
           to invoke when an option is parsed.
         </param>
         <summary>
@@ -1541,8 +1529,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="protected override void ClearItems ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1561,8 +1548,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="protected virtual NDesk.Options.OptionContext CreateOptionContext ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionContext</ReturnType>
@@ -1599,8 +1585,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="protected NDesk.Options.Option GetOptionForName (string option);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.Option</ReturnType>
@@ -1640,8 +1625,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="protected bool GetOptionParts (string argument, out string flag, out string name, out string sep, out string value);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -1732,8 +1716,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="protected override void InsertItem (int index, NDesk.Options.Option item);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1762,8 +1745,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberSignature Language="C#" Value="public Converter&lt;string,string&gt; MessageLocalizer { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Converter&lt;System.String,System.String&gt;</ReturnType>
@@ -1784,15 +1766,14 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
             perform message localization for their own exception messages.
           </para>
         </remarks>
-        <altmember cref="C:NDesk.Options.Option(System.Converter{System.String,System.String})" />
+        <altmember cref="C:NDesk.Options.OptionSet(System.Converter{System.String,System.String})" />
       </Docs>
     </Member>
     <Member MemberName="Parse">
       <MemberSignature Language="C#" Value="public System.Collections.Generic.List&lt;string&gt; Parse (System.Collections.Generic.IEnumerable&lt;string&gt; arguments);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.List&lt;System.String&gt;</ReturnType>
@@ -1949,8 +1930,7 @@ class Test {
       <MemberSignature Language="C#" Value="protected virtual bool Parse (string argument, NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -2006,7 +1986,7 @@ class Test {
               is invoked.
             </para>
             <para>
-              Next, <see cref="M:NDesk.Options.OptionSet.GetOptionParts(System.String&amp;System.String&amp;,System.String&amp;)" />
+              Next, <see cref="M:NDesk.Options.OptionSet.GetOptionParts(System.String,System.String@,System.String@,System.String@,System.String@)" />
               is invoked.  If <c>GetOptionParts</c> returns 
               <see langword="false" />, then <see langword="false" /> is
               returned from <c>Parse</c>.
@@ -2044,8 +2024,7 @@ class Test {
       <MemberSignature Language="C#" Value="protected override void RemoveItem (int index);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -2070,8 +2049,7 @@ class Test {
       <MemberSignature Language="C#" Value="protected override void SetItem (int index, NDesk.Options.Option item);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -2102,8 +2080,7 @@ class Test {
       <MemberSignature Language="C#" Value="public void WriteOptionDescriptions (System.IO.TextWriter o);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

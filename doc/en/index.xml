@@ -3,7 +3,7 @@
   <Remarks>Program option parser.</Remarks>
   <Copyright>2008 Novell, Inc.</Copyright>
   <Assemblies>
-    <Assembly Name="NDesk.Options" Version="3.0.2.0">
+    <Assembly Name="NDesk.Options" Version="0.2.0.0">
       <Attributes>
         <Attribute>
           <AttributeName>System.Runtime.CompilerServices.RuntimeCompatibility(WrapNonExceptionThrows=true)</AttributeName>
@@ -35,14 +35,12 @@
   <Types>
     <Namespace Name="NDesk.Options">
       <Type Name="Option" />
+      <Type Name="OptionAction`2" DisplayName="OptionAction&lt;TKey,TValue&gt;" />
       <Type Name="OptionContext" />
       <Type Name="OptionException" />
       <Type Name="OptionSet" />
       <Type Name="OptionValueCollection" />
       <Type Name="OptionValueType" />
-    </Namespace>
-    <Namespace Name="System">
-      <Type Name="Action`2" DisplayName="Action&lt;T1,T2&gt;" />
     </Namespace>
   </Types>
 </Overview>

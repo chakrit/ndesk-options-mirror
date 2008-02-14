@@ -2,8 +2,7 @@
   <TypeSignature Language="C#" Value="public class OptionContext" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>
-    <AssemblyVersion>3.0.2.0</AssemblyVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Object</BaseTypeName>
@@ -24,8 +23,7 @@
       <MemberSignature Language="C#" Value="public OptionContext (NDesk.Options.OptionSet set);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="set" Type="NDesk.Options.OptionSet" />
@@ -48,8 +46,7 @@
       <MemberSignature Language="C#" Value="public NDesk.Options.Option Option { set; get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.Option</ReturnType>
@@ -65,8 +62,7 @@
       <MemberSignature Language="C#" Value="public int OptionIndex { set; get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Int32</ReturnType>
@@ -90,8 +86,7 @@
       <MemberSignature Language="C#" Value="public string OptionName { set; get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -100,7 +95,7 @@
         <summary>The actual option name used.</summary>
         <value>A <see cref="T:System.String" /> containing the actual option name used.</value>
         <remarks>
-          A <see cref="T:NDesk.Options.Option.Prototype" /> can contain multiple
+          A <see cref="P:NDesk.Options.Option.Prototype" /> can contain multiple
           <c>|</c>-delimited aliases, e.g. <c>h|help</c>.  This property
           contains the actual option name specified, e.g. <c>-h</c> vs.
           <c>--help</c>.
@@ -111,8 +106,7 @@
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet OptionSet { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -139,8 +133,7 @@
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionValueCollection OptionValues { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionValueCollection</ReturnType>
@@ -160,9 +153,9 @@
             The <see cref="T:NDesk.Options.OptionValueCollection" /> indexer
             makes use of the 
             <see cref="P:NDesk.Options.Option.OptionValueType" />
-            and <see cref="P:NDesk.Options.Option.ValueCount" /> properties.
+            and <see cref="P:NDesk.Options.Option.MaxValueCount" /> properties.
             If the index does not have a value, the index is less than
-            <see cref="P:NDesk.Options.Option.ValueCount" />, and the 
+            <see cref="P:NDesk.Options.Option.MaxValueCount" />, and the 
             <see cref="P:NDesk.Options.OptionContext.Option" /> has a value
             type of <see cref="F:NDesk.Options.OptionValueType.Optional" />,
             <see langword="null" /> is returned; otherwise an

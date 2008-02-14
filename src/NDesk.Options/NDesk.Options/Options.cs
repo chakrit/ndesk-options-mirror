@@ -124,12 +124,6 @@ using System.Linq;
 using NDesk.Options;
 #endif
 
-#if !LINQ
-namespace System {
-	public delegate void Action<T1,T2> (T1 a, T2 b);
-}
-#endif
-
 namespace NDesk.Options {
 
 	public class OptionValueCollection : IList, IList<string> {
@@ -186,7 +180,7 @@ namespace NDesk.Options {
 		{
 			if (c.Option == null)
 				throw new InvalidOperationException ("OptionContext.Option is null.");
-			if (index >= c.Option.ValueCount)
+			if (index >= c.Option.MaxValueCount)
 				throw new ArgumentOutOfRangeException ("index");
 			if (c.Option.OptionValueType == OptionValueType.Required &&
 					index >= values.Count)
@@ -254,36 +248,36 @@ namespace NDesk.Options {
 		{
 		}
 
-		protected Option (string prototype, string description, int valueCount)
+		protected Option (string prototype, string description, int maxValueCount)
 		{
 			if (prototype == null)
 				throw new ArgumentNullException ("prototype");
 			if (prototype.Length == 0)
 				throw new ArgumentException ("Cannot be the empty string.", "prototype");
-			if (valueCount < 0)
-				throw new ArgumentOutOfRangeException ("valueCount");
+			if (maxValueCount < 0)
+				throw new ArgumentOutOfRangeException ("maxValueCount");
 
 			this.prototype   = prototype;
 			this.names       = prototype.Split ('|');
 			this.description = description;
-			this.count       = valueCount;
+			this.count       = maxValueCount;
 			this.type        = ParsePrototype ();
 
 			if (this.count == 0 && type != OptionValueType.None)
 				throw new ArgumentException (
-						"Cannot provide valueCount of 0 for OptionValueType.Required or " +
+						"Cannot provide maxValueCount of 0 for OptionValueType.Required or " +
 							"OptionValueType.Optional.",
-						"valueCount");
-			if (this.type == OptionValueType.None && valueCount > 1)
+						"maxValueCount");
+			if (this.type == OptionValueType.None && maxValueCount > 1)
 				throw new ArgumentException (
-						string.Format ("Cannot provide valueCount of {0} for OptionValueType.None.", valueCount),
-						"valueCount");
+						string.Format ("Cannot provide maxValueCount of {0} for OptionValueType.None.", maxValueCount),
+						"maxValueCount");
 		}
 
 		public string           Prototype       {get {return prototype;}}
 		public string           Description     {get {return description;}}
 		public OptionValueType  OptionValueType {get {return type;}}
-		public int              ValueCount      {get {return count;}}
+		public int              MaxValueCount   {get {return count;}}
 
 		public string[] GetNames ()
 		{
@@ -442,6 +436,8 @@ namespace NDesk.Options {
 		}
 	}
 
+	public delegate void OptionAction<TKey, TValue> (TKey key, TValue value);
+
 	public class OptionSet : Collection<Option>
 	{
 		public OptionSet ()
@@ -552,12 +548,12 @@ namespace NDesk.Options {
 			return this;
 		}
 
-		public OptionSet Add (string prototype, Action<string, string> action)
+		public OptionSet Add (string prototype, OptionAction<string, string> action)
 		{
 			return Add (prototype, null, action);
 		}
 
-		public OptionSet Add (string prototype, string description, Action<string, string> action)
+		public OptionSet Add (string prototype, string description, OptionAction<string, string> action)
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
@@ -584,9 +580,9 @@ namespace NDesk.Options {
 		}
 
 		class ActionOption<TKey, TValue> : Option {
-			Action<TKey, TValue> action;
+			OptionAction<TKey, TValue> action;
 
-			public ActionOption (string prototype, string description, Action<TKey, TValue> action)
+			public ActionOption (string prototype, string description, OptionAction<TKey, TValue> action)
 				: base (prototype, description, 2)
 			{
 				if (action == null)
@@ -612,12 +608,12 @@ namespace NDesk.Options {
 			return Add (new ActionOption<T> (prototype, description, action));
 		}
 
-		public OptionSet Add<TKey, TValue> (string prototype, Action<TKey, TValue> action)
+		public OptionSet Add<TKey, TValue> (string prototype, OptionAction<TKey, TValue> action)
 		{
 			return Add (prototype, null, action);
 		}
 
-		public OptionSet Add<TKey, TValue> (string prototype, string description, Action<TKey, TValue> action)
+		public OptionSet Add<TKey, TValue> (string prototype, string description, OptionAction<TKey, TValue> action)
 		{
 			return Add (new ActionOption<TKey, TValue> (prototype, description, action));
 		}
@@ -739,13 +735,13 @@ namespace NDesk.Options {
 						: new string[]{option}) {
 					c.OptionValues.Add (o);
 				}
-			if (c.OptionValues.Count == c.Option.ValueCount || 
+			if (c.OptionValues.Count == c.Option.MaxValueCount || 
 					c.Option.OptionValueType == OptionValueType.Optional)
 				c.Option.Invoke (c);
-			else if (c.OptionValues.Count > c.Option.ValueCount) {
+			else if (c.OptionValues.Count > c.Option.MaxValueCount) {
 				throw new OptionException (localizer (string.Format (
 								"Error: Found {0} option values when expecting {1}.", 
-								c.OptionValues.Count, c.Option.ValueCount)),
+								c.OptionValues.Count, c.Option.MaxValueCount)),
 						c.OptionName);
 			}
 		}
@@ -834,10 +830,10 @@ namespace NDesk.Options {
 						Write (o, ref written, localizer ("["));
 					}
 					Write (o, ref written, localizer ("=VALUE"));
-					if (p.ValueCount > 1)
+					if (p.MaxValueCount > 1)
 						Write (o, ref written, localizer ("1"));
 					string[] seps = p.ValueSeparators;
-					for (int c = 1; c < p.ValueCount; ++c) {
+					for (int c = 1; c < p.MaxValueCount; ++c) {
 						Write (o, ref written, localizer (
 									seps != null && seps.Length > 0 ? seps [0] : " "));
 						Write (o, ref written, localizer ("VALUE" + (c+1)));
@@ -1160,14 +1156,14 @@ namespace Tests.NDesk.Options {
 					"Argument cannot be null.\nParameter name: action",
 					p, v => { v.Add ("foo", (Action<string>) null); });
 			AssertException (typeof(ArgumentException), 
-					"Cannot provide valueCount of 2 for OptionValueType.None.\nParameter name: valueCount",
+					"Cannot provide maxValueCount of 2 for OptionValueType.None.\nParameter name: maxValueCount",
 					p, v => { v.Add ("foo", (k, val) => {/* ignore */}); });
 			AssertException (typeof(ArgumentOutOfRangeException),
-					"Argument is out of range.\nParameter name: valueCount",
+					"Argument is out of range.\nParameter name: maxValueCount",
 					p, v => { new DefaultOption ("a", null, -1); });
 			AssertException (typeof(ArgumentException),
-					"Cannot provide valueCount of 0 for OptionValueType.Required or " +
-						"OptionValueType.Optional.\nParameter name: valueCount",
+					"Cannot provide maxValueCount of 0 for OptionValueType.Required or " +
+						"OptionValueType.Optional.\nParameter name: maxValueCount",
 					p, v => { new DefaultOption ("a=", null, 0); });
 			AssertException (typeof(ArgumentException),
 					"Ill-formed name/value separator found in \"a={\".\nParameter name: prototype",

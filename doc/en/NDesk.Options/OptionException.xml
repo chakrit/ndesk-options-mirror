@@ -2,8 +2,7 @@
   <TypeSignature Language="C#" Value="public class OptionException : Exception" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>
-    <AssemblyVersion>3.0.2.0</AssemblyVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
   </AssemblyInfo>
   <Base>
     <BaseTypeName>System.Exception</BaseTypeName>
@@ -19,7 +18,8 @@
           <term>There is an exception generated converting a string to an
         object of type <typeparamref name="T" /> within the callback
         registered by
-        <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0,NDesk.Options.OptionContext})" />.
+        <see cref="M:NDesk.Options.OptionSet.Add``1(System.String,System.String,System.Action{``0})" />
+        (and related overloads).
         </term>
         </item>
         <item>
@@ -32,16 +32,9 @@
         <item>
           <term>
           An option with a <see cref="P:NDesk.Options.Option.OptionValueType" /> 
-          value of <see cref="F:NDesk.Options.OptionValueType.Optional" /> or
-          <see cref="F:NDesk.Options.OptionValueType.Required" /> is used in a
-          bundled option list.
-        </term>
-        </item>
-        <item>
-          <term>
-          An option with a <see cref="P:NDesk.Options.Option.OptionValueType" /> 
           value of <see cref="F:NDesk.Options.OptionValueType.Required" /> 
-          does not have a value.
+          does not have a value (usually because the start of the option was
+          the last argument).
         </term>
         </item>
       </list>
@@ -52,8 +45,7 @@
       <MemberSignature Language="C#" Value="protected OptionException (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="info" Type="System.Runtime.Serialization.SerializationInfo" />
@@ -86,8 +78,7 @@
       <MemberSignature Language="C#" Value="public OptionException (string message, string optionName);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="message" Type="System.String" />
@@ -118,8 +109,7 @@
       <MemberSignature Language="C#" Value="public OptionException (string message, string optionName, Exception innerException);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="message" Type="System.String" />
@@ -159,8 +149,7 @@
       <MemberSignature Language="C#" Value="public override void GetObjectData (System.Runtime.Serialization.SerializationInfo info, System.Runtime.Serialization.StreamingContext context);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -197,8 +186,7 @@
       <MemberSignature Language="C#" Value="public string OptionName { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>

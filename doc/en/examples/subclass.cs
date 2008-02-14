@@ -43,7 +43,7 @@ class DemoOptionSet : OptionSet {
 			// have a option w/ required value; try to concat values.
 			if (AppendValue (option, c)) {
 				if (!option.EndsWith ("\\") && 
-						c.Option.ValueCount == c.OptionValues.Count) {
+						c.Option.MaxValueCount == c.OptionValues.Count) {
 					c.Option.Invoke (c);
 				}
 				return true;

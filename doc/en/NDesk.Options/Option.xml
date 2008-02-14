@@ -2,8 +2,7 @@
   <TypeSignature Language="C#" Value="public abstract class Option" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
-    <AssemblyVersion>2.0.2.0</AssemblyVersion>
-    <AssemblyVersion>3.0.2.0</AssemblyVersion>
+    <AssemblyVersion>0.2.0.0</AssemblyVersion>
   </AssemblyInfo>
   <ThreadingSafetyStatement>
     All members of this type are safe for multithreaded operations.
@@ -22,8 +21,7 @@
     <remarks>
       <para>
         Instances of <see cref="T:NDesk.Options.Option" /> are created via
-        the various <see cref="T:NDesk.Options.OptionSet" /><c>Add</c>
-        overloads, such as:
+        the various <see cref="T:NDesk.Options.OptionSet" /><c>Add</c> overloads, such as:
       </para>
       <list type="bullet">
         <item>
@@ -38,12 +36,12 @@
         </item>
         <item>
           <term>
-            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.Action{System.String,System.String})" />
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,NDesk.Options.OptionAction{System.String,System.String})" />
           </term>
         </item>
         <item>
           <term>
-            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,System.Action{System.String,System.String})" />
+            <see cref="M:NDesk.Options.OptionSet.Add(System.String,System.String,NDesk.Options.OptionAction{System.String,System.String})" />
           </term>
         </item>
         <item>
@@ -58,12 +56,12 @@
         </item>
         <item>
           <term>
-            <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.Action{``0,``1})" />
+            <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,NDesk.Options.OptionAction{``0,``1})" />
           </term>
         </item>
         <item>
           <term>
-            <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,System.Action{``0,``1})" />
+            <see cref="M:NDesk.Options.OptionSet.Add``2(System.String,System.String,NDesk.Options.OptionAction{``0,``1})" />
           </term>
         </item>
       </list>
@@ -88,8 +86,7 @@
       <MemberSignature Language="C#" Value="protected Option (string prototype, string description);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="prototype" Type="System.String" />
@@ -115,7 +112,7 @@
             new instance using <paramref name="prototype" />, the 
             <see cref="P:NDesk.Options.Option.Description" /> property of the
             new instance using <paramref name="description" />. and
-            initializes the <see cref="P:NDesk.Options.Option.ValueCount" /> 
+            initializes the <see cref="P:NDesk.Options.Option.MaxValueCount" /> 
             property of the new instance to <c>1</c>.
           </para>
           <para>
@@ -146,16 +143,15 @@
       </Docs>
     </Member>
     <Member MemberName=".ctor">
-      <MemberSignature Language="C#" Value="protected Option (string prototype, string description, int valueCount);" />
+      <MemberSignature Language="C#" Value="protected Option (string prototype, string description, int maxValueCount);" />
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="prototype" Type="System.String" />
         <Parameter Name="description" Type="System.String" />
-        <Parameter Name="valueCount" Type="System.Int32" />
+        <Parameter Name="maxValueCount" Type="System.Int32" />
       </Parameters>
       <Docs>
         <param name="prototype">
@@ -166,7 +162,7 @@
           A <see cref="T:System.String" /> containing documentation for the
           option.
         </param>
-        <param name="valueCount">
+        <param name="maxValueCount">
           A <see cref="T:System.Int32" /> containing the number of values this
           option accepts.
         </param>
@@ -181,8 +177,8 @@
             new instance using <paramref name="prototype" />, the 
             <see cref="P:NDesk.Options.Option.Description" /> property of the
             new instance using <paramref name="description" />. and
-            initializes the <see cref="P:NDesk.Options.Option.ValueCount" /> 
-            property of the new instance using <paramref name="valueCount" />.
+            initializes the <see cref="P:NDesk.Options.Option.MaxValueCount" /> 
+            property of the new instance using <paramref name="maxValueCount" />.
           </para>
           <para>
             <paramref name="prototype" /> is a <c>|</c>-separated list of
@@ -213,7 +209,7 @@
             <c>-opt key=value</c>.  The value separator list specifies which
             characters can be used to split the value argument to generate
             separate values.  The value separator list is available when 
-            <paramref name="valueCount" /> is greater than <c>1</c>, and
+            <paramref name="maxValueCount" /> is greater than <c>1</c>, and
             and an <see cref="T:NDesk.Options.OptionValueType" /> was
             specified.  The value separator list follows the <c>=</c> or
             <c>:</c> and is one of the following:
@@ -276,7 +272,7 @@
           </para>
           <para>-or-</para>
           <para>
-            <paramref name="valueCount" /> is <c>0</c> and 
+            <paramref name="maxValueCount" /> is <c>0</c> and 
             <paramref name="prototype" /> specified an
             <see cref="T:NDesk.Options.OptionValueType" /> value of
             <see cref="F:NDesk.Options.OptionValueType.Optional" /> or
@@ -284,7 +280,7 @@
           </para>
           <para>-or-</para>
           <para>
-            <paramref name="valueCount" /> is greater than <c>1</c> and
+            <paramref name="maxValueCount" /> is greater than <c>1</c> and
             <paramref name="prototype" /> specified an
             <see cref="T:NDesk.Options.OptionValueType" /> value of
             <see cref="F:NDesk.Options.OptionValueType.None" />.
@@ -292,7 +288,7 @@
           <para>-or-</para>
           <para>
             <paramref name="prototype" /> contains a separator list and
-            <paramref name="valueCount" /> is <c>0</c> or <c>1</c>.
+            <paramref name="maxValueCount" /> is <c>0</c> or <c>1</c>.
           </para>
           <para>-or-</para>
           <para>
@@ -309,8 +305,7 @@
       <MemberSignature Language="C#" Value="public string Description { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -340,8 +335,7 @@
       <MemberSignature Language="C#" Value="public string[] GetNames ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
@@ -368,8 +362,7 @@
       <MemberSignature Language="C#" Value="public string[] GetValueSeparators ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String[]</ReturnType>
@@ -394,7 +387,7 @@
           <list type="bullet">
             <item>
               <term>
-                <see cref="P:NDesk.Options.Option.ValueCount" /> is greater than 1.
+                <see cref="P:NDesk.Options.Option.MaxValueCount" /> is greater than 1.
             </term>
             </item>
             <item>
@@ -407,7 +400,7 @@
           </list>
           <para>
             See the 
-            <see cref="C:NDesk.Options.Option(System.String,System.String,System.In32)" />
+            <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
             constructor for more information.
           </para>
         </remarks>
@@ -417,8 +410,7 @@
       <MemberSignature Language="C#" Value="public void Invoke (NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -433,7 +425,7 @@
         </param>
         <summary>
           Invokes 
-          <see cref="T:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
+          <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
           then clears out <paramref name="c" />.
         </summary>
         <remarks>
@@ -444,7 +436,7 @@
             <see cref="M:NDesk.Options.Option.GetNames" /> is encountered and
             matches the required number of values governed by
             <see cref="P:NDesk.Options.Option.OptionValueType" /> and
-            <see cref="P:NDesk.Options.Option.ValueCount" />.
+            <see cref="P:NDesk.Options.Option.MaxValueCount" />.
           </para>
           <block subset="none" type="behaviors">
             <para>
@@ -464,12 +456,47 @@
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
       </Docs>
     </Member>
+    <Member MemberName="MaxValueCount">
+      <MemberSignature Language="C#" Value="public int MaxValueCount { get; }" />
+      <MemberType>Property</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.Int32</ReturnType>
+      </ReturnValue>
+      <Docs>
+        <summary>
+          A <see cref="T:System.Int32" /> containing the maximum number of
+          values this <see cref="T:NDesk.Options.Option" /> accepts.
+        </summary>
+        <value>
+          A <see cref="T:System.Int32" /> containing the maximum number of
+          values this <see cref="T:NDesk.Options.Option" /> accepts.
+        </value>
+        <remarks>
+          <para>
+            This is a maximum, and may not be the number of values present
+            within <see cref="P:NDesk.Options.OptionContext.OptionValues" />
+            when 
+            <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
+            is invoked.  There will be 
+            <see cref="P:NDesk.Options.Option.MaxValueCount" /> values if
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> is
+            <see cref="F:NDesk.Options.OptionValueType.Required" />, but if
+            <see cref="P:NDesk.Options.Option.OptionValueType" /> is
+            <see cref="F:NDesk.Options.OptionValueType.Optional" /> then
+            <see cref="P:NDesk.Options.OptionContext.OptionValues" /> may
+            contain fewer items.
+          </para>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="OnParseComplete">
       <MemberSignature Language="C#" Value="protected abstract void OnParseComplete (NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -497,7 +524,7 @@
             <see cref="M:NDesk.Options.Option.GetNames" /> is encountered and
             matches the required number of values governed by
             <see cref="P:NDesk.Options.Option.OptionValueType" /> and
-            <see cref="P:NDesk.Options.Option.ValueCount" />.
+            <see cref="P:NDesk.Options.Option.MaxValueCount" />.
           </para>
         </remarks>
         <example>
@@ -551,7 +578,7 @@ class DemoOptionSet : OptionSet {
 			// have a option w/ required value; try to concat values.
 			if (AppendValue (option, c)) {
 				if (!option.EndsWith ("\\") &amp;&amp; 
-						c.Option.ValueCount == c.OptionValues.Count) {
+						c.Option.MaxValueCount == c.OptionValues.Count) {
 					c.Option.Invoke (c);
 				}
 				return true;
@@ -653,8 +680,7 @@ class Demo {
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionValueType OptionValueType { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionValueType</ReturnType>
@@ -681,8 +707,7 @@ class Demo {
       <MemberSignature Language="C#" Value="protected static T Parse&lt;T&gt; (string value, NDesk.Options.OptionContext c);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>T</ReturnType>
@@ -737,8 +762,7 @@ class Demo {
       <MemberSignature Language="C#" Value="public string Prototype { get; }" />
       <MemberType>Property</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -770,8 +794,7 @@ class Demo {
       <MemberSignature Language="C#" Value="public override string ToString ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
+        <AssemblyVersion>0.2.0.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.String</ReturnType>
@@ -786,43 +809,6 @@ class Demo {
           <see cref="P:NDesk.Options.Option.Prototype" />.
         </returns>
         <remarks>
-        </remarks>
-      </Docs>
-    </Member>
-    <Member MemberName="ValueCount">
-      <MemberSignature Language="C#" Value="public int ValueCount { get; }" />
-      <MemberType>Property</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>2.0.2.0</AssemblyVersion>
-        <AssemblyVersion>3.0.2.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Int32</ReturnType>
-      </ReturnValue>
-      <Docs>
-        <summary>
-          A <see cref="T:System.Int32" /> containing the maximum number of
-          values this <see cref="T:NDesk.Options.Option" /> accepts.
-        </summary>
-        <value>
-          A <see cref="T:System.Int32" /> containing the maximum number of
-          values this <see cref="T:NDesk.Options.Option" /> accepts.
-        </value>
-        <remarks>
-          <para>
-            This is a maximum, and may not be the number of values present
-            within <see cref="P:NDesk.Options.OptionContext.OptionValues" />
-            when 
-            <see cref="P:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />
-            is invoked.  There will be 
-            <see cref="P:NDesk.Options.Option.ValueCount" /> values if
-            <see cref="P:NDesk.Options.Option.OptionValueType" /> is
-            <see cref="F:NDesk.Options.OptionValueType.Required" />, but if
-            <see cref="P:NDesk.Options.Option.OptionValueType" /> is
-            <see cref="F:NDesk.Options.OptionValueType.Optional" /> then
-            <see cref="P:NDesk.Options.OptionContext.OptionValues" /> may
-            contain fewer items.
-          </para>
         </remarks>
       </Docs>
     </Member>

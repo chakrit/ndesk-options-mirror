@@ -1,5 +1,8 @@
 SUBDIRS = doc
 
+nobindir=bin
+nolibdir=lib/ndesk-options
+
 OPTIONS_SRC = \
 	$(builddir)/src/NDesk.Options/AssemblyInfo.cs         \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs
@@ -10,38 +13,28 @@ EXTRA_DIST = \
 	$(srcdir)/ndesk-options.spec.in
 
 assemblydir=$(prefix)/lib/ndesk-options
-assembly_DATA = src/NDesk.Options/NDesk.Options/Options.cs
-
-net2dir=$(assemblydir)/net2
-net2_DATA = $(nolibdir)/net2/NDesk.Options.dll
-net35dir=$(assemblydir)/net3.5
-net35_DATA=$(nolibdir)/net3.5/NDesk.Options.dll
+assembly_DATA = \
+	$(nolibdir)/NDesk.Options.dll \
+	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs
 
 pkgconfigdir = $(libdir)/pkgconfig
-pkgconfig_DATA = lib/pkgconfig/ndesk-options.pc lib/pkgconfig/ndesk-options-linq.pc
-
-nobindir=bin
-nolibdir=lib/ndesk-options
+pkgconfig_DATA = lib/pkgconfig/ndesk-options.pc
 
 CSC = $(MCS)
 
 .PHONY: all check rpm
 
-all: $(nolibdir)/net2/NDesk.Options.dll $(nolibdir)/net3.5/NDesk.Options.dll
+all: $(nolibdir)/NDesk.Options.dll
 
 dist-hook:
 	if [ -d $(srcdir)/.git ] ; then \
 		(cd $(srcdir) && git-log > $(distdir)/ChangeLog) ; \
 	fi
 	
-$(nolibdir)/net2/NDesk.Options.dll: $(OPTIONS_SRC)
+$(nolibdir)/NDesk.Options.dll: $(OPTIONS_SRC)
 	-mkdir -p `dirname $@`
 	$(CSC) -debug+ $(OPTIONS_SRC) -t:library -out:$@
 	
-$(nolibdir)/net3.5/NDesk.Options.dll: $(OPTIONS_SRC)
-	-mkdir -p `dirname $@`
-	$(CSC) -debug+ -d:LINQ -r:System.Core.dll $(OPTIONS_SRC) -t:library -out:$@
-
 $(nobindir)/options-test.exe: $(OPTIONS_SRC)
 	-mkdir -p `dirname $@`
 	$(CSC) -debug+ -d:TEST $(OPTIONS_SRC) -t:exe -out:$@
@@ -77,8 +70,6 @@ CLEANFILES = \
 	$(nobindir)/options-test.exe.mdb          \
 	$(nobindir)/options-test-linq.exe         \
 	$(nobindir)/options-test-linq.exe.mdb     \
-	$(nolibdir)/net2/NDesk.Options.dll        \
-	$(nolibdir)/net2/NDesk.Options.dll.mdb    \
-	$(nolibdir)/net3.5/NDesk.Options.dll	    \
-	$(nolibdir)/net3.5/NDesk.Options.dll.mdb
+	$(nolibdir)/NDesk.Options.dll             \
+	$(nolibdir)/NDesk.Options.dll.mdb
 
