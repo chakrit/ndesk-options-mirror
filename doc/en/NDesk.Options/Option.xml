@@ -506,7 +506,7 @@
             <see cref="T:NDesk.Options.Option" /> subclass which overrides
             <see cref="M:NDesk.Options.Option.OnParseComplete(NDesk.Options.OptionContext)" />:
           </para>
-          <code lang="C#" src="examples/subclass.cs">// Case-Insensitive and Concatentating OptionSet
+          <code lang="C#" src="examples/subclass.cs">// Case-Insensitive and Concatenating OptionSet
 using System;
 using System.Collections.Generic;
 using NDesk.Options;

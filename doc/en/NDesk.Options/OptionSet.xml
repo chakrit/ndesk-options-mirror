@@ -585,7 +585,7 @@ Options:
         </term>
         </item>
       </list>
-      <code lang="C#" src="examples/subclass.cs">// Case-Insensitive and Concatentating OptionSet
+      <code lang="C#" src="examples/subclass.cs">// Case-Insensitive and Concatenating OptionSet
 using System;
 using System.Collections.Generic;
 using NDesk.Options;

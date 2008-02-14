@@ -1,4 +1,4 @@
-// Case-Insensitive and Concatentating OptionSet
+// Case-Insensitive and Concatenating OptionSet
 using System;
 using System.Collections.Generic;
 using NDesk.Options;
