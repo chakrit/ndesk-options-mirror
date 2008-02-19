@@ -114,6 +114,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Text;
 using System.Text.RegularExpressions;
 
 #if LINQ
@@ -829,14 +830,12 @@ namespace NDesk.Options {
 					if (p.OptionValueType == OptionValueType.Optional) {
 						Write (o, ref written, localizer ("["));
 					}
-					Write (o, ref written, localizer ("=VALUE"));
-					if (p.MaxValueCount > 1)
-						Write (o, ref written, localizer ("1"));
-					string[] seps = p.ValueSeparators;
+					Write (o, ref written, localizer ("=" + GetArgumentName (0, p.MaxValueCount, p.Description)));
+					string sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0 
+						? p.ValueSeparators [0]
+						: " ";
 					for (int c = 1; c < p.MaxValueCount; ++c) {
-						Write (o, ref written, localizer (
-									seps != null && seps.Length > 0 ? seps [0] : " "));
-						Write (o, ref written, localizer ("VALUE" + (c+1)));
+						Write (o, ref written, localizer (sep + GetArgumentName (c, p.MaxValueCount, p.Description)));
 					}
 					if (p.OptionValueType == OptionValueType.Optional) {
 						Write (o, ref written, localizer ("]"));
@@ -850,7 +849,7 @@ namespace NDesk.Options {
 					o.Write (new string (' ', OptionWidth));
 				}
 
-				o.WriteLine (localizer (p.Description));
+				o.WriteLine (localizer (GetDescription (p.Description)));
 			}
 		}
 
@@ -858,6 +857,72 @@ namespace NDesk.Options {
 		{
 			n += s.Length;
 			o.Write (s);
+		}
+
+		private string GetArgumentName (int index, int maxIndex, string description)
+		{
+			if (description == null)
+				return maxIndex == 1 ? "VALUE" : "VALUE" + (index + 1);
+			string[] nameStart;
+			if (maxIndex == 1)
+				nameStart = new string[]{"{0:", "{"};
+			else
+				nameStart = new string[]{"{" + index + ":"};
+			for (int i = 0; i < nameStart.Length; ++i) {
+				int start, j = 0;
+				do {
+					start = description.IndexOf (nameStart [i], j);
+				} while (start >= 0 && j != 0 ? description [j++ - 1] == '{' : false);
+				if (start == -1)
+					continue;
+				int end = description.IndexOf ("}", start);
+				if (end == -1)
+					continue;
+				return description.Substring (start + nameStart [i].Length, end - start - nameStart [i].Length);
+			}
+			return maxIndex == 1 ? "VALUE" : "VALUE" + (index + 1);
+		}
+
+		private string GetDescription (string description)
+		{
+			if (description == null)
+				return null;
+			StringBuilder sb = new StringBuilder (description.Length);
+			int start = -1;
+			for (int i = 0; i < description.Length; ++i) {
+				switch (description [i]) {
+					case '{':
+						if (i == start) {
+							sb.Append ('{');
+							start = -1;
+						}
+						else if (start < 0)
+							start = i + 1;
+						break;
+					case '}':
+						if (start < 0) {
+							if ((i+1) == description.Length || description [i+1] != '}')
+								throw new InvalidOperationException ("Invalid option description: " + description);
+							++i;
+							sb.Append ("}");
+						}
+						else {
+							sb.Append (description.Substring (start, i - start));
+							start = -1;
+						}
+						break;
+					case ':':
+						if (start < 0)
+							goto default;
+						start = i + 1;
+						break;
+					default:
+						if (start < 0)
+							sb.Append (description [i]);
+						break;
+				}
+			}
+			return sb.ToString ();
 		}
 	}
 }
@@ -1281,7 +1346,9 @@ namespace Tests.NDesk.Options {
 			var p = new OptionSet () {
 				{ "p|indicator-style=", "append / indicator to directories",    v => {} },
 				{ "color:",             "controls color info",                  v => {} },
+				{ "color2:",            "set {color}",                          v => {} },
 				{ "rk=",                "required key/value option",            (k, v) => {} },
+				{ "rk2=",               "required {{foo}} {0:key}/{1:value} option",    (k, v) => {} },
 				{ "ok:",                "optional key/value option",            (k, v) => {} },
 				{ "h|?|help",           "show help text",                       v => {} },
 				{ "version",            "output version information and exit",  v => {} },
@@ -1291,7 +1358,9 @@ namespace Tests.NDesk.Options {
 			expected.WriteLine ("  -p, --indicator-style=VALUE");
 			expected.WriteLine ("                             append / indicator to directories");
 			expected.WriteLine ("      --color[=VALUE]        controls color info");
+			expected.WriteLine ("      --color2[=color]       set color");
 			expected.WriteLine ("      --rk=VALUE1:VALUE2     required key/value option");
+			expected.WriteLine ("      --rk2=key:value        required {foo} key/value option");
 			expected.WriteLine ("      --ok[=VALUE1:VALUE2]   optional key/value option");
 			expected.WriteLine ("  -h, -?, --help             show help text");
 			expected.WriteLine ("      --version              output version information and exit");
