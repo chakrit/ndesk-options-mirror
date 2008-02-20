@@ -849,7 +849,13 @@ namespace NDesk.Options {
 					o.Write (new string (' ', OptionWidth));
 				}
 
-				o.WriteLine (localizer (GetDescription (p.Description)));
+				List<string> lines = GetLines (localizer (GetDescription (p.Description)));
+				o.WriteLine (lines [0]);
+				string prefix = new string (' ', OptionWidth+2);
+				for (int i = 1; i < lines.Count; ++i) {
+					o.Write (prefix);
+					o.WriteLine (lines [i]);
+				}
 			}
 		}
 
@@ -886,7 +892,7 @@ namespace NDesk.Options {
 		private string GetDescription (string description)
 		{
 			if (description == null)
-				return null;
+				return "";
 			StringBuilder sb = new StringBuilder (description.Length);
 			int start = -1;
 			for (int i = 0; i < description.Length; ++i) {
@@ -923,6 +929,62 @@ namespace NDesk.Options {
 				}
 			}
 			return sb.ToString ();
+		}
+
+		private List<string> GetLines (string description)
+		{
+			var lines = new List<string> ();
+			if (description == null || description == "") {
+				lines.Add ("");
+				return lines;
+			}
+			int length = 80 - OptionWidth - 2;
+			int start = 0, end;
+			do {
+				end = GetLineEnd (start, length, description);
+				bool cont = false;
+				if (end < description.Length) {
+					char c = description [end];
+					if (c == '-' || (char.IsWhiteSpace (c) && c != '\n'))
+						++end;
+					else if (c != '\n') {
+						cont = true;
+						--end;
+					}
+				}
+				lines.Add (description.Substring (start, end - start));
+				if (cont) {
+					lines [lines.Count-1] += "-";
+				}
+				start = end;
+				if (start < description.Length && description [start] == '\n')
+					++start;
+			} while (end < description.Length);
+			return lines;
+		}
+
+		private int GetLineEnd (int start, int length, string description)
+		{
+			int end = Math.Min (start + length, description.Length);
+			int sep = -1;
+			for (int i = start; i < end; ++i) {
+				switch (description [i]) {
+					case ' ':
+					case '\t':
+					case '\v':
+					case '-':
+					case ',':
+					case '.':
+					case ';':
+						sep = i;
+						break;
+					case '\n':
+						return i;
+				}
+			}
+			if (sep == -1 || end == description.Length)
+				return end;
+			return sep;
 		}
 	}
 }
@@ -988,8 +1050,8 @@ namespace Tests.NDesk.Options {
 			bool help = false;
 			var p = new OptionSet () {
 				{ "t|test=", 
-					"Run the specified test.  Valid tests:\n" + new string (' ', 32) +
-						string.Join ("\n" + new string (' ', 32), tests.Keys.OrderBy (s => s).ToArray ()),
+					"Run the specified test.  Valid tests:\n" + 
+						string.Join ("\n", tests.Keys.OrderBy (s => s).ToArray ()),
 					v => { run = false; Console.WriteLine (v); tests [v] (); } },
 				{ "h|?|help", "Show this message and exit", (v) => help = v != null },
 			};
@@ -1350,6 +1412,16 @@ namespace Tests.NDesk.Options {
 				{ "rk=",                "required key/value option",            (k, v) => {} },
 				{ "rk2=",               "required {{foo}} {0:key}/{1:value} option",    (k, v) => {} },
 				{ "ok:",                "optional key/value option",            (k, v) => {} },
+				{ "long-desc",
+					"This has a really\nlong, multi-line description that also\ntests\n" +
+						"the-builtin-supercalifragilisticexpialidicious-break-on-hyphen.  " + 
+						"Also, a list:\n" +
+						"  item 1\n" +
+						"  item 2",
+					v => {} },
+				{ "long-desc2",
+					"IWantThisDescriptionToBreakInsideAWordGeneratingAutoWordHyphenation.",
+					v => {} },
 				{ "h|?|help",           "show help text",                       v => {} },
 				{ "version",            "output version information and exit",  v => {} },
 			};
@@ -1362,6 +1434,15 @@ namespace Tests.NDesk.Options {
 			expected.WriteLine ("      --rk=VALUE1:VALUE2     required key/value option");
 			expected.WriteLine ("      --rk2=key:value        required {foo} key/value option");
 			expected.WriteLine ("      --ok[=VALUE1:VALUE2]   optional key/value option");
+			expected.WriteLine ("      --long-desc            This has a really");
+			expected.WriteLine ("                               long, multi-line description that also");
+			expected.WriteLine ("                               tests");
+			expected.WriteLine ("                               the-builtin-supercalifragilisticexpialidicious-");
+			expected.WriteLine ("                               break-on-hyphen.  Also, a list:");
+			expected.WriteLine ("                                 item 1");
+			expected.WriteLine ("                                 item 2");
+			expected.WriteLine ("      --long-desc2           IWantThisDescriptionToBreakInsideAWordGenerating-");
+			expected.WriteLine ("                               AutoWordHyphenation.");
 			expected.WriteLine ("  -h, -?, --help             show help text");
 			expected.WriteLine ("      --version              output version information and exit");
 
