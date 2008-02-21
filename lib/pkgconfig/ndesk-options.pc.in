@@ -9,4 +9,4 @@ Name: NDesk.Options
 Description: C# Program Option Parsing Library.
 Version: @VERSION@
 Requires: 
-Libs: 
+Libs: -r:NDesk.Options.dll
