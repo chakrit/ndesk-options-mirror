@@ -273,6 +273,12 @@ namespace NDesk.Options {
 				throw new ArgumentException (
 						string.Format ("Cannot provide maxValueCount of {0} for OptionValueType.None.", maxValueCount),
 						"maxValueCount");
+			if (Array.IndexOf (names, "<>") >= 0 && 
+					(names.Length == 1 && this.type != OptionValueType.None) ||
+					(names.Length > 1 && this.MaxValueCount > 1))
+				throw new ArgumentException (
+						"The default option handler '<>' cannot require values.",
+						"prototype");
 		}
 
 		public string           Prototype       {get {return prototype;}}
@@ -630,12 +636,21 @@ namespace NDesk.Options {
 			bool process = true;
 			OptionContext c = CreateOptionContext ();
 			c.OptionIndex = -1;
+			var def = GetOptionForName ("<>");
 			var unprocessed = 
 				from argument in arguments
-				where ++c.OptionIndex >= 0 && process 
-					? argument == "--" 
-						? (process = false)
-						: !Parse (argument, c)
+				where ++c.OptionIndex >= 0 && (process || def != null)
+					? process
+						? argument == "--" 
+							? (process = false)
+							: !Parse (argument, c)
+								? def != null 
+									? Unprocessed (null, def, c, argument) 
+									: true
+								: false
+						: def != null 
+							? Unprocessed (null, def, c, argument)
+							: true
 					: true
 				select argument;
 			List<string> r = unprocessed.ToList ();
@@ -650,6 +665,7 @@ namespace NDesk.Options {
 			c.OptionIndex = -1;
 			bool process = true;
 			List<string> unprocessed = new List<string> ();
+			Option def = GetOptionForName ("<>");
 			foreach (string argument in arguments) {
 				++c.OptionIndex;
 				if (argument == "--") {
@@ -657,17 +673,29 @@ namespace NDesk.Options {
 					continue;
 				}
 				if (!process) {
-					unprocessed.Add (argument);
+					Unprocessed (unprocessed, def, c, argument);
 					continue;
 				}
 				if (!Parse (argument, c))
-					unprocessed.Add (argument);
+					Unprocessed (unprocessed, def, c, argument);
 			}
 			if (c.Option != null)
 				c.Option.Invoke (c);
 			return unprocessed;
 		}
 #endif
+
+		private bool Unprocessed (List<string> extra, Option def, OptionContext c, string argument)
+		{
+			if (def == null) {
+				extra.Add (argument);
+				return false;
+			}
+			c.OptionValues.Add (argument);
+			c.Option = def;
+			c.Option.Invoke (c);
+			return false;
+		}
 
 		private readonly Regex ValueOption = new Regex (
 			@"^(?<flag>--|-|/)(?<name>[^:=]+)((?<sep>[:=])(?<value>.*))?$");
@@ -807,40 +835,9 @@ namespace NDesk.Options {
 		public void WriteOptionDescriptions (TextWriter o)
 		{
 			foreach (Option p in this) {
-				List<string> names = new List<string> (p.Names);
-
 				int written = 0;
-				if (names [0].Length == 1) {
-					Write (o, ref written, "  -");
-					Write (o, ref written, names [0]);
-				}
-				else {
-					Write (o, ref written, "      --");
-					Write (o, ref written, names [0]);
-				}
-
-				for (int i = 1; i < names.Count; ++i) {
-					Write (o, ref written, ", ");
-					Write (o, ref written, names [i].Length == 1 ? "-" : "--");
-					Write (o, ref written, names [i]);
-				}
-
-				if (p.OptionValueType == OptionValueType.Optional ||
-						p.OptionValueType == OptionValueType.Required) {
-					if (p.OptionValueType == OptionValueType.Optional) {
-						Write (o, ref written, localizer ("["));
-					}
-					Write (o, ref written, localizer ("=" + GetArgumentName (0, p.MaxValueCount, p.Description)));
-					string sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0 
-						? p.ValueSeparators [0]
-						: " ";
-					for (int c = 1; c < p.MaxValueCount; ++c) {
-						Write (o, ref written, localizer (sep + GetArgumentName (c, p.MaxValueCount, p.Description)));
-					}
-					if (p.OptionValueType == OptionValueType.Optional) {
-						Write (o, ref written, localizer ("]"));
-					}
-				}
+				if (!WriteOptionPrototype (o, p, ref written))
+					continue;
 
 				if (written < OptionWidth)
 					o.Write (new string (' ', OptionWidth - written));
@@ -857,6 +854,57 @@ namespace NDesk.Options {
 					o.WriteLine (lines [i]);
 				}
 			}
+		}
+
+		bool WriteOptionPrototype (TextWriter o, Option p, ref int written)
+		{
+			string[] names = p.Names;
+
+			int i = GetNextOptionIndex (names, 0);
+			if (i == names.Length)
+				return false;
+
+			if (names [i].Length == 1) {
+				Write (o, ref written, "  -");
+				Write (o, ref written, names [0]);
+			}
+			else {
+				Write (o, ref written, "      --");
+				Write (o, ref written, names [0]);
+			}
+
+			for ( i = GetNextOptionIndex (names, i+1); 
+					i < names.Length; i = GetNextOptionIndex (names, i+1)) {
+				Write (o, ref written, ", ");
+				Write (o, ref written, names [i].Length == 1 ? "-" : "--");
+				Write (o, ref written, names [i]);
+			}
+
+			if (p.OptionValueType == OptionValueType.Optional ||
+					p.OptionValueType == OptionValueType.Required) {
+				if (p.OptionValueType == OptionValueType.Optional) {
+					Write (o, ref written, localizer ("["));
+				}
+				Write (o, ref written, localizer ("=" + GetArgumentName (0, p.MaxValueCount, p.Description)));
+				string sep = p.ValueSeparators != null && p.ValueSeparators.Length > 0 
+					? p.ValueSeparators [0]
+					: " ";
+				for (int c = 1; c < p.MaxValueCount; ++c) {
+					Write (o, ref written, localizer (sep + GetArgumentName (c, p.MaxValueCount, p.Description)));
+				}
+				if (p.OptionValueType == OptionValueType.Optional) {
+					Write (o, ref written, localizer ("]"));
+				}
+			}
+			return true;
+		}
+
+		static int GetNextOptionIndex (string[] names, int i)
+		{
+			while (i < names.Length && names [i] == "<>") {
+				++i;
+			}
+			return i;
 		}
 
 		static void Write (TextWriter o, ref int n, string s)
@@ -1035,6 +1083,7 @@ namespace Tests.NDesk.Options {
 				{ "bundling",     () => CheckOptionBundling () },
 				{ "c-key/value",  () => CheckCustomKeyValue () },
 				{ "context",      () => CheckOptionContext () },
+				{ "def-handler",  () => CheckDefaultHandler () },
 				{ "derived-type", () => CheckDerivedType () },
 				{ "descriptions", () => CheckWriteOptionDescriptions () },
 				{ "exceptions",   () => CheckExceptions () },
@@ -1049,7 +1098,7 @@ namespace Tests.NDesk.Options {
 			bool run  = true;
 			bool help = false;
 			var p = new OptionSet () {
-				{ "t|test=", 
+				{ "t|<>|test=", 
 					"Run the specified test.  Valid tests:\n" + 
 						string.Join ("\n", tests.Keys.OrderBy (s => s).ToArray ()),
 					v => { run = false; Console.WriteLine (v); tests [v] (); } },
@@ -1279,6 +1328,15 @@ namespace Tests.NDesk.Options {
 			AssertException (typeof(ArgumentException),
 					"Conflicting option types: '=' vs. ':'.\nParameter name: prototype",
 					p, v => { new DefaultOption ("a=|b:", null); });
+			AssertException (typeof(ArgumentException),
+					"The default option handler '<>' cannot require values.\nParameter name: prototype",
+					p, v => { new DefaultOption ("<>=", null); });
+			AssertException (typeof(ArgumentException),
+					"The default option handler '<>' cannot require values.\nParameter name: prototype",
+					p, v => { new DefaultOption ("<>:", null); });
+			AssertException (typeof(ArgumentException),
+					"The default option handler '<>' cannot require values.\nParameter name: prototype",
+					p, v => { new DefaultOption ("t|<>=", null, 2); });
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: action",
 					p, v => { v.Add ("foo", (Action<string>) null); });
@@ -1424,6 +1482,7 @@ namespace Tests.NDesk.Options {
 					v => {} },
 				{ "h|?|help",           "show help text",                       v => {} },
 				{ "version",            "output version information and exit",  v => {} },
+				{ "<>", v => {} },
 			};
 
 			StringWriter expected = new StringWriter ();
@@ -1740,6 +1799,48 @@ namespace Tests.NDesk.Options {
 			};
 			Assert (p.Count, 4);
 			p.Parse (_("/a", "a-val", "--b+", "--c=C", "/d-"));
+		}
+
+		static void CheckDefaultHandler ()
+		{
+			var extra = new List<string> ();
+			var p = new OptionSet () {
+				{ "<>", v => extra.Add (v) },
+			};
+			var e = p.Parse (_("-a", "b", "--c=D", "E"));
+			Assert (e.Count, 0);
+			Assert (extra.Count, 4);
+			Assert (extra [0], "-a");
+			Assert (extra [1], "b");
+			Assert (extra [2], "--c=D");
+			Assert (extra [3], "E");
+
+			var formats = new Dictionary<string, List<string>> ();
+			string format = "foo";
+			p = new OptionSet () {
+				{ "f|format=", v => format = v },
+				{ "<>", 
+					v => {
+						List<string> f;
+						if (!formats.TryGetValue (format, out f)) {
+							f = new List<string> ();
+							formats.Add (format, f);
+						}
+						f.Add (v);
+				} },
+			};
+			e = p.Parse (_("a", "b", "-fbar", "c", "d", "--format=baz", "e", "f"));
+			Assert (e.Count, 0);
+			Assert (formats.Count, 3);
+			Assert (formats ["foo"].Count, 2);
+			Assert (formats ["foo"][0], "a");
+			Assert (formats ["foo"][1], "b");
+			Assert (formats ["bar"].Count, 2);
+			Assert (formats ["bar"][0], "c");
+			Assert (formats ["bar"][1], "d");
+			Assert (formats ["baz"].Count, 2);
+			Assert (formats ["baz"][0], "e");
+			Assert (formats ["baz"][1], "f");
 		}
 	}
 }
