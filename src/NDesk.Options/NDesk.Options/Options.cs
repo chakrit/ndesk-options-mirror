@@ -218,17 +218,40 @@ namespace NDesk.Options {
 	}
 
 	public class OptionContext {
+		private Option                option;
+		private string                name;
+		private int                   index;
+		private OptionSet             set;
+		private OptionValueCollection c;
+
 		public OptionContext (OptionSet set)
 		{
-			OptionValues = new OptionValueCollection (this);
-			OptionSet    = set;
+			this.set = set;
+			this.c   = new OptionValueCollection (this);
 		}
 
-		public Option                 Option        { get; set; }
-		public string                 OptionName    { get; set; }
-		public int                    OptionIndex   { get; set; }
-		public OptionSet              OptionSet     { get; private set; }
-		public OptionValueCollection  OptionValues  { get; private set; }
+		public Option Option {
+			get {return option;}
+			set {option = value;}
+		}
+
+		public string OptionName { 
+			get {return name;}
+			set {name = value;}
+		}
+
+		public int OptionIndex {
+			get {return index;}
+			set {index = value;}
+		}
+
+		public OptionSet OptionSet {
+			get {return set;}
+		}
+
+		public OptionValueCollection OptionValues {
+			get {return c;}
+		}
 	}
 
 	public enum OptionValueType {
@@ -564,7 +587,8 @@ namespace NDesk.Options {
 		{
 			if (action == null)
 				throw new ArgumentNullException ("action");
-			Option p = new ActionOption (prototype, description, 2, (v) => action (v [0], v [1]));
+			Option p = new ActionOption (prototype, description, 2, 
+					delegate (OptionValueCollection v) {action (v [0], v [1]);});
 			base.Add (p);
 			return this;
 		}
@@ -759,7 +783,7 @@ namespace NDesk.Options {
 		private void ParseValue (string option, OptionContext c)
 		{
 			if (option != null)
-				foreach (var o in c.Option.ValueSeparators != null 
+				foreach (string o in c.Option.ValueSeparators != null 
 						? option.Split (c.Option.ValueSeparators, StringSplitOptions.None)
 						: new string[]{option}) {
 					c.OptionValues.Add (o);
@@ -981,7 +1005,7 @@ namespace NDesk.Options {
 
 		private List<string> GetLines (string description)
 		{
-			var lines = new List<string> ();
+			List<string> lines = new List<string> ();
 			if (description == null || description == "") {
 				lines.Add ("");
 				return lines;

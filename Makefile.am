@@ -20,7 +20,7 @@ assembly_DATA = \
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = lib/pkgconfig/ndesk-options.pc
 
-CSC = $(MCS)
+CSC = $(MCS) $(CSFLAGS)
 
 .PHONY: all check rpm
 
