@@ -297,8 +297,8 @@ namespace NDesk.Options {
 						string.Format ("Cannot provide maxValueCount of {0} for OptionValueType.None.", maxValueCount),
 						"maxValueCount");
 			if (Array.IndexOf (names, "<>") >= 0 && 
-					(names.Length == 1 && this.type != OptionValueType.None) ||
-					(names.Length > 1 && this.MaxValueCount > 1))
+					((names.Length == 1 && this.type != OptionValueType.None) ||
+					 (names.Length > 1 && this.MaxValueCount > 1)))
 				throw new ArgumentException (
 						"The default option handler '<>' cannot require values.",
 						"prototype");
@@ -1358,9 +1358,13 @@ namespace Tests.NDesk.Options {
 			AssertException (typeof(ArgumentException),
 					"The default option handler '<>' cannot require values.\nParameter name: prototype",
 					p, v => { new DefaultOption ("<>:", null); });
+			AssertException (null, null,
+					p, v => { new DefaultOption ("t|<>=", null, 1); });
 			AssertException (typeof(ArgumentException),
 					"The default option handler '<>' cannot require values.\nParameter name: prototype",
 					p, v => { new DefaultOption ("t|<>=", null, 2); });
+			AssertException (null, null,
+					p, v => { new DefaultOption ("a|b=", null, 2); });
 			AssertException (typeof(ArgumentNullException), 
 					"Argument cannot be null.\nParameter name: action",
 					p, v => { v.Add ("foo", (Action<string>) null); });
