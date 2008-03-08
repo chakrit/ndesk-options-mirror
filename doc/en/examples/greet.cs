@@ -12,9 +12,11 @@ class Test {
 		int repeat = 1;
 
 		var p = new OptionSet () {
-			{ "n|name=", "the name of someone to greet.",
+			{ "n|name=", "the {NAME} of someone to greet.",
 			  v => names.Add (v) },
-			{ "r|repeat=", "the number of times to repeat the greeting.",
+			{ "r|repeat=", 
+				"the number of {TIMES} to repeat the greeting.\n" + 
+					"this must be an integer.",
 			  (int v) => repeat = v },
 			{ "v", "increase debug message verbosity",
 			  v => { if (v != null) ++verbosity; } },

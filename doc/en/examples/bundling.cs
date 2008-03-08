@@ -38,11 +38,13 @@ class Test {
 			// other...
 			{ "h|help",  "show this message and exit", 
 			  v => show_help = v != null },
+			// default
+			{ "<>",
+				v => Console.WriteLine ("def handler: color={0}; arg={1}", color, v)},
 		};
 
-		List<string> extra;
 		try {
-			extra = p.Parse (args);
+			p.Parse (args);
 		}
 		catch (OptionException e) {
 			Console.Write ("bundling: ");

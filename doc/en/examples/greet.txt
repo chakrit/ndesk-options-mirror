@@ -4,8 +4,9 @@ Greet a list of individuals with an optional message.
 If no message is specified, a generic greeting is used.
 
 Options:
-  -n, --name=VALUE           the name of someone to greet.
-  -r, --repeat=VALUE         the number of times to repeat the greeting.
+  -n, --name=NAME            the NAME of someone to greet.
+  -r, --repeat=TIMES         the number of TIMES to repeat the greeting.
+                               this must be an integer.
   -v                         increase debug message verbosity
   -h, --help                 show this message and exit
 

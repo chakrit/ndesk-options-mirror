@@ -9,3 +9,5 @@ mono en/examples/bundling.exe -cfv input
 mono en/examples/bundling.exe -xctf input
 
 mono en/examples/bundling.exe --color=auto -o output -finput
+
+mono en/examples/bundling.exe --color=on A B --color=off C D

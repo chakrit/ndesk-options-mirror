@@ -95,7 +95,27 @@
                 and the value-accepting option <c>f</c>, which will get the
                 value <c>input-file</c>.  (Other interpretations are also
                 possible, depending upon which options are registered.)
-              </para></term></item></list></term>
+              </para></term></item><item><term><para>
+                  As a fallback, a <paramref name="default handler" /> may be
+                  registered which will handle <paramref name="all" />
+                  arguments which are not handled by any of the above matching
+                  algorithms.  The default handler is designated by the name
+                  <c>&lt;&gt;</c> (which may be an alias for another named
+                  <see cref="T:NDesk.Options.Option" />).
+                </para><para>
+                  Default handlers are useful for argument runs -- sequences
+                  of arguments that are not related to each other but are
+                  instead related to a prior option on the command line, and it
+                  isn't desirable to use named options for these.  For
+                  example, <c>mdoc-assemble --format=ecma DirA DirB 
+                  --format=man FileC</c> would process <c>DirA</c> and
+                  <c>DirB</c> with <c>--format=ecma</c> in effect, and then
+                  process <c>FileC</c> with <c>--format=man</c> in effect.
+                </para><para>
+                  See 
+                  <see cref="C:NDesk.Options.Option(System.String,System.String,System.Int32)" />
+                  for additional details regarding default option handlers.
+                </para></term></item></list></term>
         </item>
         <item>
           <term>
@@ -126,9 +146,9 @@
           <see cref="F:NDesk.Options.OptionValueType.None" />.
           When a matching argument is encountered, their registered
           action is invoked immediately.  The <see cref="T:System.Action`1" />
-          value will be non-<see langword="null" /> if the value is true, e.g.
-          if <c>-option</c> or <c>-option+</c> is specified, and the value
-          will be <see langword="null" /> if the value is false, e.g. 
+          value will be non-<see langword="default(T)" /> if the value is true,
+          e.g.  if <c>-option</c> or <c>-option+</c> is specified, and the value
+          will be <see langword="default(T)" /> if the value is false, e.g. 
           if <c>-option-</c> is specified.
         </term>
         </item>
@@ -140,14 +160,14 @@
             <see cref="F:NDesk.Options.OptionValueType.Optional" />.
             Optional value options are not "greedy"; they will only get their
             value only from the current argument.  If the value is not present, 
-            <see langword="null" /> is provided to their corresponding
+            <see langword="default(T)" /> is provided to their corresponding
             <see cref="T:System.Action`1" />.
           </para>
             <para>
             Thus, <c>-opt:value</c> would pass <c>value</c> to the
             action registered for <c>opt</c>, while <c>-opt value</c> would pass
-            <see langword="null" /> to the action registered for <c>opt</c>
-            and <c>value</c> would be an unparsed argument.
+            <see langword="default(T)" /> to the action registered for 
+            <c>opt</c> and <c>value</c> would be an unparsed argument.
           </para>
           </term>
         </item>
@@ -279,9 +299,11 @@ class Test {
 		int repeat = 1;
 
 		var p = new OptionSet () {
-			{ "n|name=", "the name of someone to greet.",
+			{ "n|name=", "the {NAME} of someone to greet.",
 			  v =&gt; names.Add (v) },
-			{ "r|repeat=", "the number of times to repeat the greeting.",
+			{ "r|repeat=", 
+				"the number of {TIMES} to repeat the greeting.\n" + 
+					"this must be an integer.",
 			  (int v) =&gt; repeat = v },
 			{ "v", "increase debug message verbosity",
 			  v =&gt; { if (v != null) ++verbosity; } },
@@ -349,8 +371,9 @@ Greet a list of individuals with an optional message.
 If no message is specified, a generic greeting is used.
 
 Options:
-  -n, --name=VALUE           the name of someone to greet.
-  -r, --repeat=VALUE         the number of times to repeat the greeting.
+  -n, --name=NAME            the NAME of someone to greet.
+  -r, --repeat=TIMES         the number of TIMES to repeat the greeting.
+                               this must be an integer.
   -v                         increase debug message verbosity
   -h, --help                 show this message and exit
 
@@ -448,11 +471,13 @@ class Test {
 			// other...
 			{ "h|help",  "show this message and exit", 
 			  v =&gt; show_help = v != null },
+			// default
+			{ "&lt;&gt;",
+				v =&gt; Console.WriteLine ("def handler: color={0}; arg={1}", color, v)},
 		};
 
-		List&lt;string&gt; extra;
 		try {
-			extra = p.Parse (args);
+			p.Parse (args);
 		}
 		catch (OptionException e) {
 			Console.Write ("bundling: ");
@@ -528,6 +553,7 @@ Options:
 	      Color: &lt;null&gt;
 
 $ mono bundling.exe -cfv input
+def handler: color=; arg=input
 Macros:
 Options:
 	 Input File: v
@@ -556,6 +582,20 @@ Options:
 	    Extract: False
 	       List: False
 	      Color: auto
+
+$ mono bundling.exe --color=on A B --color=off C D
+def handler: color=on; arg=A
+def handler: color=on; arg=B
+def handler: color=off; arg=C
+def handler: color=off; arg=D
+Macros:
+Options:
+	 Input File: 
+	Ouptut File: 
+	     Create: False
+	    Extract: False
+	       List: False
+	      Color: off
 </code>
     </example>
     <example>
@@ -1861,9 +1901,11 @@ class Test {
 		int repeat = 1;
 
 		var p = new OptionSet () {
-			{ "n|name=", "the name of someone to greet.",
+			{ "n|name=", "the {NAME} of someone to greet.",
 			  v =&gt; names.Add (v) },
-			{ "r|repeat=", "the number of times to repeat the greeting.",
+			{ "r|repeat=", 
+				"the number of {TIMES} to repeat the greeting.\n" + 
+					"this must be an integer.",
 			  (int v) =&gt; repeat = v },
 			{ "v", "increase debug message verbosity",
 			  v =&gt; { if (v != null) ++verbosity; } },
@@ -2105,9 +2147,26 @@ class Test {
             followed by the <see cref="P:NDesk.Options.Option.Description" />.
           </para>
           <para>
+            The <see cref="P:NDesk.Options.Option.Description" /> is
+            automatically wrapped so that output will flow nicely across
+            multiple lines.  Wrapping is preferred at explicit embedded 
+            newline characters (<c>\n</c>) or spaces, but words will be split
+            (by adding a <c>-</c>) if necessary.
+          </para>
+          <para>
             Options requiring a value have <c>=VALUE</c> appended to their
             last name, while options with an optional value have
             <c>[=VALUE]</c> appended to their last name.
+            The <c>VALUE</c> string can be changed by using a format
+            specifier-like string within the 
+            <see cref="P:NDesk.Options.Option.Description" />.
+          </para>
+          <para>
+            For <see cref="T:NDesk.Options.Option" />s accepting one value,
+            the string <c>{VALUE}</c> or <c>{0:VALUE}</c> can be used to
+            explicitly provide the value name.  For <c>Option</c>s accepting
+            more than one value, the leading number is used to specify which
+            value the string is for.
           </para>
         </remarks>
         <example>
@@ -2131,9 +2190,11 @@ class Test {
 		int repeat = 1;
 
 		var p = new OptionSet () {
-			{ "n|name=", "the name of someone to greet.",
+			{ "n|name=", "the {NAME} of someone to greet.",
 			  v =&gt; names.Add (v) },
-			{ "r|repeat=", "the number of times to repeat the greeting.",
+			{ "r|repeat=", 
+				"the number of {TIMES} to repeat the greeting.\n" + 
+					"this must be an integer.",
 			  (int v) =&gt; repeat = v },
 			{ "v", "increase debug message verbosity",
 			  v =&gt; { if (v != null) ++verbosity; } },
@@ -2198,7 +2259,9 @@ class Test {
             <c>--help</c> parameter, 
             <see cref="M:NDesk.Options.OptionSet.WriteOptionDescriptions(System.IO.TextWriter)" />
             is used to generate the <see cref="T:NDesk.Options.Option" />
-            description:
+            description, that the <c>--repeat</c> description spans
+            multiple lines, and that format specifiers such as <c>{NAME}</c>
+            are used to provide a description for the option value:
           </para>
           <code lang="sh" src="examples/greet.txt">$ mono greet.exe --help
 Usage: greet [OPTIONS]+ message
@@ -2206,8 +2269,9 @@ Greet a list of individuals with an optional message.
 If no message is specified, a generic greeting is used.
 
 Options:
-  -n, --name=VALUE           the name of someone to greet.
-  -r, --repeat=VALUE         the number of times to repeat the greeting.
+  -n, --name=NAME            the NAME of someone to greet.
+  -r, --repeat=TIMES         the number of TIMES to repeat the greeting.
+                               this must be an integer.
   -v                         increase debug message verbosity
   -h, --help                 show this message and exit
 

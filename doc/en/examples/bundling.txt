@@ -33,6 +33,7 @@ Options:
 	      Color: <null>
 
 $ mono bundling.exe -cfv input
+def handler: color=; arg=input
 Macros:
 Options:
 	 Input File: v
@@ -61,3 +62,17 @@ Options:
 	    Extract: False
 	       List: False
 	      Color: auto
+
+$ mono bundling.exe --color=on A B --color=off C D
+def handler: color=on; arg=A
+def handler: color=on; arg=B
+def handler: color=off; arg=C
+def handler: color=off; arg=D
+Macros:
+Options:
+	 Input File: 
+	Ouptut File: 
+	     Create: False
+	    Extract: False
+	       List: False
+	      Color: off

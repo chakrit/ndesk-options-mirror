@@ -21,7 +21,8 @@
     <remarks>
       <para>
         Instances of <see cref="T:NDesk.Options.Option" /> are created via
-        the various <see cref="T:NDesk.Options.OptionSet" /><c>Add</c> overloads, such as:
+        the various <see cref="M:NDesk.Options.OptionSet.Add" /> overloads, 
+        such as:
       </para>
       <list type="bullet">
         <item>
@@ -136,6 +137,13 @@
             Conflicting <see cref="T:NDesk.Options.OptionValueType" /> values
             were found within <paramref name="prototype" />.
           </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="prototype" /> only includes the default handler
+            <c>&lt;&gt;</c> and <paramref name="prototype" /> did not specify an
+            <see cref="T:NDesk.Options.OptionValueType" /> value of
+            <see cref="F:NDesk.Options.OptionValueType.None" />.
+          </para>
         </exception>
         <exception cref="T:System.ArgumentNullException">
           <paramref name="prototype" /> is <see langword="null" />.
@@ -203,6 +211,27 @@
             <paramref name="prototype" />, so <c>n|name=</c>, <c>n=|name</c> 
             and <c>n=|name=</c> are equivalent, but you cannot mix types; 
             <c>n:|name=</c> is invalid.
+          </para>
+          <para>
+            A default handler may be specified by using <c>&lt;&gt;</c> as the
+            option name.  The default handler is invoked for any unhandled
+            argument within 
+        		<see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />;
+            consequently, if a default handler is provided then
+        		<see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
+            will return an empty 
+            <see cref="T:System.Collections.Generic.List{System.String}" />.
+          </para>
+          <para>
+            The default handler may either be provided as a stand-alone 
+            <see cref="T:NDesk.Options.Option" />, in which case it may not
+            specify a <see cref="T:NDesk.Options.OptionValueType" /> other
+            than <see cref="F:NDesk.Options.OptionValueType.None" />.
+            Alternatively, it may be an alias, in which case the 
+            <see cref="T:NDesk.Options.Option" /> must accept an
+            <see cref="F:NDesk.Options.OptionValueType.Optional" /> or
+            <see cref="F:NDesk.Options.OptionValueType.Required" /> value, and
+            <paramref name="maxValueCount" /> must be <c>1</c>.
           </para>
           <para>
             Multiple values may be bundled together, such as 
@@ -294,6 +323,19 @@
           <para>
             <paramref name="prototype" /> contains a badly formatted 
             separator list, such as <c>{{</c>, <c>}}</c>, <c>{{}</c>, etc.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="prototype" /> only includes the default handler
+            <c>&lt;&gt;</c> and <paramref name="prototype" /> did not specify an
+            <see cref="T:NDesk.Options.OptionValueType" /> value of
+            <see cref="F:NDesk.Options.OptionValueType.None" />.
+          </para>
+          <para>-or-</para>
+          <para>
+            <paramref name="prototype" /> includes the default handler
+            <c>&lt;&gt;</c>, and <paramref name="MaxValueCount" /> is greater
+            than <c>1</c>.
           </para>
         </exception>
         <exception cref="T:System.ArgumentNullException">
