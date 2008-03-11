@@ -1,8 +1,9 @@
 <Type Name="OptionSet" FullName="NDesk.Options.OptionSet">
-  <TypeSignature Language="C#" Value="public class OptionSet : System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;" />
+  <TypeSignature Language="C#" Value="public class OptionSet : System.Collections.ObjectModel.KeyedCollection&lt;string,NDesk.Options.Option&gt;" />
   <AssemblyInfo>
     <AssemblyName>NDesk.Options</AssemblyName>
     <AssemblyVersion>0.2.0.0</AssemblyVersion>
+    <AssemblyVersion>0.2.1.0</AssemblyVersion>
   </AssemblyInfo>
   <ThreadingSafetyStatement>
     All public static members of this type are safe for multithreaded
@@ -15,9 +16,10 @@
     etc.).
   </ThreadingSafetyStatement>
   <Base>
-    <BaseTypeName>System.Collections.ObjectModel.Collection&lt;NDesk.Options.Option&gt;</BaseTypeName>
+    <BaseTypeName>System.Collections.ObjectModel.KeyedCollection&lt;System.String,NDesk.Options.Option&gt;</BaseTypeName>
     <BaseTypeArguments>
-      <BaseTypeArgument TypeParamName="T">NDesk.Options.Option</BaseTypeArgument>
+      <BaseTypeArgument TypeParamName="TKey">System.String</BaseTypeArgument>
+      <BaseTypeArgument TypeParamName="TItem">NDesk.Options.Option</BaseTypeArgument>
     </BaseTypeArguments>
   </Base>
   <Interfaces />
@@ -650,7 +652,8 @@ class DemoOptionSet : OptionSet {
 		string newOption  = option;
 
 		if (haveParts) {
-			nextOption = GetOptionForName (n.ToLower ());
+			string nl = n.ToLower ();
+			nextOption = Contains (nl) ? this [nl] : null;
 			newOption = f + n.ToLower () + (v != null ? s + v : "");
 		}
 
@@ -816,6 +819,7 @@ Key: a\b\c=d\e\f
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters />
       <Docs>
@@ -839,6 +843,7 @@ Key: a\b\c=d\e\f
       <MemberType>Constructor</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <Parameters>
         <Parameter Name="localizer" Type="System.Converter&lt;System.String,System.String&gt;" />
@@ -1008,6 +1013,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1050,6 +1056,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1108,6 +1115,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1166,6 +1174,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1234,6 +1243,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1292,6 +1302,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1347,6 +1358,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1425,6 +1437,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1491,6 +1504,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionSet</ReturnType>
@@ -1565,30 +1579,12 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </exception>
       </Docs>
     </Member>
-    <Member MemberName="ClearItems">
-      <MemberSignature Language="C#" Value="protected override void ClearItems ();" />
-      <MemberType>Method</MemberType>
-      <AssemblyInfo>
-        <AssemblyVersion>0.2.0.0</AssemblyVersion>
-      </AssemblyInfo>
-      <ReturnValue>
-        <ReturnType>System.Void</ReturnType>
-      </ReturnValue>
-      <Parameters />
-      <Docs>
-        <summary>
-          Removes all <see cref="T:NDesk.Options.Option" />s from this
-          instance.
-        </summary>
-        <remarks>
-        </remarks>
-      </Docs>
-    </Member>
     <Member MemberName="CreateOptionContext">
       <MemberSignature Language="C#" Value="protected virtual NDesk.Options.OptionContext CreateOptionContext ();" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.OptionContext</ReturnType>
@@ -1621,11 +1617,61 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         <altmember cref="M:NDesk.Options.OptionSet.Parse(System.String,NDesk.Options.OptionContext)" />
       </Docs>
     </Member>
+    <Member MemberName="GetKeyForItem">
+      <MemberSignature Language="C#" Value="protected override string GetKeyForItem (NDesk.Options.Option item);" />
+      <MemberType>Method</MemberType>
+      <AssemblyInfo>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
+      </AssemblyInfo>
+      <ReturnValue>
+        <ReturnType>System.String</ReturnType>
+      </ReturnValue>
+      <Parameters>
+        <Parameter Name="item" Type="NDesk.Options.Option" />
+      </Parameters>
+      <Docs>
+        <param name="item">
+          An <see cref="T:NDesk.Options.Option" /> to return the key of.
+        </param>
+        <summary>
+          Returns <c><paramref name="item" />.GetNames()[0]</c>.
+        </summary>
+        <returns>
+          A <see cref="T:System.String" /> containing the first alias returned
+          by <see cref="M:NDesk.Options.Option.GetNames" />.
+        </returns>
+        <remarks>
+          <para>
+            This is to support the 
+            <see cref="T:System.Collections.ObjectModel.KeyedCollection{System.String,NDesk.Options.Option}" />
+            infrastructure.  
+            <see cref="T:System.Collections.ObjectModel.KeyedCollection{System.String,NDesk.Options.Option}" />
+            assumes only one key per item, so we arbitrarily choose the first
+            item in the option alias list.
+          </para>
+          <block subset="none" type="note">
+            All aliases returned by 
+            <see cref="M:NDesk.Options.Option.GetNames" /> are still
+            registered with 
+            <see cref="T:System.Collections.ObjectModel.KeyedCollection{System.String,NDesk.Options.Option}" />
+            even though 
+            <see cref="M:NDesk.Options.OptionSet.GetKeyForItem(NDesk.Options.Option)" />
+            will never return them.  Consequently, 
+            <see cref="M:System.Collections.ObjectModel.KeyedCollection{System.String,NDesk.Options.Option}.Contains(`0)" />
+            and
+            <see cref="P:System.Collections.ObjectModel.KeyedCollection{System.String,NDesk.Options.Option}.Item(`0)" />
+            will both correctly use all aliases returned by 
+            <see cref="M:NDesk.Options.Option.GetNames" />.
+          </block>
+        </remarks>
+      </Docs>
+    </Member>
     <Member MemberName="GetOptionForName">
       <MemberSignature Language="C#" Value="protected NDesk.Options.Option GetOptionForName (string option);" />
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>NDesk.Options.Option</ReturnType>
@@ -1633,6 +1679,11 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <Parameters>
         <Parameter Name="option" Type="System.String" />
       </Parameters>
+      <Attributes>
+        <Attribute>
+          <AttributeName>System.Obsolete("Use KeyedCollection.this[string]")</AttributeName>
+        </Attribute>
+      </Attributes>
       <Docs>
         <param name="option">
           A <see cref="T:System.String" /> containing the option name to
@@ -1666,6 +1717,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -1757,6 +1809,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -1786,6 +1839,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Property</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Converter&lt;System.String,System.String&gt;</ReturnType>
@@ -1814,6 +1868,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Collections.Generic.List&lt;System.String&gt;</ReturnType>
@@ -1973,6 +2028,7 @@ class Test {
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Boolean</ReturnType>
@@ -2067,6 +2123,7 @@ class Test {
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -2092,6 +2149,7 @@ class Test {
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>
@@ -2123,6 +2181,7 @@ class Test {
       <MemberType>Method</MemberType>
       <AssemblyInfo>
         <AssemblyVersion>0.2.0.0</AssemblyVersion>
+        <AssemblyVersion>0.2.1.0</AssemblyVersion>
       </AssemblyInfo>
       <ReturnValue>
         <ReturnType>System.Void</ReturnType>

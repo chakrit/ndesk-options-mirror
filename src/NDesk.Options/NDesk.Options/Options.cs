@@ -468,7 +468,7 @@ namespace NDesk.Options {
 
 	public delegate void OptionAction<TKey, TValue> (TKey key, TValue value);
 
-	public class OptionSet : Collection<Option>
+	public class OptionSet : KeyedCollection<string, Option>
 	{
 		public OptionSet ()
 			: this (f => f)
@@ -480,26 +480,32 @@ namespace NDesk.Options {
 			this.localizer = localizer;
 		}
 
-		Dictionary<string, Option> options = new Dictionary<string, Option> ();
 		Converter<string, string> localizer;
 
 		public Converter<string, string> MessageLocalizer {
 			get {return localizer;}
 		}
 
+		protected override string GetKeyForItem (Option item)
+		{
+			if (item.Names != null && item.Names.Length > 0)
+				return item.Names [0];
+			// This should never happen, as it's invalid for Option to be
+			// constructed w/o any names.
+			throw new InvalidOperationException ("Option has no names!");
+		}
+
+		[Obsolete ("Use KeyedCollection.this[string]")]
 		protected Option GetOptionForName (string option)
 		{
 			if (option == null)
 				throw new ArgumentNullException ("option");
-			Option v;
-			if (options.TryGetValue (option, out v))
-				return v;
-			return null;
-		}
-
-		protected override void ClearItems ()
-		{
-			this.options.Clear ();
+			try {
+				return base [option];
+			}
+			catch (KeyNotFoundException) {
+				return null;
+			}
 		}
 
 		protected override void InsertItem (int index, Option item)
@@ -511,8 +517,9 @@ namespace NDesk.Options {
 		protected override void RemoveItem (int index)
 		{
 			Option p = Items [index];
-			foreach (string name in p.Names) {
-				this.options.Remove (name);
+			// KeyedCollection.RemoveItem() handles the 0th item
+			for (int i = 1; i < p.Names.Length; ++i) {
+				Dictionary.Remove (p.Names [i]);
 			}
 			base.RemoveItem (index);
 		}
@@ -520,7 +527,7 @@ namespace NDesk.Options {
 		protected override void SetItem (int index, Option item)
 		{
 			RemoveItem (index);
-			Add (item);
+			AddImpl (item);
 			base.SetItem (index, item);
 		}
 
@@ -530,13 +537,14 @@ namespace NDesk.Options {
 				throw new ArgumentNullException ("option");
 			List<string> added = new List<string> ();
 			try {
-				foreach (string name in option.Names) {
-					this.options.Add (name, option);
+				// KeyedCollection.InsertItem/SetItem handle the 0th name.
+				for (int i = 1; i < option.Names.Length; ++i) {
+					Dictionary.Add (option.Names [i], option);
 				}
 			}
 			catch (Exception) {
 				foreach (string name in added)
-					this.options.Remove (name);
+					Dictionary.Remove (name);
 				throw;
 			}
 		}
@@ -689,7 +697,7 @@ namespace NDesk.Options {
 			c.OptionIndex = -1;
 			bool process = true;
 			List<string> unprocessed = new List<string> ();
-			Option def = GetOptionForName ("<>");
+			Option def = Contains ("<>") ? this ["<>"] : null;
 			foreach (string argument in arguments) {
 				++c.OptionIndex;
 				if (argument == "--") {
@@ -755,7 +763,8 @@ namespace NDesk.Options {
 				return false;
 
 			Option p;
-			if (this.options.TryGetValue (n, out p)) {
+			if (Contains (n)) {
+				p = this [n];
 				c.OptionName = f + n;
 				c.Option     = p;
 				switch (p.OptionValueType) {
@@ -802,8 +811,10 @@ namespace NDesk.Options {
 		private bool ParseBool (string option, string n, OptionContext c)
 		{
 			Option p;
+			string rn;
 			if (n.Length >= 1 && (n [n.Length-1] == '+' || n [n.Length-1] == '-') &&
-					this.options.TryGetValue (n.Substring (0, n.Length-1), out p)) {
+					Contains ((rn = n.Substring (0, n.Length-1)))) {
+				p = this [rn];
 				string v = n [n.Length-1] == '+' ? option : null;
 				c.OptionName  = option;
 				c.Option      = p;
@@ -821,12 +832,14 @@ namespace NDesk.Options {
 			for (int i = 0; i < n.Length; ++i) {
 				Option p;
 				string opt = f + n [i].ToString ();
-				if (!this.options.TryGetValue (n [i].ToString (), out p)) {
+				string rn = n [i].ToString ();
+				if (!Contains (rn)) {
 					if (i == 0)
 						return false;
 					throw new OptionException (string.Format (localizer (
 									"Cannot bundle unregistered option '{0}'."), opt), opt);
 				}
+				p = this [rn];
 				switch (p.OptionValueType) {
 					case OptionValueType.None:
 						Invoke (c, opt, n, p);

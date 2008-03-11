@@ -24,7 +24,8 @@ class DemoOptionSet : OptionSet {
 		string newOption  = option;
 
 		if (haveParts) {
-			nextOption = GetOptionForName (n.ToLower ());
+			string nl = n.ToLower ();
+			nextOption = Contains (nl) ? this [nl] : null;
 			newOption = f + n.ToLower () + (v != null ? s + v : "");
 		}
 
