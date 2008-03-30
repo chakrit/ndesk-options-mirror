@@ -33,7 +33,7 @@ dist-hook:
 	
 $(nolibdir)/NDesk.Options.dll: $(OPTIONS_SRC)
 	-mkdir -p `dirname $@`
-	$(CSC) -debug+ $(OPTIONS_SRC) -t:library -out:$@
+	$(CSC) -debug+ $(OPTIONS_SRC) -langversion:ISO-2 -t:library -out:$@
 	
 $(nobindir)/options-test.exe: $(OPTIONS_SRC)
 	-mkdir -p `dirname $@`
