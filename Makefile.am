@@ -7,6 +7,12 @@ OPTIONS_SRC = \
 	$(builddir)/src/NDesk.Options/AssemblyInfo.cs         \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs
 
+OPTIONS_TEST_SRC = \
+	$(srcdir)/src/NDesk.Options/Test/NDesk.Options/OptionContextTest.cs \
+	$(srcdir)/src/NDesk.Options/Test/NDesk.Options/OptionSetTest.cs \
+	$(srcdir)/src/NDesk.Options/Test/NDesk.Options/OptionTest.cs \
+	$(srcdir)/src/NDesk.Options/Test/NDesk.Options/Utils.cs
+
 EXTRA_DIST = \
 	$(srcdir)/src/NDesk.Options/AssemblyInfo.cs.in        \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs  \
@@ -34,17 +40,22 @@ dist-hook:
 $(nolibdir)/NDesk.Options.dll: $(OPTIONS_SRC)
 	-mkdir -p `dirname $@`
 	$(CSC) -debug+ $(OPTIONS_SRC) -langversion:ISO-2 -t:library -out:$@
-	
-$(nobindir)/options-test.exe: $(OPTIONS_SRC)
-	-mkdir -p `dirname $@`
-	$(CSC) -debug+ -d:TEST $(OPTIONS_SRC) -t:exe -out:$@
 
-$(nobindir)/options-test-linq.exe: $(OPTIONS_SRC)
+$(nolibdir)/NDesk.Options_test.dll: $(nolibdir)/NDesk.Options.dll $(OPTIONS_TEST_SRC)
 	-mkdir -p `dirname $@`
-	$(CSC) -debug+ -d:LINQ -r:System.Core.dll -d:TEST $(OPTIONS_SRC) -t:exe -out:$@
+	$(CSC) -debug+ -t:library -out:$@ -r:$(nolibdir)/NDesk.Options.dll \
+		-r:nunit.core.dll -r:nunit.framework.dll -r:nunit.util.dll \
+		$(OPTIONS_TEST_SRC) 
 
-check: $(nobindir)/options-test.exe $(nobindir)/options-test-linq.exe
-	mono --debug bin/options-test.exe && mono --debug bin/options-test-linq.exe
+$(nolibdir)/NDesk.Options_test_linq.dll: $(OPTIONS_SRC) $(OPTIONS_TEST_SRC)
+	-mkdir -p `dirname $@`
+	$(CSC) -debug+ -d:LINQ -t:library -out:$@ \
+		-r:nunit.core.dll -r:nunit.framework.dll -r:nunit.util.dll \
+		$(OPTIONS_SRC) $(OPTIONS_TEST_SRC) 
+
+check: $(nolibdir)/NDesk.Options_test.dll $(nolibdir)/NDesk.Options_test_linq.dll
+	nunit-console2 $(nolibdir)/NDesk.Options_test.dll
+	nunit-console2 $(nolibdir)/NDesk.Options_test_linq.dll
 
 rpm:
 	tgz=$(DIST_ARCHIVES); \
@@ -66,10 +77,10 @@ prepare-release:
 	mv $(DIST_ARCHIVES) archive
 
 CLEANFILES = \
-	$(nobindir)/options-test.exe              \
-	$(nobindir)/options-test.exe.mdb          \
-	$(nobindir)/options-test-linq.exe         \
-	$(nobindir)/options-test-linq.exe.mdb     \
-	$(nolibdir)/NDesk.Options.dll             \
-	$(nolibdir)/NDesk.Options.dll.mdb
+	$(nolibdir)/NDesk.Options.dll \
+	$(nolibdir)/NDesk.Options.dll.mdb \
+	$(nolibdir)/NDesk.Options_test.dll \
+	$(nolibdir)/NDesk.Options_test.dll.mdb \
+	$(nolibdir)/NDesk.Options_test_linq.dll \
+	$(nolibdir)/NDesk.Options_test_linq.dll.mdb
 
