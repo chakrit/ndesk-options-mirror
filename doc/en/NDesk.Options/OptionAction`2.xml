@@ -6,8 +6,8 @@
     <AssemblyVersion>0.2.1.0</AssemblyVersion>
   </AssemblyInfo>
   <TypeParameters>
-    <TypeParameter>TKey</TypeParameter>
-    <TypeParameter>TValue</TypeParameter>
+    <TypeParameter Name="TKey" />
+    <TypeParameter Name="TValue" />
   </TypeParameters>
   <Base>
     <BaseTypeName>System.Delegate</BaseTypeName>

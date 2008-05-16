@@ -34,13 +34,13 @@
   </Assemblies>
   <Types>
     <Namespace Name="NDesk.Options">
-      <Type Name="Option" />
-      <Type Name="OptionAction`2" DisplayName="OptionAction&lt;TKey,TValue&gt;" />
-      <Type Name="OptionContext" />
-      <Type Name="OptionException" />
-      <Type Name="OptionSet" />
-      <Type Name="OptionValueCollection" />
-      <Type Name="OptionValueType" />
+      <Type Name="Option" Kind="Class" />
+      <Type Name="OptionAction`2" DisplayName="OptionAction&lt;TKey,TValue&gt;" Kind="Delegate" />
+      <Type Name="OptionContext" Kind="Class" />
+      <Type Name="OptionException" Kind="Class" />
+      <Type Name="OptionSet" Kind="Class" />
+      <Type Name="OptionValueCollection" Kind="Class" />
+      <Type Name="OptionValueType" Kind="Enumeration" />
     </Namespace>
   </Types>
 </Overview>

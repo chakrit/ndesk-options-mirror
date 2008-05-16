@@ -811,6 +811,9 @@ class Demo {
           <paramref name="value" />.
         </exception>
       </Docs>
+      <TypeParameters>
+        <TypeParameter Name="T" />
+      </TypeParameters>
     </Member>
     <Member MemberName="Prototype">
       <MemberSignature Language="C#" Value="public string Prototype { get; }" />

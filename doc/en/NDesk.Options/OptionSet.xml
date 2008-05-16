@@ -259,7 +259,8 @@
           registered actions.  Any option-like strings for names that haven't
           been registered, e.g. <c>--this-was-never-registered=false</c>, and
           all arguments that are not used as option values are returned from 
-          <c>Parse</c>.
+          <see cref="M:NDesk.Options.OptionSet.Parse(System.Collections.Generic.IEnumerable{System.String})" />
+          or processed by the default handler <c>&lt;&gt;</c>, if registered.
         </para>
         <code lang="C#">List&lt;string&gt; extra = p.Parse (new string[]{"-option-a"});</code>
       </block>
@@ -1352,6 +1353,9 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
           a previously registered <see cref="T:NDesk.Options.Option" />.
         </exception>
       </Docs>
+      <TypeParameters>
+        <TypeParameter Name="T" />
+      </TypeParameters>
     </Member>
     <Member MemberName="Add&lt;T&gt;">
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;T&gt; (string prototype, string description, Action&lt;T&gt; action);" />
@@ -1431,6 +1435,9 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
             <paramref name="action" /> is <see langword="null" /></para>
         </exception>
       </Docs>
+      <TypeParameters>
+        <TypeParameter Name="T" />
+      </TypeParameters>
     </Member>
     <Member MemberName="Add&lt;TKey,TValue&gt;">
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, NDesk.Options.OptionAction&lt;TKey,TValue&gt; action);" />
@@ -1498,6 +1505,10 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
             <paramref name="action" /> is <see langword="null" /></para>
         </exception>
       </Docs>
+      <TypeParameters>
+        <TypeParameter Name="TKey" />
+        <TypeParameter Name="TValue" />
+      </TypeParameters>
     </Member>
     <Member MemberName="Add&lt;TKey,TValue&gt;">
       <MemberSignature Language="C#" Value="public NDesk.Options.OptionSet Add&lt;TKey,TValue&gt; (string prototype, string description, NDesk.Options.OptionAction&lt;TKey,TValue&gt; action);" />
@@ -1578,6 +1589,10 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
             <paramref name="action" /> is <see langword="null" /></para>
         </exception>
       </Docs>
+      <TypeParameters>
+        <TypeParameter Name="TKey" />
+        <TypeParameter Name="TValue" />
+      </TypeParameters>
     </Member>
     <Member MemberName="CreateOptionContext">
       <MemberSignature Language="C#" Value="protected virtual NDesk.Options.OptionContext CreateOptionContext ();" />
@@ -1879,7 +1894,7 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
       <Docs>
         <param name="arguments">
           A <see cref="T:System.Collections.Generic.IEnumerable&lt;System.String&gt;" />
-          containing all options to parse.
+          containing all arguments to parse.
         </param>
         <summary>
           Parses each <see cref="T:System.String" /> within 
@@ -1888,13 +1903,20 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
         </summary>
         <returns>
           A <see cref="T:System.Collections.Generic.List{System.String}" />
-          containing all unhandled options.
+          containing all unhandled arguments.
         </returns>
         <remarks>
           <para>
-            An option is unhandled if:
+            An argument is unhandled if:
           </para>
           <list type="bullet">
+            <item>
+              <term>
+              There is no default handler registered (the <c>&lt;&gt;</c>
+              handler).  If there is a default handler registered, then the
+              default handler is invoked for otherwise-unhandled arguments.
+            </term>
+            </item>
             <item>
               <term>
               The option starts with a flag such as <c>-</c>, <c>--</c>,
@@ -1905,13 +1927,14 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
             <item>
               <term>
               Or, the option does not start with a flag, and there is no prior
-              parsed option that accepts a value that would use the option as
+              parsed option that accepts a value that would use the argument as
               its value.
             </term>
             </item>
           </list>
           <para>
-            Furthermore, option parsing stops whenever the <c>--</c> option is
+            Furthermore, argument parsing (including default handler invocation)
+            stops whenever the <c>--</c> option is
             encountered.  This is in accordance with GNU conventions, and
             is frequently used to permit users to provide option-like
             filenames, e.g. <c>ls -lF -- -l</c> to view the file <c>-l</c>
