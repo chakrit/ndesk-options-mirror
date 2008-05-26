@@ -1,5 +1,3 @@
-SUBDIRS = doc
-
 nobindir=bin
 nolibdir=lib/ndesk-options
 
@@ -13,7 +11,11 @@ OPTIONS_TEST_SRC = \
 	$(srcdir)/src/NDesk.Options/Test/NDesk.Options/OptionTest.cs \
 	$(srcdir)/src/NDesk.Options/Test/NDesk.Options/Utils.cs
 
+include doc/Makefile.include
+
 EXTRA_DIST = \
+	$(DOC_EXTRA_DIST)                                     \
+	$(OPTIONS_TEST_SRC)                                   \
 	$(srcdir)/src/NDesk.Options/AssemblyInfo.cs.in        \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs  \
 	$(srcdir)/ndesk-options.spec.in
@@ -73,14 +75,16 @@ bin-zip:
 prepare-release:
 	$(MAKE) distcheck
 	$(MAKE) bin-zip
-	cd doc && $(MAKE) html
+	$(MAKE) html
 	mv $(DIST_ARCHIVES) archive
 
 CLEANFILES = \
+	$(DOC_CLEANFILES) \
 	$(nolibdir)/NDesk.Options.dll \
 	$(nolibdir)/NDesk.Options.dll.mdb \
 	$(nolibdir)/NDesk.Options_test.dll \
 	$(nolibdir)/NDesk.Options_test.dll.mdb \
 	$(nolibdir)/NDesk.Options_test_linq.dll \
-	$(nolibdir)/NDesk.Options_test_linq.dll.mdb
+	$(nolibdir)/NDesk.Options_test_linq.dll.mdb \
+	$(nolibdir)/TestResult.xml
 
