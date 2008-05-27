@@ -105,10 +105,10 @@ edit:
 	monodoc --edit $(srcdir)/doc/en
 
 html: $(DOCUMENTATION)
-	mdoc export-html --default-template > doc-def-template.xsl
-	mdoc export-html --template=doc-template.xsl --ext=html -o $(PACKAGE) en
-	cp prettyprint.js $(PACKAGE)
-	zip -q -r ../archive/$(PACKAGE)-$(VERSION)-docs.zip $(PACKAGE)
+	mdoc export-html --default-template > doc/doc-def-template.xsl
+	mdoc export-html --template=doc/doc-template.xsl --ext=html -o doc/$(PACKAGE) doc/en
+	cp doc/prettyprint.js doc/$(PACKAGE)
+	(cd doc && zip -q -r ../archive/$(PACKAGE)-$(VERSION)-docs.zip $(PACKAGE))
 
 clean:
 	-rm $(CLEANFILES)
