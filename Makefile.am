@@ -2,7 +2,7 @@ nobindir=bin
 nolibdir=lib/ndesk-options
 
 OPTIONS_SRC = \
-	$(builddir)/src/NDesk.Options/AssemblyInfo.cs         \
+	src/NDesk.Options/AssemblyInfo.cs \
 	$(srcdir)/src/NDesk.Options/NDesk.Options/Options.cs
 
 OPTIONS_TEST_SRC = \
