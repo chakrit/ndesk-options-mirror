@@ -131,6 +131,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -402,7 +403,7 @@ namespace NDesk.Options {
 			return type == '=' ? OptionValueType.Required : OptionValueType.Optional;
 		}
 
-		private void AddSeparators (string name, int end, List<string> seps)
+		private static void AddSeparators (string name, int end, ICollection<string> seps)
 		{
 			int start = -1;
 			for (int i = end+1; i < name.Length; ++i) {
@@ -454,6 +455,10 @@ namespace NDesk.Options {
 	public class OptionException : Exception {
 		private string option;
 
+		public OptionException ()
+		{
+		}
+
 		public OptionException (string message, string optionName)
 			: base (message)
 		{
@@ -476,6 +481,7 @@ namespace NDesk.Options {
 			get {return this.option;}
 		}
 
+		[SecurityPermission (SecurityAction.LinkDemand, SerializationFormatter = true)]
 		public override void GetObjectData (SerializationInfo info, StreamingContext context)
 		{
 			base.GetObjectData (info, context);
@@ -572,7 +578,7 @@ namespace NDesk.Options {
 			return this;
 		}
 
-		class ActionOption : Option {
+		sealed class ActionOption : Option {
 			Action<OptionValueCollection> action;
 
 			public ActionOption (string prototype, string description, int count, Action<OptionValueCollection> action)
@@ -619,7 +625,7 @@ namespace NDesk.Options {
 			return this;
 		}
 
-		class ActionOption<T> : Option {
+		sealed class ActionOption<T> : Option {
 			Action<T> action;
 
 			public ActionOption (string prototype, string description, Action<T> action)
@@ -636,7 +642,7 @@ namespace NDesk.Options {
 			}
 		}
 
-		class ActionOption<TKey, TValue> : Option {
+		sealed class ActionOption<TKey, TValue> : Option {
 			OptionAction<TKey, TValue> action;
 
 			public ActionOption (string prototype, string description, OptionAction<TKey, TValue> action)
@@ -735,7 +741,7 @@ namespace NDesk.Options {
 		}
 #endif
 
-		private bool Unprocessed (List<string> extra, Option def, OptionContext c, string argument)
+		private static bool Unprocessed (ICollection<string> extra, Option def, OptionContext c, string argument)
 		{
 			if (def == null) {
 				extra.Add (argument);
@@ -877,7 +883,7 @@ namespace NDesk.Options {
 			return true;
 		}
 
-		private void Invoke (OptionContext c, string name, string value, Option option)
+		private static void Invoke (OptionContext c, string name, string value, Option option)
 		{
 			c.OptionName  = name;
 			c.Option      = option;
@@ -968,7 +974,7 @@ namespace NDesk.Options {
 			o.Write (s);
 		}
 
-		private string GetArgumentName (int index, int maxIndex, string description)
+		private static string GetArgumentName (int index, int maxIndex, string description)
 		{
 			if (description == null)
 				return maxIndex == 1 ? "VALUE" : "VALUE" + (index + 1);
@@ -992,10 +998,10 @@ namespace NDesk.Options {
 			return maxIndex == 1 ? "VALUE" : "VALUE" + (index + 1);
 		}
 
-		private string GetDescription (string description)
+		private static string GetDescription (string description)
 		{
 			if (description == null)
-				return "";
+				return string.Empty;
 			StringBuilder sb = new StringBuilder (description.Length);
 			int start = -1;
 			for (int i = 0; i < description.Length; ++i) {
@@ -1034,11 +1040,11 @@ namespace NDesk.Options {
 			return sb.ToString ();
 		}
 
-		private List<string> GetLines (string description)
+		private static List<string> GetLines (string description)
 		{
 			List<string> lines = new List<string> ();
-			if (description == null || description == "") {
-				lines.Add ("");
+			if (string.IsNullOrEmpty (description)) {
+				lines.Add (string.Empty);
 				return lines;
 			}
 			int length = 80 - OptionWidth - 2;
@@ -1066,7 +1072,7 @@ namespace NDesk.Options {
 			return lines;
 		}
 
-		private int GetLineEnd (int start, int length, string description)
+		private static int GetLineEnd (int start, int length, string description)
 		{
 			int end = Math.Min (start + length, description.Length);
 			int sep = -1;
