@@ -558,11 +558,12 @@ namespace NDesk.Options {
 		{
 			if (option == null)
 				throw new ArgumentNullException ("option");
-			List<string> added = new List<string> ();
+			List<string> added = new List<string> (option.Names.Length);
 			try {
 				// KeyedCollection.InsertItem/SetItem handle the 0th name.
 				for (int i = 1; i < option.Names.Length; ++i) {
 					Dictionary.Add (option.Names [i], option);
+					added.Add (option.Names [i]);
 				}
 			}
 			catch (Exception) {
