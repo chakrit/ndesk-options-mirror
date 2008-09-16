@@ -511,6 +511,8 @@ namespace NDesk.Options {
 
 		protected override string GetKeyForItem (Option item)
 		{
+			if (item == null)
+				throw new ArgumentNullException ("option");
 			if (item.Names != null && item.Names.Length > 0)
 				return item.Names [0];
 			// This should never happen, as it's invalid for Option to be
@@ -533,25 +535,25 @@ namespace NDesk.Options {
 
 		protected override void InsertItem (int index, Option item)
 		{
-			AddImpl (item);
 			base.InsertItem (index, item);
+			AddImpl (item);
 		}
 
 		protected override void RemoveItem (int index)
 		{
+			base.RemoveItem (index);
 			Option p = Items [index];
 			// KeyedCollection.RemoveItem() handles the 0th item
 			for (int i = 1; i < p.Names.Length; ++i) {
 				Dictionary.Remove (p.Names [i]);
 			}
-			base.RemoveItem (index);
 		}
 
 		protected override void SetItem (int index, Option item)
 		{
+			base.SetItem (index, item);
 			RemoveItem (index);
 			AddImpl (item);
-			base.SetItem (index, item);
 		}
 
 		private void AddImpl (Option option)
