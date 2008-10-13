@@ -98,8 +98,7 @@ DOC_CLEANFILES = \
 	doc/ndesk-options-docs.zip \
 	doc/ndesk-options-docs.tree \
 	doc/en/examples/NDesk.Options.dll* \
-	doc/en/examples/*.exe \
-	$(DOC_EXAMPLES_OUTPUT)
+	doc/en/examples/*.exe
 
 doc-edit:
 	monodoc --edit $(srcdir)/doc/en
