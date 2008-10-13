@@ -75,7 +75,7 @@ bin-zip:
 prepare-release:
 	$(MAKE) distcheck
 	$(MAKE) bin-zip
-	$(MAKE) html
+	$(MAKE) doc-html
 	mv $(DIST_ARCHIVES) archive
 
 CLEANFILES = \
