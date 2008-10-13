@@ -18,7 +18,7 @@ UPDATER = $(MONODOCER) -overrides -pretty -path:en
 
 .PHONY: assemble clean edit html update update-delete
 
-assemble: doc/ndesk-options-docs.zip doc/ndesk-options-docs.tree
+doc-assemble: doc/ndesk-options-docs.zip doc/ndesk-options-docs.tree
 
 $(srcdir)/doc/en/examples/NDesk.Options.dll: $(srcdir)/lib/ndesk-options/NDesk.Options.dll
 	cp $^ $@
@@ -67,12 +67,12 @@ doc/ndesk-options-docs.zip doc/ndesk-options-docs.tree: $(DOCUMENTATION)
 	-mkdir doc
 	$(MDASSEMBLER) --ecma $(srcdir)/doc/en -o doc/ndesk-options-docs
 
-update: $(addprefix lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/doc/en/examples/*.cs $(DOC_EXAMPLES_OUTPUT)
+doc-update: $(addprefix lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/doc/en/examples/*.cs $(DOC_EXAMPLES_OUTPUT)
 	for a in $(ASSEMBLIES) ; do \
 		$(UPDATER) -assembly:lib/ndesk-options/$$a ; \
 	done
 
-update-delete: $(addprefix lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/doc/en/examples/*.cs $(DOC_EXAMPLES_OUTPUT)
+doc-update-delete: $(addprefix lib/ndesk-options/, $(ASSEMBLIES)) $(srcdir)/doc/en/examples/*.cs $(DOC_EXAMPLES_OUTPUT)
 	for a in $(ASSEMBLIES) ; do \
 		$(UPDATER) --delete -assembly:lib/ndesk-options/$$a ; \
 	done
@@ -101,10 +101,10 @@ DOC_CLEANFILES = \
 	doc/en/examples/*.exe \
 	$(DOC_EXAMPLES_OUTPUT)
 
-edit:
+doc-edit:
 	monodoc --edit $(srcdir)/doc/en
 
-html: $(DOCUMENTATION)
+doc-html: $(DOCUMENTATION)
 	mdoc export-html --default-template > doc/doc-def-template.xsl
 	mdoc export-html --template=doc/doc-template.xsl --ext=html -o doc/$(PACKAGE) doc/en
 	cp doc/prettyprint.js doc/$(PACKAGE)
