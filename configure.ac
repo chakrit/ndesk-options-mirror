@@ -1,5 +1,4 @@
 AC_INIT(src/NDesk.Options/NDesk.Options/Options.cs)
-AC_CANONICAL_SYSTEM
 AC_PREREQ(2.13)
 VERSION=0.2.1
 AM_INIT_AUTOMAKE(ndesk-options, $VERSION)
