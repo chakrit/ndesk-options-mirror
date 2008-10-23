@@ -143,8 +143,12 @@ using System.Linq;
 using NDesk.Options;
 #endif
 
-namespace NDesk.Options {
-
+#if NDESK_OPTIONS
+namespace NDesk.Options
+#else
+namespace Mono.Options
+#endif
+{
 	public class OptionValueCollection : IList, IList<string> {
 
 		List<string> values = new List<string> ();
@@ -341,7 +345,12 @@ namespace NDesk.Options {
 
 		protected static T Parse<T> (string value, OptionContext c)
 		{
-			TypeConverter conv = TypeDescriptor.GetConverter (typeof (T));
+			Type tt = typeof (T);
+			bool nullable = tt.IsValueType && tt.IsGenericType && 
+				!tt.IsGenericTypeDefinition && 
+				tt.GetGenericTypeDefinition () == typeof (Nullable<>);
+			Type targetType = nullable ? tt.GetGenericArguments () [0] : typeof (T);
+			TypeConverter conv = TypeDescriptor.GetConverter (targetType);
 			T t = default (T);
 			try {
 				if (value != null)

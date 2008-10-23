@@ -28,10 +28,20 @@
 
 using System;
 
+#if NDESK_OPTIONS
 using NDesk.Options;
+#else
+using Mono.Options
+#endif
+
 using NUnit.Framework;
 
-namespace Tests.NDesk.Options {
+#if NDESK_OPTIONS
+namespace Tests.NDesk.Options
+#else
+namespace Tests.Mono.Options
+#endif
+{
 	[TestFixture]
 	public class OptionContextTest {
 		[Test]

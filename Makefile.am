@@ -41,19 +41,19 @@ dist-hook:
 	
 $(nolibdir)/NDesk.Options.dll: $(OPTIONS_SRC)
 	-mkdir -p `dirname $@`
-	$(CSC) -debug+ $(OPTIONS_SRC) -langversion:ISO-2 -t:library -out:$@
+	$(CSC) -debug+ -d:NDESK_OPTIONS $(OPTIONS_SRC) -langversion:ISO-2 -t:library -out:$@
 
 $(nolibdir)/NDesk.Options_test.dll: $(nolibdir)/NDesk.Options.dll $(OPTIONS_TEST_SRC)
 	-mkdir -p `dirname $@`
 	$(CSC) -debug+ -t:library -out:$@ -r:$(nolibdir)/NDesk.Options.dll \
 		-r:nunit.core.dll -r:nunit.framework.dll -r:nunit.util.dll \
-		$(OPTIONS_TEST_SRC) 
+		-d:NDESK_OPTIONS $(OPTIONS_TEST_SRC) 
 
 $(nolibdir)/NDesk.Options_test_linq.dll: $(OPTIONS_SRC) $(OPTIONS_TEST_SRC)
 	-mkdir -p `dirname $@`
 	$(CSC) -debug+ -d:LINQ -t:library -out:$@ \
 		-r:nunit.core.dll -r:nunit.framework.dll -r:nunit.util.dll \
-		$(OPTIONS_SRC) $(OPTIONS_TEST_SRC) 
+		-d:NDESK_OPTIONS $(OPTIONS_SRC) $(OPTIONS_TEST_SRC) 
 
 check: $(nolibdir)/NDesk.Options_test.dll $(nolibdir)/NDesk.Options_test_linq.dll
 	nunit-console2 $(nolibdir)/NDesk.Options_test.dll

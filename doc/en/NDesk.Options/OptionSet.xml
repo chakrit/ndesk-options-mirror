@@ -1412,6 +1412,17 @@ localization: hello:Could not convert string `not-an-int' to type Int32 for opti
             <see cref="T:System.ComponentModel.TypeConverter" /> to use when
             performing the string-to-type conversion.
           </para>
+          <para>
+            Special support is provided for <see cref="T:System.Nullable{X}" />
+            types; <see cref="T:System.ComponentModel.TypeConverter" />
+            doesn't currently support their use, but if 
+            <typeparamref name="T" /> is a nullable type, then this method
+            will instead use the 
+            <see cref="T:System.ComponentModel.TypeConverter" /> for the 
+            <typeparamref name="X" /> type.  This allows straightforward use
+            of nullable types, identical to using any other strongly typed
+            value.
+          </para>
           <block subset="none" type="note">
             <para>
               If <paramref name="prototype" /> specifies an
