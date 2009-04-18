@@ -69,6 +69,7 @@ rpm:
 bin-zip:
 	-rm archive/$(distdir).bin.zip
 	$(MAKE) prefix= DESTDIR=$(distdir).bin install && \
+		mdoc export-msxdoc -o $(distdir).bin/lib/ndesk-options/NDesk.Options.xml $(srcdir)/doc/en && \
 		zip -r archive/$(distdir).bin.zip $(distdir).bin && \
 		rm -Rf $(distdir).bin
 
